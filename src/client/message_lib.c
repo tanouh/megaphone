@@ -1,6 +1,6 @@
 #include "message_lib.h"
 
-#include "../codereq.h"
+#include "../reqcode.h"
 #include "../constants.h"
 #include "../lib.h"
 
@@ -9,14 +9,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define ID_MASK(id) ((id)&ID_MAX)
-
-char *fill_min_header(enum reqcode crq, uint16_t id)
+char *fill_min_header(enum reqcode req, uint16_t id)
 {
 	char *h = malloc(MIN_HEADER);
 	if (h == NULL)
 		return NULL;
-	int dcrq = to_num(crq);
+	int dcrq = reqtoi(req);
 	id = ID_MASK(id);
 	uint16_t tmp = dcrq << ID_BITS | id;
 	tmp = htons(tmp);
@@ -24,20 +22,20 @@ char *fill_min_header(enum reqcode crq, uint16_t id)
 	return h;
 }
 
-char *fill_message(enum reqcode crq, uint32_t id, uint16_t nbthread,
+char *fill_message(enum reqcode req, uint32_t id, uint16_t nbchat,
 		   uint16_t nb, uint8_t datalen, char *data)
 {
 	char *h = malloc(MAX_HEADER + datalen);
 	if (h == NULL)
 		return NULL;
-	char *tmp = fill_min_header(crq, id);
+	char *tmp = fill_min_header(req, id);
 	if (tmp == NULL) {
 		free(h);
 		return NULL;
 	}
 	memcpy(h, tmp, MIN_HEADER);
 	free(tmp);
-	uint16_t be = htons(nbthread);
+	uint16_t be = htons(nbchat);
 	memcpy(h + MIN_HEADER, &be, sizeof(be));
 	be = htons(nb);
 	memcpy(h + 4, &be, sizeof(be));
@@ -61,36 +59,38 @@ char *fill_inscription(char *nickname, int len)
 	return h;
 }
 
-char *push_message(uint16_t id, uint16_t nbthread, uint8_t datalen, char *data)
+char *fill_push_message(uint16_t id, uint16_t nbchat, uint8_t datalen,
+			char *data)
 {
-	return fill_message(PUSH_MESS, id, nbthread, 0, datalen, data);
+	return fill_message(PUSH_MESS, id, nbchat, 0, datalen, data);
 }
 
-char *ask_messages(uint16_t id, uint16_t nbthread, uint16_t nb)
+char *fill_ask_messages(uint16_t id, uint16_t nbchat, uint16_t nb)
 {
-	return fill_message(ASK_MESS, id, nbthread, nb, 0, NULL);
+	return fill_message(ASK_MESS, id, nbchat, nb, 0, NULL);
 }
 
-char *subscribe(uint16_t id, uint16_t nbthread)
+char *fill_subscribe(uint16_t id, uint16_t nbchat)
 {
-	return fill_message(SUBSCRIBE, id, nbthread, 0, 0, NULL);
+	return fill_message(SUBSCRIBE, id, nbchat, 0, 0, NULL);
 }
 
-char *push_file(uint16_t id, uint16_t nbthread, uint8_t datalen, char *data)
+char *fill_push_file(uint16_t id, uint16_t nbchat, uint8_t datalen,
+		     char *data)
 {
-	return fill_message(PUSH_FILE, id, nbthread, 0, datalen, data);
+	return fill_message(PUSH_FILE, id, nbchat, 0, datalen, data);
 }
 
-char *pull_file(uint16_t id, uint16_t nbthread, uint16_t nb, uint16_t datalen,
-		char *data)
+char *fill_pull_file(uint16_t id, uint16_t nbchat, uint16_t nb,
+		     uint16_t datalen, char *data)
 {
-	return fill_message(PULL_FILE, id, nbthread, nb, datalen, data);
+	return fill_message(PULL_FILE, id, nbchat, nb, datalen, data);
 }
 
-char *fill_udp(enum reqcode crq, uint16_t id, uint16_t nb, int datalen,
+char *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
 	       char *data)
 {
-	char *h = fill_min_header(crq, id);
+	char *h = fill_min_header(req, id);
 	if (realloc(h, MIN_HEADER + sizeof(nb) + datalen) == NULL) {
 		return NULL;
 	}
@@ -100,7 +100,7 @@ char *fill_udp(enum reqcode crq, uint16_t id, uint16_t nb, int datalen,
 	return h;
 }
 
-char *push_file_udp(uint16_t id, uint16_t nb, int datalen, char *data)
+char *fill_push_file_udp(uint16_t id, uint16_t nb, int datalen, char *data)
 {
 	return fill_udp(PUSH_FILE, id, nb, datalen, data);
 }

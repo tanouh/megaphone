@@ -5,5 +5,8 @@
 #define ID_MAX 2048
 #define MAX_HEADER 7
 #define MIN_HEADER 2
+#define HEADER_SERVER 6
+#define ADDRMULT_LEN 16
+#define NOTIFICATION_CONTENT 20
 #define ID_BITS 11
 #endif

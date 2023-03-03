@@ -20,30 +20,23 @@ char *fill_min_header(enum reqcode req, uint16_t id);
  * @param id The user id.
  * @param nbchat The chat room number.
  * @param nb Specific number related to the request type.
- * @param datalen The size of the data.
- * @param data The data itself.
  * @return The header filled correctly.
  */
-char *fill_message(enum reqcode req, uint32_t id, uint16_t nbchat, uint16_t nb,
-		   uint8_t datalen, char *data);
+char *fill_message(enum reqcode req, uint32_t id, uint16_t nbchat, uint16_t nb);
 /**
  * @brief Fills the header requested for the inscription.
- * @param username The username.
- * @param len The username length.
+ * @param id The user id.
  * @return the filled message.
  */
-char *fill_inscription(char *username, int len);
+char *fill_inscription(uint16_t id);
 
 /**
  * @brief Shortened version of fill_message for the push message request.
  * @param id The user id.
  * @param nbchat The chat room number.
- * @param datalen The size of message content.
- * @param data The message content.
  * @return The message filled correctly.
  */
-char *fill_push_message(uint16_t id, uint16_t nbchat, uint8_t datalen,
-			char *data);
+char *fill_push_message(uint16_t id, uint16_t nbchat);
 
 /**
  * @brief Shortened version of fill_message for the ask messages request.
@@ -58,31 +51,28 @@ char *fill_ask_messages(uint16_t id, uint16_t nbchat, uint16_t nb);
  * @brief Shortened version of fill_message for the fill_subscribe request.
  * @param id The user id.
  * @param nbchat The chat room number.
+ * @param nb The port number for multi-broadcast.
+ * @param addrmult The ipv6 multi-broadcast address.
  * @return The message filled correctly.
  */
-char *fill_subscribe(uint16_t id, uint16_t nbchat);
+char *fill_subscribe(uint16_t id, uint16_t nbchat, uint16_t nb, char *addrmult);
 
 /**
  * @brief Shortened version of fill_message for the push file request.
  * @param id The user id.
  * @param nbchat The chat room number.
- * @param datalen The file name length.
- * @param data The file name.
  * @return The message filled correctly.
  */
-char *fill_push_file(uint16_t id, uint16_t nbchat, uint8_t datalen, char *data);
+char *fill_push_file(uint16_t id, uint16_t nbchat);
 
 /**
  * @brief Shortened version of fill_message for the pull file request.
  * @param id The user id.
  * @param nbchat The chat room number.
  * @param nb The port number.
- * @param datalen The file name length.
- * @param data The file name.
  * @return The message filled correctly
  */
-char *fill_pull_file(uint16_t id, uint16_t nbchat, uint16_t nb,
-		     uint16_t datalen, char *data);
+char *fill_pull_file(uint16_t id, uint16_t nbchat, uint16_t nb);
 
 /**
  * @brief Fills a generic header containing the given informations.
@@ -105,4 +95,21 @@ char *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
  * @return The messaged filled correctly.
  */
 char *fill_push_file_udp(uint16_t id, uint16_t nb, int datalen, char *data);
+
+/**
+ * @brief Fills error message.
+ * @return The messaged filled correctly.
+ */
+char *fill_error();
+
+/**
+ * @brief Fills the notification message with the given arguments.
+ * @param nbchat The chat room number.
+ * @param owner The owner of the message
+ * @param data The message preview
+ * @param datalen the message length, must be below 20 octets
+ * @return The messaged filled correctly.
+ */
+char *fill_notification(uint16_t nbchat, char *owner, char *data, int datalen);
+
 #endif

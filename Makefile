@@ -69,5 +69,6 @@ $(BUILD_DIR)/%.o: %.c
 
 clean:
 	@rm -rf $(BUILD_DIR)
-	@rm -f $(TARGET) $(TEST_TARGET)
+	@rm -f $(TARGET_SERVER) $(TARGET_CLIENT) $(TEST_TARGET)
+	@rm -f $(TEST_TARGET_SERVER) $(TARGET_TEST_CLIENT)
 

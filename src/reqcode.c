@@ -1,8 +1,8 @@
-#include "codereq.h"
+#include "reqcode.h"
 
-int to_num(enum reqcode crq)
+int reqtoi(enum reqcode req)
 {
-	switch (crq) {
+	switch (req) {
 	case INSCRIPTION:
 		return 1;
 	case PUSH_MESS:
@@ -22,9 +22,9 @@ int to_num(enum reqcode crq)
 	}
 }
 
-enum reqcode to_crq(int cdr)
+enum reqcode itoreq(int req)
 {
-	switch (cdr) {
+	switch (req) {
 	case 1:
 		return INSCRIPTION;
 	case 2:

@@ -1,7 +1,10 @@
+#include "../lib.h"
 #include "message_lib.h"
+
 #include <stdio.h>
 
-int main() {
+int main()
+{
 	printf("Hello world\n");
 	return 0;
 }
