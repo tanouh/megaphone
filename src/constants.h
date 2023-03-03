@@ -1,0 +1,6 @@
+#ifndef MEGAPHONE_CONSTANTS_H
+#define MEGAPHONE_CONSTANTS_H
+
+#define NAMELEN 10
+
+#endif

@@ -22,9 +22,9 @@ TARGET_TEST_CLIENT = $(TEST_DIR)/test_client
 
 #Source files
 SOURCES_SERVER =  $(filter-out $(SRC_DIR_SERVER)/$(TARGET_SERVER).c, \
-		  $(wildcard $(SRC_DIR_SERVER)/*.c))
+		  $(wildcard $(SRC_DIR_SERVER)/*.c)) $(wildcard $(SRC_DIR)/*.c)
 SOURCES_CLIENT = $(filter-out $(SRC_DIR_CLIENT)/$(TARGET_CLIENT).c, \
-		 $(wildcard $(SRC_DIR_CLIENT)/*.c))
+		 $(wildcard $(SRC_DIR_CLIENT)/*.c)) $(wildcard $(SRC_DIR)/*.c)
 TEST_SOURCES = $(wildcard $(TEST_DIR)/*.c)
 
 #Binaries names
@@ -41,8 +41,8 @@ DEPENDENCIES = \
 	       $(OBJECTS_CLIENT:%.o=%.d) \
 	       $(TEST_OBJECTS:%.o=%.d) \
 	       $(TARGET_OBJECT_CLIENT:%.o:%.d) \
-	       $(TARGET_OBJECT_SERVER:%.o:%.d) 
-		
+	       $(TARGET_OBJECT_SERVER:%.o:%.d)
+
 
 #JOBS
 all: $(TARGET)
