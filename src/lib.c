@@ -60,4 +60,5 @@ char *ntohx(char *h, int len)
 		ret[len - 1] = '0';
 		ret[len] = h[0];
 	}
+	return ret;
 }

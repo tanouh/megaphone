@@ -1,13 +1,13 @@
 #include "codereq.h"
 
-int to_num(enum codereq crq)
+int to_num(enum reqcode crq)
 {
 	switch (crq) {
 	case INSCRIPTION:
 		return 1;
 	case PUSH_MESS:
 		return 2;
-	case ASK_N:
+	case ASK_MESS:
 		return 3;
 	case SUBSCRIBE:
 		return 4;
@@ -22,7 +22,7 @@ int to_num(enum codereq crq)
 	}
 }
 
-enum codereq to_crq(int cdr)
+enum reqcode to_crq(int cdr)
 {
 	switch (cdr) {
 	case 1:
@@ -30,7 +30,7 @@ enum codereq to_crq(int cdr)
 	case 2:
 		return PUSH_MESS;
 	case 3:
-		return ASK_N;
+		return ASK_MESS;
 	case 4:
 		return SUBSCRIBE;
 	case 5:
