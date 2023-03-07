@@ -1,5 +1,7 @@
 #include "lib.h"
 
+#include "reqcode.h"
+
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,4 +63,31 @@ char *ntohx(char *h, int len)
 		ret[len] = h[0];
 	}
 	return ret;
+}
+
+char *fill_min_header(enum reqcode req, uint16_t id)
+{
+	char *h = malloc(MIN_HEADER);
+	if (h == NULL)
+		return NULL;
+	int dcrq = reqtoi(req);
+	id = ID_MASK(id);
+	uint16_t tmp = dcrq << ID_BITS | id;
+	tmp = htons(tmp);
+	memcpy(h, &tmp, sizeof(tmp));
+	return h;
+}
+
+int fill_buffer(const char *msg, char **buf, int size)
+{
+	if (buf != NULL) {
+		if ((*buf = malloc(size)) == NULL)
+			return -1;
+		if (memcpy(buf, msg, size) == NULL) {
+			free(*buf);
+			*buf = NULL;
+			return -1;
+		}
+	}
+	return 0;
 }

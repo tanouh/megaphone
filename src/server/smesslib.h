@@ -1,18 +1,9 @@
-#ifndef MEGAPHONE_MESSAGE_LIB_H
-#define MEGAPHONE_MESSAGE_LIB_H
+#ifndef MEGAPHONE_SMESSLIB_H
+#define MEGAPHONE_SMESSLIB_H
 
 #include "../reqcode.h"
 
 #include <arpa/inet.h>
-
-/**
- * @brief Fills the minimal header containing the user unique id ans the request
- * code.
- * @param req The request code.
- * @param id The user id.
- * @return The header filled correctly.
- */
-char *fill_min_header(enum reqcode req, uint16_t id);
 
 /**
  * @brief Fills a generic header containing the given informations.
