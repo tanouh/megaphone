@@ -8,8 +8,8 @@ LDLIBS = -lreadline -lc
 #Build directory
 BUILD_DIR = build
 SRC_DIR = src
-SRC_DIR_SERVER = $(SRC)/server
-SRC_DIR_CLIENT = $(SRC)/client
+SRC_DIR_SERVER = $(SRC_DIR)/server
+SRC_DIR_CLIENT = $(SRC_DIR)/client
 TEST_DIR = tests
 
 
