@@ -71,8 +71,7 @@ char *fill_min_header(enum reqcode req, uint16_t id)
 	if (h == NULL)
 		return NULL;
 	int dcrq = reqtoi(req);
-	id = ID_MASK(id);
-	uint16_t tmp = dcrq << ID_BITS | id;
+	uint16_t tmp = dcrq | (id >> REQ_BITS);
 	tmp = htons(tmp);
 	memcpy(h, &tmp, sizeof(tmp));
 	return h;

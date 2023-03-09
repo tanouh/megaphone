@@ -186,3 +186,27 @@ int get_notification_message(const char *msg, enum reqcode *req, uint16_t *id,
 
 	return 0;
 }
+
+int get_udp_message(const char *msg, int msglen, enum reqcode *req,
+		    uint16_t *id, uint16_t *block, uint16_t *datalen,
+		    char **data)
+{
+	int err;
+	if ((err = get_message(msg, req, id, block, NULL)) != 0)
+		return err;
+	msg += HEADER_SERVER - 2;
+	msglen -= HEADER_SERVER - 2;
+	if (msglen <= 0) {
+		if (data != NULL)
+			*data = NULL;
+		if (datalen != NULL)
+			*datalen = 0;
+		return 0;
+	}
+	if (datalen == NULL || data == NULL)
+		return -1;
+	*datalen = msglen;
+	if (fill_buffer(msg, data, msglen) == -1)
+		return -1;
+	return 0;
+}

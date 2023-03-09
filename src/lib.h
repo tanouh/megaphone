@@ -6,9 +6,8 @@
 
 #include <arpa/inet.h>
 
-#define ID_MASK(id) ((id)&ID_MAX)
-#define REQ_MASK(rq) ((rq) >> ID_BITS)
-
+#define ID_MASK(id) ((id) << REQ_BITS)
+#define REQ_MASK(rq) ((rq) & REQ_MAX)
 char *htonx(char *h, int len);
 char *ntohx(char *h, int len);
 

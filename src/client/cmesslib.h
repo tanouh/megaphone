@@ -110,4 +110,8 @@ int get_subscribed_message(const char *msg, enum reqcode *req, uint16_t *id,
 
 int get_notification_message(const char *msg, enum reqcode *req, uint16_t *id,
 			     uint16_t *chat, char **owner, char **data);
+
+int get_udp_message(const char *msg, int msglen, enum reqcode *req,
+		    uint16_t *id, uint16_t *block, uint16_t *datalen,
+		    char **data);
 #endif
