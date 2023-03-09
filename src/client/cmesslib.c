@@ -9,13 +9,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *fill_message(enum reqcode req, uint16_t id, uint16_t chat, uint16_t nb,
-		   uint8_t datalen, const char *data)
+void *fill_message(enum reqcode req, uint16_t id, uint16_t chat, uint16_t nb,
+		   uint8_t datalen, const void *data)
 {
-	char *h = malloc(MAX_HEADER + datalen);
+	void *h = malloc(MAX_HEADER + datalen);
 	if (h == NULL)
 		return NULL;
-	char *tmp = fill_min_header(req, id);
+	void *tmp = fill_min_header(req, id);
 	if (tmp == NULL) {
 		free(h);
 		return NULL;
@@ -32,9 +32,9 @@ char *fill_message(enum reqcode req, uint16_t id, uint16_t chat, uint16_t nb,
 	return h;
 }
 
-char *fill_inscription(const char *nickname, int len)
+void *fill_inscription(const void *nickname, int len)
 {
-	char *h = fill_min_header(1, 0);
+	void *h = fill_min_header(1, 0);
 	if (h == NULL)
 		return NULL;
 	if (realloc(h, MIN_HEADER + NAMELEN) == NULL) {
@@ -46,38 +46,38 @@ char *fill_inscription(const char *nickname, int len)
 	return h;
 }
 
-char *fill_push_message(uint16_t id, uint16_t chat, uint8_t datalen,
-			const char *data)
+void *fill_push_message(uint16_t id, uint16_t chat, uint8_t datalen,
+			const void *data)
 {
 	return fill_message(PUSH_MESS, id, chat, 0, datalen, data);
 }
 
-char *fill_ask_messages(uint16_t id, uint16_t chat, uint16_t nb)
+void *fill_ask_messages(uint16_t id, uint16_t chat, uint16_t nb)
 {
 	return fill_message(ASK_MESS, id, chat, nb, 0, NULL);
 }
 
-char *fill_subscribe(uint16_t id, uint16_t chat)
+void *fill_subscribe(uint16_t id, uint16_t chat)
 {
 	return fill_message(SUBSCRIBE, id, chat, 0, 0, NULL);
 }
 
-char *fill_push_file(uint16_t id, uint16_t chat, uint8_t datalen,
-		     const char *data)
+void *fill_push_file(uint16_t id, uint16_t chat, uint8_t datalen,
+		     const void *data)
 {
 	return fill_message(PUSH_FILE, id, chat, 0, datalen, data);
 }
 
-char *fill_pull_file(uint16_t id, uint16_t chat, uint16_t nb, uint16_t datalen,
-		     const char *data)
+void *fill_pull_file(uint16_t id, uint16_t chat, uint16_t nb, uint16_t datalen,
+		     const void *data)
 {
 	return fill_message(PULL_FILE, id, chat, nb, datalen, data);
 }
 
-char *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
-	       const char *data)
+void *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
+	       const void *data)
 {
-	char *h = fill_min_header(req, id);
+	void *h = fill_min_header(req, id);
 	if (realloc(h, MIN_HEADER + sizeof(nb) + datalen) == NULL) {
 		return NULL;
 	}
@@ -87,25 +87,19 @@ char *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
 	return h;
 }
 
-char *fill_push_file_udp(uint16_t id, uint16_t nb, int datalen,
-			 const char *data)
+void *fill_push_file_udp(uint16_t id, uint16_t nb, int datalen,
+			 const void *data)
 {
 	return fill_udp(PUSH_FILE, id, nb, datalen, data);
 }
 
-int get_message(const char *msg, enum reqcode *req, uint16_t *id,
+int get_message(const void *msg, enum reqcode *req, uint16_t *id,
 		uint16_t *chat, uint16_t *nb)
 {
 	uint16_t buf;
 	int s = sizeof(buf);
-	if (memcpy(&buf, msg, s) == NULL)
+	if (get_min_header(msg, req, id) != 0)
 		return -1;
-	msg += s;
-	buf = ntohs(buf);
-	if (req != NULL)
-		*req = itoreq(REQ_MASK(buf));
-	if (id != NULL)
-		*id = ID_MASK(buf);
 	if (memcpy(&buf, msg, s) == NULL)
 		return -1;
 	if (chat != NULL)
@@ -121,8 +115,8 @@ int get_message(const char *msg, enum reqcode *req, uint16_t *id,
 		return 0;
 }
 
-int get_asked_messages(const char *msg, uint16_t *chat, char **origin,
-		       char **owner, uint8_t *datalen, char **data)
+int get_asked_messages(const void *msg, uint16_t *chat, void **origin,
+		       void **owner, uint8_t *datalen, void **data)
 {
 	uint16_t buf;
 	int s = sizeof(buf);
@@ -155,8 +149,8 @@ error_free:
 	return -1;
 }
 
-int get_subscribed_message(const char *msg, enum reqcode *req, uint16_t *id,
-			   uint16_t *chat, uint16_t *nb, char **addr)
+int get_subscribed_message(const void *msg, enum reqcode *req, uint16_t *id,
+			   uint16_t *chat, uint16_t *nb, void **addr)
 {
 	int err;
 	if ((err = get_message(msg, req, id, chat, nb)) != 0)
@@ -167,8 +161,8 @@ int get_subscribed_message(const char *msg, enum reqcode *req, uint16_t *id,
 	return 0;
 }
 
-int get_notification_message(const char *msg, enum reqcode *req, uint16_t *id,
-			     uint16_t *chat, char **owner, char **data)
+int get_notification_message(const void *msg, enum reqcode *req, uint16_t *id,
+			     uint16_t *chat, void **owner, void **data)
 {
 	int err;
 	if ((err = get_message(msg, req, id, chat, NULL) != 0))
@@ -187,9 +181,9 @@ int get_notification_message(const char *msg, enum reqcode *req, uint16_t *id,
 	return 0;
 }
 
-int get_udp_message(const char *msg, int msglen, enum reqcode *req,
+int get_udp_message(const void *msg, int msglen, enum reqcode *req,
 		    uint16_t *id, uint16_t *block, uint16_t *datalen,
-		    char **data)
+		    void **data)
 {
 	int err;
 	if ((err = get_message(msg, req, id, block, NULL)) != 0)

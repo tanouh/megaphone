@@ -9,12 +9,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *fill_message(enum reqcode req, uint32_t id, uint16_t nbchat, uint16_t nb)
+void *fill_message(enum reqcode req, uint32_t id, uint16_t nbchat, uint16_t nb)
 {
-	char *h = malloc(MAX_HEADER);
+	void *h = malloc(MAX_HEADER);
 	if (h == NULL)
 		return NULL;
-	char *tmp = fill_min_header(req, id);
+	void *tmp = fill_min_header(req, id);
 	if (tmp == NULL) {
 		free(h);
 		return NULL;
@@ -28,26 +28,26 @@ char *fill_message(enum reqcode req, uint32_t id, uint16_t nbchat, uint16_t nb)
 	return h;
 }
 
-char *fill_inscription(uint16_t id)
+void *fill_inscription(uint16_t id)
 {
 	return fill_message(INSCRIPTION, id, 0, 0);
 }
 
-char *fill_push_message(uint16_t id, uint16_t nbchat)
+void *fill_push_message(uint16_t id, uint16_t nbchat)
 {
 	return fill_message(PUSH_MESS, id, nbchat, 0);
 }
 
-char *fill_ask_messages(uint16_t id, uint16_t nbchat, uint16_t nb)
+void *fill_ask_messages(uint16_t id, uint16_t nbchat, uint16_t nb)
 {
 	return fill_message(ASK_MESS, id, nbchat, nb);
 }
 
-char *fill_asked_message(uint16_t nbchat, char *origin, char *owner,
-			 uint8_t datalen, char *data)
+void *fill_asked_message(uint16_t nbchat, void *origin, void *owner,
+			 uint8_t datalen, void *data)
 {
 	int size = 2 * NAMELEN + sizeof(nbchat) + sizeof(datalen) + datalen;
-	char *m = malloc(size);
+	void *m = malloc(size);
 	if (m == NULL) {
 		return NULL;
 	}
@@ -60,9 +60,9 @@ char *fill_asked_message(uint16_t nbchat, char *origin, char *owner,
 	return m;
 }
 
-char *fill_subscribe(uint16_t id, uint16_t nbchat, uint16_t nb, char *addrmult)
+void *fill_subscribe(uint16_t id, uint16_t nbchat, uint16_t nb, void *addrmult)
 {
-	char *m = fill_message(SUBSCRIBE, id, nbchat, nb);
+	void *m = fill_message(SUBSCRIBE, id, nbchat, nb);
 	if (realloc(m, HEADER_SERVER + ADDRMULT_LEN) == NULL) {
 		free(m);
 		return NULL;
@@ -71,11 +71,11 @@ char *fill_subscribe(uint16_t id, uint16_t nbchat, uint16_t nb, char *addrmult)
 	return m;
 }
 
-char *fill_notification(uint16_t nbchat, char *owner, char *data, int datalen)
+void *fill_notification(uint16_t nbchat, void *owner, void *data, int datalen)
 {
 	if (datalen > NOTIFICATION_CONTENT)
 		datalen = NOTIFICATION_CONTENT;
-	char *m = fill_message(SUBSCRIBE, 0, nbchat, 0);
+	void *m = fill_message(SUBSCRIBE, 0, nbchat, 0);
 	int nsize = HEADER_SERVER - 2 + NAMELEN + NOTIFICATION_CONTENT;
 	if (realloc(m, nsize) == NULL) {
 		free(m);
@@ -87,20 +87,20 @@ char *fill_notification(uint16_t nbchat, char *owner, char *data, int datalen)
 	return m;
 }
 
-char *fill_push_file(uint16_t id, uint16_t nbchat)
+void *fill_push_file(uint16_t id, uint16_t nbchat)
 {
 	return fill_message(PUSH_FILE, id, nbchat, 0);
 }
 
-char *fill_pull_file(uint16_t id, uint16_t nbchat, uint16_t nb)
+void *fill_pull_file(uint16_t id, uint16_t nbchat, uint16_t nb)
 {
 	return fill_message(PULL_FILE, id, nbchat, nb);
 }
 
-char *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
-	       char *data)
+void *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
+	       void *data)
 {
-	char *h = fill_min_header(req, id);
+	void *h = fill_min_header(req, id);
 	if (realloc(h, MIN_HEADER + sizeof(nb) + datalen) == NULL) {
 		return NULL;
 	}
@@ -110,12 +110,55 @@ char *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
 	return h;
 }
 
-char *fill_push_file_udp(uint16_t id, uint16_t nb, int datalen, char *data)
+void *fill_push_file_udp(uint16_t id, uint16_t nb, int datalen, void *data)
 {
 	return fill_udp(PUSH_FILE, id, nb, datalen, data);
 }
 
-char *fill_error()
+void *fill_error()
 {
 	return fill_message(ERROR, 0, 0, 0);
+}
+
+int get_message(const void *msg, enum reqcode *req, uint16_t *id,
+		  uint16_t *chat, uint16_t *nb, uint8_t *datalen, void **data)
+{
+	if (get_min_header(msg, req, id) != 0)
+		return -1;
+	msg += MIN_HEADER;
+	if (chat != NULL) {
+		if (memcpy(chat, msg, sizeof(*chat)) == NULL)
+			return -1;
+	}
+	msg += sizeof(*chat);
+	if(nb != NULL) {
+		if (memcpy(nb, msg, sizeof(*nb)) == NULL)
+			return -1;
+	}
+	msg += sizeof(*nb);
+	if (nb == NULL || data == NULL)
+		return -1;
+	if (memcpy(datalen, msg, sizeof(*datalen)) == NULL)
+		return -1;
+	msg += sizeof(*datalen);
+	if (fill_buffer(msg, data, *datalen) != 0)
+		return -1;
+	return 0;
+}
+
+int get_udp(const void *msg, uint16_t msglen, enum reqcode *req, uint16_t *id, uint16_t *block, uint16_t *datalen, void **data) {
+	if (get_min_header(msg, req, id) != 0)
+		return -1;
+	msg += MIN_HEADER;
+	if(block != NULL) {
+		if (memcpy(block, msg, sizeof(*block)) == NULL)
+			return -1;
+	}
+	msg += sizeof(*block);
+	if (datalen == NULL || data == NULL)
+		return -1;
+	*datalen = msglen - sizeof(*block) - MIN_HEADER;
+	if (fill_buffer(msg, data, *datalen) != 0)
+		return -1;
+	return 0;
 }

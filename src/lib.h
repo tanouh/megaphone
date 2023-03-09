@@ -8,8 +8,6 @@
 
 #define ID_MASK(id) ((id) << REQ_BITS)
 #define REQ_MASK(rq) ((rq) & REQ_MAX)
-char *htonx(char *h, int len);
-char *ntohx(char *h, int len);
 
 /**
  * @brief Fills the minimal header containing the user unique id ans the request
@@ -18,8 +16,10 @@ char *ntohx(char *h, int len);
  * @param id The user id.
  * @return The header filled correctly.
  */
-char *fill_min_header(enum reqcode req, uint16_t id);
+void *fill_min_header(enum reqcode req, uint16_t id);
 
-int fill_buffer(const char *msg, char **buf, int size);
+int fill_buffer(const void *msg, void **buf, int size);
+
+int get_min_header(const void *msg, enum reqcode *req, uint16_t *id);
 
 #endif

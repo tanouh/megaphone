@@ -15,15 +15,15 @@
  * @param data The data itself.
  * @return The header filled correctly.
  */
-char *fill_message(enum reqcode req, uint16_t id, uint16_t chat, uint16_t nb,
-		   uint8_t datalen, const char *data);
+void *fill_message(enum reqcode req, uint16_t id, uint16_t chat, uint16_t nb,
+		   uint8_t datalen, const void *data);
 /**
  * @brief Fills the header requested for the inscription.
  * @param username The username.
  * @param len The username length.
  * @return the filled message.
  */
-char *fill_inscription(const char *username, int len);
+void *fill_inscription(const void *username, int len);
 
 /**
  * @brief Shortened version of fill_message for the push message request.
@@ -33,8 +33,8 @@ char *fill_inscription(const char *username, int len);
  * @param data The message content.
  * @return The message filled correctly.
  */
-char *fill_push_message(uint16_t id, uint16_t chat, uint8_t datalen,
-			const char *data);
+void *fill_push_message(uint16_t id, uint16_t chat, uint8_t datalen,
+			const void *data);
 
 /**
  * @brief Shortened version of fill_message for the ask messages request.
@@ -43,7 +43,7 @@ char *fill_push_message(uint16_t id, uint16_t chat, uint8_t datalen,
  * @param nb Number of asked messages, O for all messages
  * @return The message filled correctly.
  */
-char *fill_ask_messages(uint16_t id, uint16_t chat, uint16_t nb);
+void *fill_ask_messages(uint16_t id, uint16_t chat, uint16_t nb);
 
 /**
  * @brief Shortened version of fill_message for the fill_subscribe request.
@@ -51,7 +51,7 @@ char *fill_ask_messages(uint16_t id, uint16_t chat, uint16_t nb);
  * @param chat The chat room number.
  * @return The message filled correctly.
  */
-char *fill_subscribe(uint16_t id, uint16_t chat);
+void *fill_subscribe(uint16_t id, uint16_t chat);
 
 /**
  * @brief Shortened version of fill_message for the push file request.
@@ -61,8 +61,8 @@ char *fill_subscribe(uint16_t id, uint16_t chat);
  * @param data The file name.
  * @return The message filled correctly.
  */
-char *fill_push_file(uint16_t id, uint16_t chat, uint8_t datalen,
-		     const char *data);
+void *fill_push_file(uint16_t id, uint16_t chat, uint8_t datalen,
+		     const void *data);
 
 /**
  * @brief Shortened version of fill_message for the pull file request.
@@ -73,8 +73,8 @@ char *fill_push_file(uint16_t id, uint16_t chat, uint8_t datalen,
  * @param data The file name.
  * @return The message filled correctly
  */
-char *fill_pull_file(uint16_t id, uint16_t chat, uint16_t nb, uint16_t datalen,
-		     const char *data);
+void *fill_pull_file(uint16_t id, uint16_t chat, uint16_t nb, uint16_t datalen,
+		     const void *data);
 
 /**
  * @brief Fills a generic header containing the given informations.
@@ -85,8 +85,8 @@ char *fill_pull_file(uint16_t id, uint16_t chat, uint16_t nb, uint16_t datalen,
  * @param data The data itself.
  * @return The messaged filled correctly.
  */
-char *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
-	       const char *data);
+void *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
+	       const void *data);
 
 /**
  * @brief Shortened version of fill_udp for the push file request.
@@ -96,22 +96,22 @@ char *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
  * @param data The data itself.
  * @return The messaged filled correctly.
  */
-char *fill_push_file_udp(uint16_t id, uint16_t nb, int datalen,
-			 const char *data);
+void *fill_push_file_udp(uint16_t id, uint16_t nb, int datalen,
+			 const void *data);
 
-int get_message(const char *msg, enum reqcode *req, uint16_t *id,
+int get_message(const void *msg, enum reqcode *req, uint16_t *id,
 		uint16_t *chat, uint16_t *nb);
 
-int get_asked_messages(const char *msg, uint16_t *chat, char **origin,
-		       char **owner, uint8_t *datalen, char **data);
+int get_asked_messages(const void *msg, uint16_t *chat, void **origin,
+		       void **owner, uint8_t *datalen, void **data);
 
-int get_subscribed_message(const char *msg, enum reqcode *req, uint16_t *id,
-			   uint16_t *chat, uint16_t *nb, char **addr);
+int get_subscribed_message(const void *msg, enum reqcode *req, uint16_t *id,
+			   uint16_t *chat, uint16_t *nb, void **addr);
 
-int get_notification_message(const char *msg, enum reqcode *req, uint16_t *id,
-			     uint16_t *chat, char **owner, char **data);
+int get_notification_message(const void *msg, enum reqcode *req, uint16_t *id,
+			     uint16_t *chat, void **owner, void **data);
 
-int get_udp_message(const char *msg, int msglen, enum reqcode *req,
+int get_udp_message(const void *msg, int msglen, enum reqcode *req,
 		    uint16_t *id, uint16_t *block, uint16_t *datalen,
-		    char **data);
+		    void **data);
 #endif

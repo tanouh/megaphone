@@ -13,13 +13,13 @@
  * @param nb Specific number related to the request type.
  * @return The header filled correctly.
  */
-char *fill_message(enum reqcode req, uint32_t id, uint16_t nbchat, uint16_t nb);
+void *fill_message(enum reqcode req, uint32_t id, uint16_t nbchat, uint16_t nb);
 /**
  * @brief Fills the header requested for the inscription.
  * @param id The user id.
  * @return the filled message.
  */
-char *fill_inscription(uint16_t id);
+void *fill_inscription(uint16_t id);
 
 /**
  * @brief Shortened version of fill_message for the push message request.
@@ -27,7 +27,7 @@ char *fill_inscription(uint16_t id);
  * @param nbchat The chat room number.
  * @return The message filled correctly.
  */
-char *fill_push_message(uint16_t id, uint16_t nbchat);
+void *fill_push_message(uint16_t id, uint16_t nbchat);
 
 /**
  * @brief Shortened version of fill_message for the ask messages request.
@@ -36,7 +36,7 @@ char *fill_push_message(uint16_t id, uint16_t nbchat);
  * @param nb Number of asked messages, O for all messages
  * @return The message filled correctly.
  */
-char *fill_ask_messages(uint16_t id, uint16_t nbchat, uint16_t nb);
+void *fill_ask_messages(uint16_t id, uint16_t nbchat, uint16_t nb);
 
 /**
  * @brief Shortened version of fill_message for the fill_subscribe request.
@@ -46,7 +46,7 @@ char *fill_ask_messages(uint16_t id, uint16_t nbchat, uint16_t nb);
  * @param addrmult The ipv6 multi-broadcast address.
  * @return The message filled correctly.
  */
-char *fill_subscribe(uint16_t id, uint16_t nbchat, uint16_t nb, char *addrmult);
+void *fill_subscribe(uint16_t id, uint16_t nbchat, uint16_t nb, void *addrmult);
 
 /**
  * @brief Shortened version of fill_message for the push file request.
@@ -54,7 +54,7 @@ char *fill_subscribe(uint16_t id, uint16_t nbchat, uint16_t nb, char *addrmult);
  * @param nbchat The chat room number.
  * @return The message filled correctly.
  */
-char *fill_push_file(uint16_t id, uint16_t nbchat);
+void *fill_push_file(uint16_t id, uint16_t nbchat);
 
 /**
  * @brief Shortened version of fill_message for the pull file request.
@@ -63,7 +63,7 @@ char *fill_push_file(uint16_t id, uint16_t nbchat);
  * @param nb The port number.
  * @return The message filled correctly
  */
-char *fill_pull_file(uint16_t id, uint16_t nbchat, uint16_t nb);
+void *fill_pull_file(uint16_t id, uint16_t nbchat, uint16_t nb);
 
 /**
  * @brief Fills a generic header containing the given informations.
@@ -74,8 +74,8 @@ char *fill_pull_file(uint16_t id, uint16_t nbchat, uint16_t nb);
  * @param data The data itself.
  * @return The messaged filled correctly.
  */
-char *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
-	       char *data);
+void *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
+	       void *data);
 
 /**
  * @brief Shortened version of fill_udp for the push file request.
@@ -85,13 +85,13 @@ char *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
  * @param data The data itself.
  * @return The messaged filled correctly.
  */
-char *fill_push_file_udp(uint16_t id, uint16_t nb, int datalen, char *data);
+void *fill_push_file_udp(uint16_t id, uint16_t nb, int datalen, void *data);
 
 /**
  * @brief Fills error message.
  * @return The messaged filled correctly.
  */
-char *fill_error();
+void *fill_error();
 
 /**
  * @brief Fills the notification message with the given arguments.
@@ -101,6 +101,6 @@ char *fill_error();
  * @param datalen the message length, must be below 20 octets
  * @return The messaged filled correctly.
  */
-char *fill_notification(uint16_t nbchat, char *owner, char *data, int datalen);
+void *fill_notification(uint16_t nbchat, void *owner, void *data, int datalen);
 
 #endif
