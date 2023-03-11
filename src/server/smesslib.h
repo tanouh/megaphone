@@ -103,4 +103,10 @@ void *fill_error();
  */
 void *fill_notification(uint16_t nbchat, void *owner, void *data, int datalen);
 
+int get_message(const void *msg, enum reqcode *req, uint16_t *id,
+		uint16_t *chat, uint16_t *nb, uint8_t *datalen, void **data);
+
+int get_udp(const void *msg, uint16_t msglen, enum reqcode *req, uint16_t *id,
+	    uint16_t *block, uint16_t *datalen, void **data);
+
 #endif

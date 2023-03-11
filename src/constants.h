@@ -10,5 +10,5 @@
 #define ADDRMULT_LEN 16
 #define NOTIFICATION_CONTENT 20
 #define ID_BITS 11
-#define REQ_BITS 5 
+#define REQ_BITS 5
 #endif

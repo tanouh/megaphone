@@ -33,7 +33,8 @@ int fill_buffer(const void *msg, void **buf, int size)
 	return 0;
 }
 
-int get_min_header(const void *msg, enum reqcode *req, uint16_t *id) {
+int get_min_header(const void *msg, enum reqcode *req, uint16_t *id)
+{
 	uint16_t buf;
 
 	if (memcpy(&buf, msg, sizeof(buf)) == NULL)

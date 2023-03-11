@@ -7,7 +7,7 @@
 #include <arpa/inet.h>
 
 #define ID_MASK(id) ((id) << REQ_BITS)
-#define REQ_MASK(rq) ((rq) & REQ_MAX)
+#define REQ_MASK(rq) ((rq)&REQ_MAX)
 
 /**
  * @brief Fills the minimal header containing the user unique id ans the request

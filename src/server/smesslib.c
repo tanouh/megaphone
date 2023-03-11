@@ -121,7 +121,7 @@ void *fill_error()
 }
 
 int get_message(const void *msg, enum reqcode *req, uint16_t *id,
-		  uint16_t *chat, uint16_t *nb, uint8_t *datalen, void **data)
+		uint16_t *chat, uint16_t *nb, uint8_t *datalen, void **data)
 {
 	if (get_min_header(msg, req, id) != 0)
 		return -1;
@@ -131,7 +131,7 @@ int get_message(const void *msg, enum reqcode *req, uint16_t *id,
 			return -1;
 	}
 	msg += sizeof(*chat);
-	if(nb != NULL) {
+	if (nb != NULL) {
 		if (memcpy(nb, msg, sizeof(*nb)) == NULL)
 			return -1;
 	}
@@ -146,11 +146,13 @@ int get_message(const void *msg, enum reqcode *req, uint16_t *id,
 	return 0;
 }
 
-int get_udp(const void *msg, uint16_t msglen, enum reqcode *req, uint16_t *id, uint16_t *block, uint16_t *datalen, void **data) {
+int get_udp(const void *msg, uint16_t msglen, enum reqcode *req, uint16_t *id,
+	    uint16_t *block, uint16_t *datalen, void **data)
+{
 	if (get_min_header(msg, req, id) != 0)
 		return -1;
 	msg += MIN_HEADER;
-	if(block != NULL) {
+	if (block != NULL) {
 		if (memcpy(block, msg, sizeof(*block)) == NULL)
 			return -1;
 	}
