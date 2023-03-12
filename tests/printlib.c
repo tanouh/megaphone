@@ -11,8 +11,8 @@ void print_serv(char *msg){
 	pthread_mutex_unlock(&mserv);
 }
 
-void print_client(char *msg, int id){
+void print_client(char *msg){
 	pthread_mutex_lock(&mserv);
-	printf("\x1B[36m[CLIENT %d]\x1B[0m: %s", id, msg);
+	printf("%s: %s",CLIENT,  msg);
 	pthread_mutex_unlock(&mserv);
 }

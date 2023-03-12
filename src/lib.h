@@ -6,7 +6,7 @@
 
 #include <arpa/inet.h>
 
-#define ID_MASK(id) ((id) << REQ_BITS)
+#define ID_MASK(id) ((id) >> REQ_BITS)
 #define REQ_MASK(rq) ((rq)&REQ_MAX)
 
 /**
@@ -21,5 +21,7 @@ void *fill_min_header(enum reqcode req, uint16_t id);
 int fill_buffer(const void *msg, void **buf, int size);
 
 int get_min_header(const void *msg, enum reqcode *req, uint16_t *id);
+
+void *malloc_return(int ret);
 
 #endif

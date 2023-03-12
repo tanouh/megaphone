@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 void *fill_min_header(enum reqcode req, uint16_t id)
 {
@@ -13,8 +14,9 @@ void *fill_min_header(enum reqcode req, uint16_t id)
 	if (h == NULL)
 		return NULL;
 	int dcrq = reqtoi(req);
-	uint16_t tmp = dcrq | (id >> REQ_BITS);
+	uint16_t tmp = dcrq | (id << REQ_BITS);
 	tmp = htons(tmp);
+
 	memcpy(h, &tmp, sizeof(tmp));
 	return h;
 }
@@ -22,14 +24,19 @@ void *fill_min_header(enum reqcode req, uint16_t id)
 int fill_buffer(const void *msg, void **buf, int size)
 {
 	if (buf != NULL) {
+		if (size == 0) {
+			*buf = NULL;
+			return 0;
+		}
 		if ((*buf = malloc(size)) == NULL)
 			return -1;
-		if (memcpy(buf, msg, size) == NULL) {
+		if (memcpy(*buf, msg, size) == NULL) {
 			free(*buf);
 			*buf = NULL;
 			return -1;
 		}
 	}
+
 	return 0;
 }
 
@@ -45,4 +52,10 @@ int get_min_header(const void *msg, enum reqcode *req, uint16_t *id)
 	if (id != NULL)
 		*id = ID_MASK(buf);
 	return 0;
+}
+
+void *malloc_return(int ret) {
+	void *p = malloc(sizeof(ret));
+	*(int*) p = ret;
+	return p;
 }

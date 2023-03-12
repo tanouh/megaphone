@@ -18,6 +18,7 @@ It will test server functions and the communication with the client.
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "../../src/lib.h"
 
 #define NBTEST 1
 #define NBCLIENT 1
@@ -70,7 +71,7 @@ void *test_network()
 	int server = create_server();
 	kill(getppid(), SIGUSR1);
 	if (server < 0)
-		return (void *)ESYS;
+		return malloc_return(ESYS);
 	pthread_t pts[NBCLIENT];
 	int *scs = calloc(NBCLIENT, sizeof(int));
 	int cpt = 0;
@@ -81,16 +82,29 @@ void *test_network()
 		scs[cpt] = accept(server, (struct sockaddr *)&addr, &addrlen);
 		if (scs[cpt] < 0) {
 			perror("accept");
-			return (void *)1;
+			return NULL;
 		}
+		print_connected_client(addr);
 		if (pthread_create(pts + cpt, NULL, test_smesslib, scs + cpt) !=
 		    0) {
 			perror("thread create");
-			return (void *)1;
+			return NULL;
 		}
 		cpt++;
 	}
-	return NULL;
+	int ret = 1;
+	for (int i = 0; i < NBCLIENT; i++) {
+		int *tmp;
+		if (pthread_join(pts[i], (void *)&tmp) != 0)
+			perror("thread join");
+		if (tmp != NULL) {
+			ret |= *tmp;
+			free(tmp);
+		} else {
+			ret = 1;
+		}
+	}
+	return (ret) ? malloc_return(ret) : NULL;
 }
 
 int main()
@@ -99,14 +113,24 @@ int main()
 	if (pthread_create(pts, NULL, (void *(*)(void *))test_network, NULL) ==
 	    -1) {
 		perror("Thread didn't laucnhed");
+		return ESYS;
 	}
 
-	int ret = 0;
+	int ret = 1;
+	print_serv("Waiting for thread to finish...\n");
 	for (int i = 0; i < NBTEST; i++) {
-		int tmp;
+		int *tmp;
 		if (pthread_join(pts[i], (void *)&tmp) != 0)
 			perror("thread join");
-		ret |= tmp;
+		if (tmp != NULL) {
+			ret &= *tmp;
+			free(tmp);
+		} else {
+			ret = 0;
+		}
 	}
-	return ret;
+	char buf[512];
+	sprintf(buf,"End of server (%d)\n", !ret);
+	print_serv(buf);
+	return !ret;
 }

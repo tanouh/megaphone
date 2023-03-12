@@ -16,14 +16,14 @@
  * @return The header filled correctly.
  */
 void *fill_message(enum reqcode req, uint16_t id, uint16_t chat, uint16_t nb,
-		   uint8_t datalen, const void *data);
+		   uint8_t datalen, const void *data, int *size_msg);
 /**
  * @brief Fills the header requested for the inscription.
  * @param username The username.
  * @param len The username length.
  * @return the filled message.
  */
-void *fill_inscription(const void *username, int len);
+void *fill_inscription(const void *username, int len, int *size_msg);
 
 /**
  * @brief Shortened version of fill_message for the push message request.
@@ -34,7 +34,7 @@ void *fill_inscription(const void *username, int len);
  * @return The message filled correctly.
  */
 void *fill_push_message(uint16_t id, uint16_t chat, uint8_t datalen,
-			const void *data);
+			const void *data, int *size_msg);
 
 /**
  * @brief Shortened version of fill_message for the ask messages request.
@@ -43,7 +43,7 @@ void *fill_push_message(uint16_t id, uint16_t chat, uint8_t datalen,
  * @param nb Number of asked messages, O for all messages
  * @return The message filled correctly.
  */
-void *fill_ask_messages(uint16_t id, uint16_t chat, uint16_t nb);
+void *fill_ask_messages(uint16_t id, uint16_t chat, uint16_t nb, int *size_msg);
 
 /**
  * @brief Shortened version of fill_message for the fill_subscribe request.
@@ -51,7 +51,7 @@ void *fill_ask_messages(uint16_t id, uint16_t chat, uint16_t nb);
  * @param chat The chat room number.
  * @return The message filled correctly.
  */
-void *fill_subscribe(uint16_t id, uint16_t chat);
+void *fill_subscribe(uint16_t id, uint16_t chat, int *size_msg);
 
 /**
  * @brief Shortened version of fill_message for the push file request.
@@ -62,7 +62,7 @@ void *fill_subscribe(uint16_t id, uint16_t chat);
  * @return The message filled correctly.
  */
 void *fill_push_file(uint16_t id, uint16_t chat, uint8_t datalen,
-		     const void *data);
+		     const void *data, int *size_msg);
 
 /**
  * @brief Shortened version of fill_message for the pull file request.
@@ -74,7 +74,7 @@ void *fill_push_file(uint16_t id, uint16_t chat, uint8_t datalen,
  * @return The message filled correctly
  */
 void *fill_pull_file(uint16_t id, uint16_t chat, uint16_t nb, uint16_t datalen,
-		     const void *data);
+		     const void *data, int *size_msg);
 
 /**
  * @brief Fills a generic header containing the given informations.
@@ -86,7 +86,7 @@ void *fill_pull_file(uint16_t id, uint16_t chat, uint16_t nb, uint16_t datalen,
  * @return The messaged filled correctly.
  */
 void *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
-	       const void *data);
+	       const void *data, int *size_msg);
 
 /**
  * @brief Shortened version of fill_udp for the push file request.
@@ -97,7 +97,7 @@ void *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
  * @return The messaged filled correctly.
  */
 void *fill_push_file_udp(uint16_t id, uint16_t nb, int datalen,
-			 const void *data);
+			 const void *data, int *size_msg);
 
 int get_message(const void *msg, enum reqcode *req, uint16_t *id,
 		uint16_t *chat, uint16_t *nb);

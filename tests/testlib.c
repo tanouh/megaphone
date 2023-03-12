@@ -30,17 +30,52 @@ int test(int (*f)(), const char *name)
 	return res;
 }
 
-int test_c(int (*f)(), const char *name, void *(print)(char *))
+int test_c(int (*f)(), const char *name, void (print)(char *))
 {
-	pthread_mutex_lock(&m1);
-	printf("[TEST] %s...\n", name);
-	pthread_mutex_lock(&m1);
+	char buf[4096];
+	sprintf(buf, "[TEST] %s...\n", name);
+	print(buf);
 	const clock_t tic = clock();
 	int res = f();
 	const time_t toc = clock();
 	const double delta = ((double)toc - tic) * 1000.0 / CLOCKS_PER_SEC;
 	if (res) {
-		char buf[4096];
+		sprintf(buf,"[%sPASSED%s] %s in %f ms \n\n", C_GREEN, C_CLEAR, name,
+		       delta);
+		print(buf);
+	}
+	return res;
+}
+
+int test_arg(int (*f)(void *), void *arg,const char *name)
+{
+	pthread_mutex_lock(&m1);
+	printf("[TEST] %s...\n", name);
+	pthread_mutex_lock(&m1);
+	const clock_t tic = clock();
+	int res = f(arg);
+	const time_t toc = clock();
+	const double delta = ((double)toc - tic) * 1000.0 / CLOCKS_PER_SEC;
+	if (res) {
+		pthread_mutex_lock(&m2);
+		printf("[%sPASSED%s] %s in %f ms \n\n", C_GREEN, C_CLEAR, name,
+		       delta);
+		pthread_mutex_unlock(&m2);
+	}
+	return res;
+}
+
+int test_carg(int (*f)(void *), void *arg, const char *name, void (print)(char *))
+{
+	char buf[4096];
+	sprintf(buf, "[TEST] %s...\n", name);
+	print(buf);
+	const clock_t tic = clock();
+	int res = f(arg);
+	const time_t toc = clock();
+	const double delta = ((double)toc - tic) * 1000.0 / CLOCKS_PER_SEC;
+	if (res) {
+
 		sprintf(buf,"[%sPASSED%s] %s in %f ms \n\n", C_GREEN, C_CLEAR, name,
 		       delta);
 		print(buf);

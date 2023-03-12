@@ -10,23 +10,28 @@
 #include <unistd.h>
 #include <wait.h>
 
-#define NB_TEST 1
+#define NB_TEST 2
 #define NONET "-nonet"
 
 pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t mp = PTHREAD_MUTEX_INITIALIZER;
 pthread_t pts[NB_TEST];
 
-int launch_server(int *pfd);
-int launch_client(int *pfd);
-void *rw_server_client(void *data);
+int launch_server();
+int launch_client();
+void *rw_server(void *data);
 void *rw_client(void *data);
 void print_meg(char *msg);
+int server_created = 0;
+static int spipe;
+static int cpipe;
+
+// TODO: clear code and the part with the pipe or try to fix it
 
 void ign(int sig)
 {
 	if (sig == SIGUSR1)
-		print_meg("Sig received");
+		server_created = 1;
 }
 
 int test_net()
@@ -34,28 +39,29 @@ int test_net()
 	struct sigaction act = {0};
 	act.sa_handler = ign;
 	sigaction(SIGUSR1, &act, NULL);
-	int *p = malloc(sizeof(int));
-	int pfd[2];
-	pipe(pfd);
-	*p = launch_server(pfd);
-	if (*p < 0) {
-		free(p);
+
+	spipe = launch_server();
+	if (spipe < 0) {
+
 		return ESYS;
 	}
-	if (pthread_create(pts, NULL, rw_server_client, p) == -1) {
+	printf("%d\n", spipe);
+	if (pthread_create(pts, NULL, rw_server, NULL) == -1) {
 		perror("Thread rw server");
-		free(p);
 		return ESYS;
 	}
 	print_meg("Waiting...");
-	pause();
+	if (!server_created)
+		pause();
 	print_meg("Done");
-	if (launch_client(pfd) < 0) {
-		free(p);
+	if ((cpipe = launch_client()) < 0) {
+		return ESYS;
+	}
+	if (pthread_create(pts + 1, NULL, rw_client, NULL) == -1) {
+		perror("Thread rw server");
 		return ESYS;
 	}
 	fflush(stdout);
-	free(p);
 	return 0;
 }
 
@@ -88,15 +94,16 @@ void print_meg(char *msg)
 	pthread_mutex_unlock(&mp);
 }
 
-int launch_server(int *pfd)
+int launch_server()
 {
+	int pfd[2];
+	pipe(pfd);
 	print_meg("Launching server");
 	int pid = getpid();
 	switch (fork()) {
 	case 0:
 		close(pfd[0]);
-		dup2(pfd[1], STDOUT_FILENO);
-		dup2(pfd[1], STDERR_FILENO);
+		//dup2(pfd[1], STDOUT_FILENO);
 		execlp(TEST_SERVER, TEST_SERVER, (char *)&pid, NULL);
 		exit(1);
 
@@ -108,15 +115,16 @@ int launch_server(int *pfd)
 	}
 }
 
-int launch_client(int *pfd)
+int launch_client()
 {
 	print_meg("Launching client");
+	int pfd[2];
+	pipe(pfd);
 	int pid = getpid();
 	switch (fork()) {
 	case 0:
 		close(pfd[0]);
-		dup2(pfd[1], STDOUT_FILENO);
-		dup2(pfd[1], STDERR_FILENO);
+		//dup2(spipe, STDOUT_FILENO);
 		execlp(TEST_CLIENT, TEST_CLIENT, (char *)&pid, NULL);
 		exit(1);
 
@@ -136,18 +144,29 @@ int print(const char *buf, int size)
 	return 0;
 }
 
-void *rw_server_client(void *data)
+void *rw_server(void *data)
 {
 	char buf[PIPE_BUF];
-	int ssize = sprintf(buf, "%s: ", SERVER);
-	int spipe = *(int *)data;
+	printf("%d\n", spipe);
 	while (1) {
-		int s = read(spipe, buf, PIPE_BUF - ssize);
+		int s = read(spipe, buf, PIPE_BUF);
 		if (s <= 0) {
 			print_meg("Pipe closed");
-			return 0;
+			return NULL;
 		}
+		print(buf, s);
+	}
+}
 
-		print(buf, s + ssize);
+void *rw_client(void *data)
+{
+	char buf[PIPE_BUF];
+	while (1) {
+		int s = read(cpipe, buf, PIPE_BUF);
+		if (s <= 0) {
+			print_meg("Pipe closed");
+			return NULL;
+		}
+		print(buf, s);
 	}
 }
