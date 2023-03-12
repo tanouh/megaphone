@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 void *fill_message(enum reqcode req, uint16_t id, uint16_t chat, uint16_t nb,
 		   uint8_t datalen, const void *data, int *size_msg)
@@ -39,7 +40,7 @@ void *fill_inscription(const void *nickname, int len, int *size_msg)
 	void *h = fill_min_header(INSCRIPTION, 0);
 	if (h == NULL)
 		return NULL;
-	if (realloc(h, MIN_HEADER + NAMELEN) == NULL) {
+	if ((h = realloc(h, MIN_HEADER + NAMELEN)) == NULL) {
 		free(h);
 		return NULL;
 	}
@@ -82,7 +83,7 @@ void *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
 	       const void *data, int *size_msg)
 {
 	void *h = fill_min_header(req, id);
-	if (realloc(h, MIN_HEADER + sizeof(nb) + datalen) == NULL) {
+	if ((h = realloc(h, MIN_HEADER + sizeof(nb) + datalen)) == NULL) {
 		return NULL;
 	}
 	uint16_t be = htons(nb);
@@ -106,6 +107,7 @@ int get_message(const void *msg, enum reqcode *req, uint16_t *id,
 	int s = sizeof(buf);
 	if (get_min_header(msg, req, id) != 0)
 		return -1;
+	msg += MIN_HEADER;
 	if (memcpy(&buf, msg, s) == NULL)
 		return -1;
 	if (chat != NULL)
@@ -113,8 +115,10 @@ int get_message(const void *msg, enum reqcode *req, uint16_t *id,
 	msg += s;
 	if (memcpy(&buf, msg, s) == NULL)
 		return -1;
-	if (nb != NULL)
+
+	if (nb != NULL) {
 		*nb = ntohs(buf);
+	}
 	if (*req == ERROR)
 		return 1;
 	else
@@ -132,26 +136,36 @@ int get_asked_messages(const void *msg, uint16_t *chat, void **origin,
 	msg += s;
 	if (origin != NULL && fill_buffer(msg, origin, NAMELEN) == -1)
 		goto error_free;
-	msg += s;
+
+	msg += NAMELEN;
+
 	if (owner != NULL && fill_buffer(msg, owner, NAMELEN) == -1)
 		goto error_free;
+	msg += NAMELEN;
 	if (datalen == NULL)
 		return 0;
-	msg += s;
-	s = sizeof(datalen);
+	s = sizeof(*datalen);
+
 	memcpy(datalen, msg, s);
 	msg += s;
-	if (data != NULL && fill_buffer(msg, data, (int)*datalen) == -1)
+	if (data != NULL && fill_buffer(msg, data, *datalen) == -1)
 		goto error_free;
 	return 0;
 
 error_free:
-	if (origin != NULL && *origin != NULL)
+	if (origin != NULL && *origin != NULL) {
 		free(*origin);
-	if (owner != NULL && *owner != NULL)
+		*origin = NULL;
+	}
+
+	if (owner != NULL && *owner != NULL) {
 		free(*owner);
-	if (data != NULL && *data != NULL)
+		*owner = NULL;
+	}
+	if (data != NULL && *data != NULL) {
 		free(*data);
+		*data = NULL;
+	}
 	return -1;
 }
 

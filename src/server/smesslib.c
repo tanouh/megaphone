@@ -63,7 +63,9 @@ void *fill_asked_message(uint16_t nbchat, void *origin, void *owner,
 	memcpy(m + 2 * NAMELEN + sizeof(nbchat) + sizeof(datalen), data,
 	       datalen);
 	if (size_msg != NULL)
-		*size_msg = size + datalen;
+		*size_msg = size;
+	printf("size origin = %lu\n",
+	       2 * NAMELEN + sizeof(nbchat) + sizeof(datalen));
 	return m;
 }
 
@@ -71,7 +73,7 @@ void *fill_subscribe(uint16_t id, uint16_t nbchat, uint16_t nb, void *addrmult,
 		     int *size_msg)
 {
 	void *m = fill_message(SUBSCRIBE, id, nbchat, nb, NULL);
-	if (realloc(m, HEADER_SERVER + ADDRMULT_LEN) == NULL) {
+	if ((m = realloc(m, HEADER_SERVER + ADDRMULT_LEN)) == NULL) {
 		free(m);
 		return NULL;
 	}
@@ -88,7 +90,7 @@ void *fill_notification(uint16_t nbchat, void *owner, void *data, int datalen,
 		datalen = NOTIFICATION_CONTENT;
 	void *m = fill_message(SUBSCRIBE, 0, nbchat, 0, NULL);
 	int nsize = HEADER_SERVER - 2 + NAMELEN + NOTIFICATION_CONTENT;
-	if (realloc(m, nsize) == NULL) {
+	if ((m = realloc(m, nsize)) == NULL) {
 		free(m);
 		return NULL;
 	}
@@ -114,7 +116,7 @@ void *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
 	       void *data, int *size_msg)
 {
 	void *h = fill_min_header(req, id);
-	if (realloc(h, MIN_HEADER + sizeof(nb) + datalen) == NULL) {
+	if ((h = realloc(h, MIN_HEADER + sizeof(nb) + datalen)) == NULL) {
 		return NULL;
 	}
 	uint16_t be = htons(nb);

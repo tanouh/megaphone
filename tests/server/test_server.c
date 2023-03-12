@@ -81,21 +81,19 @@ void *test_network()
 	while (cpt < NBCLIENT) {
 		scs[cpt] = accept(server, (struct sockaddr *)&addr, &addrlen);
 		if (scs[cpt] < 0) {
-			perror("accept");
-			return NULL;
+			break;
 		}
 		print_connected_client(addr);
 		if (pthread_create(pts + cpt, NULL, test_smesslib, scs + cpt) !=
 		    0) {
-			perror("thread create");
-			return NULL;
+			break;
 		}
 		cpt++;
 	}
 	int ret = 1;
-	for (int i = 0; i < NBCLIENT; i++) {
-		int *tmp;
-		if (pthread_join(pts[i], (void *)&tmp) != 0)
+	int *tmp;
+	for (int i = 0; i < cpt; i++) {
+		if (pthread_join(pts[i], (void **)&tmp) != 0)
 			perror("thread join");
 		if (tmp != NULL) {
 			ret |= *tmp;
@@ -104,6 +102,7 @@ void *test_network()
 			ret = 1;
 		}
 	}
+	free(scs);
 	return (ret) ? malloc_return(ret) : NULL;
 }
 

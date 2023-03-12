@@ -28,7 +28,8 @@ test:
   before_script:
     - *install-utils
   script:
-    - echo "make test"
+    - make test
+    - test/test_megaphone
   cache:
     key: $CI_COMMIT_REF_NAME
     policy: pull-push
@@ -46,9 +47,8 @@ memcheck-test:
     - apt update -yqq && apt install -yqq valgrind
   script:
     - apt-get update -qq && apt-get install -y -qq valgrind &> /dev/null
-    - echo "Memcheck test_megaphone"
-    - echo "make test"
-    - echo "valgrind --leak-check=full --show-leak-kinds=all ./test/test_megaphone"
+    - make test
+    - valgrind --trace-children=yes --leak-check=full tests/test_megaphone
   cache:
     key: $CI_COMMIT_REF_NAME
     policy: pull

@@ -57,25 +57,25 @@ void *test_smesslib(void *data)
 	ret &= test_carg(test_get_fill_push_file_udp, (void *)&client,
 			 "test_get_fill_push_file_udp", print_serv);
 
-	// TODO: SERVER
-	/*ret &= test_carg(test_fill_inscription, (void
-	*)&client,"test_fill_inscription", print_client); ret &=
-	test_carg(test_fill_push_message, (void
-	*)&client,"test_fill_push_message", print_client); ret &=
-	test_carg(test_fill_ask_messages, (void
-	*)&client,"test_fill_ask_messages", print_client); ret &=
-	test_carg(test_fill_asked_messages, (void
-	*)&client,"test_fill_asked_messages", print_client); ret &=
-	test_carg(test_fill_push_file, (void *)&client,"test_fill_push_file",
-		      print_client);
-	ret &= test_carg(test_fill_pull_file, (void
-	*)&client,"test_fill_pull_file", print_client); ret &=
-	test_carg(test_fill_push_file_udp, (void
-	*)&client,"test_fill_push_file_udp", print_client); ret &=
-	test_carg(test_fill_error,(void *)&client, "test_fill_error",
-		      print_client);
-	ret &= test_carg(test_fill_notification,(void *)&client,
-	"test_fill_notification", print_client);*/
+	// SERVER
+	ret &= test_carg(test_fill_inscription, (void *)&client,
+			 "test_fill_inscription", print_serv);
+	ret &= test_carg(test_fill_push_message, (void *)&client,
+			 "test_fill_push_message", print_serv);
+	ret &= test_carg(test_fill_ask_messages, (void *)&client,
+			 "test_fill_ask_messages", print_serv);
+	ret &= test_carg(test_fill_asked_messages, (void *)&client,
+			 "test_fill_asked_messages", print_serv);
+	ret &= test_carg(test_fill_push_file, (void *)&client,
+			 "test_fill_push_file", print_serv);
+	ret &= test_carg(test_fill_pull_file, (void *)&client,
+			 "test_fill_pull_file", print_serv);
+	ret &= test_carg(test_fill_push_file_udp, (void *)&client,
+			 "test_fill_push_file_udp", print_serv);
+	ret &= test_carg(test_fill_error, (void *)&client, "test_fill_error",
+			 print_serv);
+	ret &= test_carg(test_fill_notification, (void *)&client,
+			 "test_fill_notification", print_serv);
 	close(client);
 	return (ret) ? malloc_return(ret) : NULL;
 }
@@ -166,6 +166,7 @@ int test_fill_error(void *arg)
 	free(msg);
 	uint8_t ans;
 	recv(client, &ans, sizeof(ans), 0);
+	sleep(1); //TODO: Improve sync
 	return ans;
 }
 int test_fill_notification(void *arg)
@@ -218,7 +219,7 @@ int test_get_fill_inscription(void *arg)
 	uint8_t ret = 1;
 	ret &= ASSERT(req == INSCRIPTION);
 	ret &= ASSERT(id == 0);
-	ret &= ASSERT(strcmp(data, NAME) == 0);
+	ret &= ASSERT(strncmp(data, NAME, NAMELEN) == 0);
 	printf("%u\n", id);
 	free(data);
 	send(client, &ret, sizeof(ret), 0);
@@ -238,8 +239,7 @@ int test_get_fill_push_message(void *arg)
 	ret &= ASSERT(chat == FIELD);
 	ret &= ASSERT(nb == 0);
 	ret &= ASSERT(datalen == TEXT_SIZE);
-	ret &= ASSERT(strcmp(data, TEXT) == 0);
-
+	ret &= ASSERT(strncmp(data, TEXT, TEXT_SIZE) == 0);
 	free(data);
 	send(client, &ret, sizeof(ret), 0);
 	return (int)ret;
@@ -260,6 +260,7 @@ int test_get_fill_ask_messages(void *arg)
 	ret &= ASSERT(datalen == 0);
 	ret &= ASSERT(data == NULL);
 	send(client, &ret, sizeof(ret), 0);
+	free(data);
 	return (int)ret;
 }
 int test_get_fill_subscribe(void *arg)
@@ -294,8 +295,9 @@ int test_get_fill_push_file(void *arg)
 	ret &= ASSERT(chat == FIELD);
 	ret &= ASSERT(nb == 0);
 	ret &= ASSERT(datalen == TEXT_SIZE);
-	ret &= ASSERT(strcmp(data, TEXT) == 0);
+	ret &= ASSERT(strncmp(data, TEXT, TEXT_SIZE) == 0);
 	send(client, &ret, sizeof(ret), 0);
+	free(data);
 	return (int)ret;
 }
 int test_get_fill_pull_file(void *arg)
@@ -312,8 +314,9 @@ int test_get_fill_pull_file(void *arg)
 	ret &= ASSERT(chat == FIELD);
 	ret &= ASSERT(nb == FIELD);
 	ret &= ASSERT(datalen == TEXT_SIZE);
-	ret &= ASSERT(strcmp(data, TEXT) == 0);
+	ret &= ASSERT(strncmp(data, TEXT, TEXT_SIZE) == 0);
 	send(client, &ret, sizeof(ret), 0);
+	free(data);
 	return (int)ret;
 }
 int test_get_fill_push_file_udp(void *arg)
@@ -332,7 +335,8 @@ int test_get_fill_push_file_udp(void *arg)
 	ret &= ASSERT(id == FIELD);
 	ret &= ASSERT(nb == FIELD);
 	ret &= ASSERT(datalen == TEXT_SIZE);
-	ret &= ASSERT(strcmp(data, TEXT) == 0);
+	ret &= ASSERT(strncmp(data, TEXT, TEXT_SIZE) == 0);
 	send(client, &ret, sizeof(ret), 0);
+	free(data);
 	return (int)ret;
 }

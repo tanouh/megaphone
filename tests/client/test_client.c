@@ -59,7 +59,7 @@ void *test_network(void *data)
 	int ret = 1;
 	ret = test_cmesslib(sock);
 	close(sock);
-	return (ret) ? malloc_return(1) : (void *)0;
+	return (ret) ? malloc_return(ret) : NULL;
 }
 
 int connect_to_server()

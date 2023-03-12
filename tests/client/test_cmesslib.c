@@ -1,6 +1,7 @@
 #include "test_cmesslib.h"
 
 #include "../../src/client/cmesslib.h"
+#include "../../src/constants.h"
 #include "../printlib.h"
 #include "../test_constants.h"
 #include "../testlib.h"
@@ -53,7 +54,7 @@ int test_cmesslib(int sock)
 	ret &= test_carg(test_fill_push_file_udp, (void *)&sock,
 			 "test_fill_push_file_udp", print_client);
 	// TODO: SERVER
-	/*ret &= test_carg(test_get_fill_inscription, (void *)&sock,
+	ret &= test_carg(test_get_fill_inscription, (void *)&sock,
 			 "test_get_fill_inscription", print_client);
 	ret &= test_carg(test_get_fill_push_message, (void *)&sock,
 			 "test_get_fill_push_message", print_client);
@@ -70,7 +71,7 @@ int test_cmesslib(int sock)
 	ret &= test_carg(test_get_fill_error, (void *)&sock,
 			 "test_get_fill_error", print_client);
 	ret &= test_carg(test_get_fill_notification, (void *)&sock,
-			 "test_get_fill_notification", print_client);*/
+			 "test_get_fill_notification", print_client);
 
 	return ret;
 }
@@ -165,9 +166,9 @@ int test_get_message(void *arg, enum reqcode *req, uint16_t *id, uint16_t *chat,
 		     uint16_t *nb)
 {
 	int client = *(int *)arg;
-	char buf[BUFSIZ];
-	memset(buf, 0, BUFSIZ);
-	recv(client, buf, BUFSIZ, 0);
+	char buf[HEADER_SERVER];
+	memset(buf, 0, HEADER_SERVER);
+	recv(client, buf, HEADER_SERVER, 0);
 	get_message(buf, req, id, chat, nb);
 	return 1;
 }
@@ -183,7 +184,6 @@ int test_get_fill_inscription(void *arg)
 	ret &= ASSERT(id == FIELD);
 	ret &= ASSERT(chat == 0);
 	ret &= ASSERT(nb == 0);
-	ret = htonl(ret);
 	send(client, &ret, sizeof(ret), 0);
 	return (int)ret;
 }
@@ -226,13 +226,16 @@ int test_get_fill_asked_messages(void *arg)
 	char *owner, *origin, *data;
 	get_asked_messages(buf, &chat, (void **)&origin, (void **)&owner,
 			   &datalen, (void **)&data);
-	int ret = 1;
+	uint8_t ret = 1;
 	ret &= ASSERT(chat == FIELD);
-	ret &= ASSERT(strcmp(origin, NAME) == 0);
-	ret &= ASSERT(strcmp(owner, NAME) == 0);
+	ret &= ASSERT(strncmp(origin, NAME, NAMELEN) == 0);
+	ret &= ASSERT(strncmp(owner, NAME, NAMELEN) == 0);
 	ret &= ASSERT(datalen == TEXT_SIZE);
-	ret &= ASSERT(strcmp(data, TEXT) == 0);
+	ret &= ASSERT(strncmp(data, TEXT, NAMELEN) == 0);
 	send(client, &ret, sizeof(ret), 0);
+	free(origin);
+	free(owner);
+	free(data);
 	return (int)ret;
 }
 int test_get_fill_subscribe(void *arg)
@@ -249,8 +252,9 @@ int test_get_fill_subscribe(void *arg)
 	ret &= ASSERT(req == SUBSCRIBE);
 	ret &= ASSERT(chat == FIELD);
 	ret &= ASSERT(nb == FIELD);
-	ret &= ASSERT(strcmp(addr, MULT));
+	ret &= ASSERT(strncmp(addr, MULT, ADDRMULT_LEN));
 	send(client, &ret, sizeof(ret), 0);
+	free(addr);
 	return (int)ret;
 }
 int test_get_fill_push_file(void *arg)
@@ -285,7 +289,7 @@ int test_get_fill_push_file_udp(void *arg)
 {
 	int client = *(int *)arg;
 	enum reqcode req = 0;
-	uint16_t id = 0, chat = 0, nb = 0;
+	uint16_t id = 0, nb = 0;
 	uint16_t datalen = 0;
 	char *data = NULL;
 	char buf[BUFSIZ];
@@ -295,11 +299,11 @@ int test_get_fill_push_file_udp(void *arg)
 	int ret = 1;
 	ret &= ASSERT(req == PUSH_FILE);
 	ret &= ASSERT(id == FIELD);
-	ret &= ASSERT(chat == FIELD);
-	ret &= ASSERT(nb == 0);
+	ret &= ASSERT(nb == FIELD);
 	ret &= ASSERT(datalen == TEXT_SIZE);
-	ret &= ASSERT(strcmp(data, TEXT) == 0);
+	ret &= ASSERT(strncmp(data, TEXT, TEXT_SIZE) == 0);
 	send(client, &ret, sizeof(ret), 0);
+	free(data);
 	return ret;
 }
 int test_get_fill_error(void *arg)
@@ -329,10 +333,12 @@ int test_get_fill_notification(void *arg)
 				 (void **)&data);
 	int ret = 1;
 	ret &= ASSERT(req == SUBSCRIBE);
-	ret &= ASSERT(id == FIELD);
+	ret &= ASSERT(id == 0);
 	ret &= ASSERT(chat == FIELD);
-	ret &= ASSERT(strcmp(owner, NAME) == 0);
-	ret &= ASSERT(strcmp(data, TEXT) == 0);
+	ret &= ASSERT(strncmp(owner, NAME, NAMELEN) == 0);
+	ret &= ASSERT(strncmp(data, TEXT, TEXT_SIZE) == 0);
 	send(client, &ret, sizeof(ret), 0);
+	free(owner);
+	free(data);
 	return (int)ret;
 }
