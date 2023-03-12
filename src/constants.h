@@ -1,0 +1,14 @@
+#ifndef MEGAPHONE_CONSTANTS_H
+#define MEGAPHONE_CONSTANTS_H
+
+#define NAMELEN 10
+#define ID_MAX 2048
+#define REQ_MAX 31
+#define MAX_HEADER 7
+#define MIN_HEADER 2
+#define HEADER_SERVER 6
+#define ADDRMULT_LEN 16
+#define NOTIFICATION_CONTENT 20
+#define ID_BITS 11
+#define REQ_BITS 5
+#endif

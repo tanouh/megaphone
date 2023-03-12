@@ -1,9 +1,6 @@
 build/
 *.o
-slash
-*test_slash
 *.d
 .vscode/
 .json
 build/
-.sy5-2022-2023-projet-slash-autotests.nosync

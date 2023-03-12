@@ -2,8 +2,12 @@
 
 #Compilation variables
 CC = gcc
-CFLAGS = -Wall -std=gnu11 -MMD -Wextra -ggdb
+CFLAGS = -Wall -std=gnu11 -MMD -Wextra -ggdb -pthread
 LDLIBS = -lreadline -lc
+
+
+
+
 
 #Build directory
 BUILD_DIR = build
@@ -11,56 +15,114 @@ SRC_DIR = src
 SRC_DIR_SERVER = $(SRC_DIR)/server
 SRC_DIR_CLIENT = $(SRC_DIR)/client
 TEST_DIR = tests
+TEST_DIR_SERVER = $(TEST_DIR)/server
+TEST_DIR_CLIENT = $(TEST_DIR)/client
+
+
+
+
 
 
 #Executable name
 TARGET_SERVER = server
 TARGET_CLIENT = client
-TARGET_TEST = $(TEST_DIR)/megaphone
+TARGET_TEST = $(TEST_DIR)/test_megaphone
 TARGET_TEST_SERVER = $(TEST_DIR)/test_server
 TARGET_TEST_CLIENT = $(TEST_DIR)/test_client
 
 #Source files
+SOURCES_COMMON = $(wildcard $(SRC_DIR)/*.c)
+
 SOURCES_SERVER =  $(filter-out $(SRC_DIR_SERVER)/$(TARGET_SERVER).c, \
-		  $(wildcard $(SRC_DIR_SERVER)/*.c)) $(wildcard $(SRC_DIR)/*.c)
+		  $(wildcard $(SRC_DIR_SERVER)/*.c))
+
 SOURCES_CLIENT = $(filter-out $(SRC_DIR_CLIENT)/$(TARGET_CLIENT).c, \
-		 $(wildcard $(SRC_DIR_CLIENT)/*.c)) $(wildcard $(SRC_DIR)/*.c)
-TEST_SOURCES = $(wildcard $(TEST_DIR)/*.c)
+		 $(wildcard $(SRC_DIR_CLIENT)/*.c))
+
+TEST_SOURCES = $(filter-out $(TARGET_TEST).c, $(wildcard $(TEST_DIR)/*.c))
+
+TEST_SOURCES_SERVER = $(filter-out $(TEST_DIR_SERVER)/test_$(TARGET_SERVER).c, \
+		  $(wildcard $(TEST_DIR_SERVER)/*.c)) $(TEST_SOURCES)
+
+TEST_SOURCES_CLIENT = $(filter-out $(TEST_DIR_CLIENT)/test_$(TARGET_CLIENT).c, \
+		  $(wildcard $(TEST_DIR_CLIENT)/*.c)) $(TEST_SOURCES)
+
+
+
+
 
 #Binaries names
+OBJECTS_COMMON =  $(SOURCES_COMMON:%.c=$(BUILD_DIR)/%.o)
+
 OBJECTS_SERVER =  $(SOURCES_SERVER:%.c=$(BUILD_DIR)/%.o)
+
 OBJECTS_CLIENT =  $(SOURCES_CLIENT:%.c=$(BUILD_DIR)/%.o)
-TEST_OBJECTS = 	$(TEST_SOURCES:%.c=$(BUILD_DIR)/%.o)
+
 TARGET_OBJECT_CLIENT = $(BUILD_DIR)/$(SRC_DIR_CLIENT)/$(TARGET_CLIENT).o
+
 TARGET_OBJECT_SERVER = $(BUILD_DIR)/$(SRC_DIR_SERVER)/$(TARGET_SERVER).o
+
+TEST_OBJECTS = $(TEST_SOURCES:%.c=$(BUILD_DIR)/%.o)
+
+TEST_OBJECTS_CLIENT = $(TEST_SOURCES_CLIENT:%.c=$(BUILD_DIR)/%.o)
+
+TEST_OBJECTS_SERVER = $(TEST_SOURCES_SERVER:%.c=$(BUILD_DIR)/%.o)
+
+TARGET_TEST_OBJECT = $(BUILD_DIR)/$(TARGET_TEST).o
+
+TARGET_TEST_OBJECT_CLIENT = \
+	$(BUILD_DIR)/$(TEST_DIR_CLIENT)/test_$(TARGET_CLIENT).o
+
+TARGET_TEST_OBJECT_SERVER = \
+	$(BUILD_DIR)/$(TEST_DIR_SERVER)/test_$(TARGET_SERVER).o
+
+
+
+
 
 
 #Binaries dependencies
 DEPENDENCIES = \
-	       $(OBJECTS_SERVER:%.o=%.d) \
-	       $(OBJECTS_CLIENT:%.o=%.d) \
-	       $(TEST_OBJECTS:%.o=%.d) \
-	       $(TARGET_OBJECT_CLIENT:%.o:%.d) \
-	       $(TARGET_OBJECT_SERVER:%.o:%.d)
+	$(OBJECTS_COMMON:%.o=%.d) \
+	$(OBJECTS_SERVER:%.o=%.d) \
+	$(OBJECTS_CLIENT:%.o=%.d) \
+	$(TEST_OBJECTS:%.o=%.d) \
+	$(TEST_OBJECTS_CLIENT:%.o=%.d) \
+	$(TEST_OBJECTS_SERVER:%.o=%.d) \
+	$(TARGET_OBJECT_CLIENT:%.o=%.d) \
+	$(TARGET_OBJECT_SERVER:%.o=%.d) \
+	$(TARGET_TEST_OBJECT:%.o=%.d) \
+	$(TARGET_TEST_OBJECT_CLIENT:%.o=%.d) \
+	$(TARGET_TEST_OBJECT_SERVER:%.o=%.d) \
+
 
 
 #JOBS
 all: $(TARGET_CLIENT) $(TARGET_SERVER)
 
-test: $(TEST_TARGET)
-	./$(TEST_TARGET)
+test: $(TARGET_TEST) $(TARGET_TEST_SERVER) $(TARGET_TEST_CLIENT)
 
 -include $(DEPENDENCIES)
 
-$(TARGET_SERVER):  $(TARGET_OBJECT_SERVER) $(OBJECTS_SERVER)
+$(TARGET_SERVER):  $(TARGET_OBJECT_SERVER) $(OBJECTS_SERVER) $(OBJECTS_COMMON)
 	@$(CC) $(CFLAGS) $^ -o $@  $(LDLIBS)
 
-$(TARGET_CLIENT):  $(TARGET_OBJECT_CLIENT) $(OBJECTS_CLIENT)
+
+$(TARGET_CLIENT):  $(TARGET_OBJECT_CLIENT) $(OBJECTS_CLIENT) $(OBJECTS_COMMON)
 	@$(CC) $(CFLAGS) $^ -o $@  $(LDLIBS)
 
-$(TEST_TARGET): $(TEST_OBJECTS) $(OBJECTS)
-	@$(CC) $(CFLAGS) -o $(TEST_TARGET) $^
+$(TARGET_TEST): $(TARGET_TEST_OBJECT) $(TEST_OBJECTS) $(OBJECTS_SERVER) \
+		$(OBJECTS_COMMON)
+	@$(CC) $(CFLAGS) $^ -o $@  $(LDLIBS)
 
+$(TARGET_TEST_SERVER): $(TARGET_TEST_OBJECT_SERVER) $(TEST_OBJECTS) $(OBJECTS_SERVER) \
+			$(OBJECTS_COMMON) $(TEST_OBJECTS_SERVER)
+	@$(CC) $(CFLAGS) $^ -o $@  $(LDLIBS)
+
+
+$(TARGET_TEST_CLIENT): $(TARGET_TEST_OBJECT_CLIENT) $(TEST_OBJECTS) $(OBJECTS_CLIENT)\
+			$(OBJECTS_COMMON) $(TEST_OBJECTS_CLIENT)
+	@$(CC) $(CFLAGS) $^ -o $@  $(LDLIBS)
 
 
 $(BUILD_DIR)/%.o: %.c
@@ -69,5 +131,5 @@ $(BUILD_DIR)/%.o: %.c
 
 clean:
 	@rm -rf $(BUILD_DIR)
-	@rm -f $(TARGET_SERVER) $(TARGET_CLIENT) $(TEST_TARGET)
-	@rm -f $(TEST_TARGET_SERVER) $(TARGET_TEST_CLIENT)
+	@rm -f $(TARGET_SERVER) $(TARGET_CLIENT) $(TARGET_TEST)
+	@rm -f $(TARGET_TEST_SERVER) $(TARGET_TEST_CLIENT)

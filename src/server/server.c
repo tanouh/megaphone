@@ -40,7 +40,7 @@ int create_server(char *argv[]){
 
 void connect_to_client (int sock) {
 
-	/* le serveur accepte une connexion 
+	/* le serveur accepte une connexion
 	et crée la socket de communication avec le client */
 
 	struct sockaddr_in6 adrclient;
@@ -50,7 +50,7 @@ void connect_to_client (int sock) {
 	int *sockclient = malloc(sizeof(int));
 	if (sockclient == NULL){
 		perror("malloc failed");
-		exit(2); 
+		exit(2);
 	}
 
 	*sockclient = accept(sock, (struct sockaddr *) &adrclient, &size);
@@ -58,8 +58,8 @@ void connect_to_client (int sock) {
 	if (sockclient >= 0){
 		pthread_t thread;
 
-		/* TODO : le serveur crée un thread 
-		* a priori il va falloir faire un traitement des messages du client ici 
+		/* TODO : le serveur crée un thread
+		* a priori il va falloir faire un traitement des messages du client ici
 		*/
 	}
 }
@@ -75,4 +75,4 @@ int main (int argc, char *argv[]) {
 	}
 	close(sock);
 	return 0;
-} 
+}
