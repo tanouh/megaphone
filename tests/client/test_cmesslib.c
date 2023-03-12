@@ -1,8 +1,9 @@
+#include "test_cmesslib.h"
+
 #include "../../src/client/cmesslib.h"
 #include "../printlib.h"
 #include "../test_constants.h"
 #include "../testlib.h"
-#include "test_cmesslib.h"
 
 #include <arpa/inet.h>
 #include <stdio.h>
@@ -38,11 +39,11 @@ int test_cmesslib(int sock)
 	int ret = 1;
 	// CLIENT
 	ret &= test_carg(test_fill_inscription, (void *)&sock,
-			    "test_fill_inscription", print_client);
+			 "test_fill_inscription", print_client);
 	ret &= test_carg(test_fill_push_message, (void *)&sock,
-			    "test_fill_push_message", print_client);
+			 "test_fill_push_message", print_client);
 	ret &= test_carg(test_fill_ask_messages, (void *)&sock,
-			    "test_fill_ask_messages", print_client);
+			 "test_fill_ask_messages", print_client);
 	ret &= test_carg(test_fill_subscribe, (void *)&sock,
 			 "test_fill_subscribe", print_client);
 	ret &= test_carg(test_fill_push_file, (void *)&sock,

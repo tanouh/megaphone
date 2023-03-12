@@ -54,8 +54,9 @@ int get_min_header(const void *msg, enum reqcode *req, uint16_t *id)
 	return 0;
 }
 
-void *malloc_return(int ret) {
+void *malloc_return(int ret)
+{
 	void *p = malloc(sizeof(ret));
-	*(int*) p = ret;
+	*(int *)p = ret;
 	return p;
 }

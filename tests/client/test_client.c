@@ -1,18 +1,18 @@
 #include "../../src/client/cmesslib.h"
+#include "../../src/lib.h"
 #include "../printlib.h"
 #include "../test_constants.h"
 #include "../testlib.h"
 #include "test_cmesslib.h"
-#include "../../src/lib.h"
 
 #include <arpa/inet.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <pthread.h>
 
 /*This is the client side test file.
 It will test client functions and the communication with the server.
@@ -21,8 +21,6 @@ It will test client functions and the communication with the server.
 int connect_to_server();
 
 void *test_network(void *);
-
-
 
 int main()
 {
@@ -45,12 +43,13 @@ int main()
 		}
 	}
 	char buf[512];
-	sprintf(buf,"End of client (%d)\n", !ret);
+	sprintf(buf, "End of client (%d)\n", !ret);
 	print_client(buf);
 	return !ret;
 }
 
-void *test_network(void * data) {
+void *test_network(void *data)
+{
 	int sock = connect_to_server();
 	if (sock < 0) {
 		print_client("Can't connect to server !\n");

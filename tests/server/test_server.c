@@ -3,6 +3,7 @@ This is the server side test file.
 It will test server functions and the communication with the client.
 */
 
+#include "../../src/lib.h"
 #include "../../src/server/smesslib.h"
 #include "../printlib.h"
 #include "../test_constants.h"
@@ -18,7 +19,6 @@ It will test server functions and the communication with the client.
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include "../../src/lib.h"
 
 #define NBTEST 1
 #define NBCLIENT 1
@@ -130,7 +130,7 @@ int main()
 		}
 	}
 	char buf[512];
-	sprintf(buf,"End of server (%d)\n", !ret);
+	sprintf(buf, "End of server (%d)\n", !ret);
 	print_serv(buf);
 	return !ret;
 }

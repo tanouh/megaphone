@@ -41,41 +41,41 @@ void *test_smesslib(void *data)
 	memset(buf, 0, 512);
 	int client = *(int *)data;
 	int ret = 1;
-	//CLIENT
-	ret &= test_carg(test_get_fill_inscription, (void *)&client,"test_get_fill_inscription",
-		      print_serv);
-	ret &= test_carg(test_get_fill_push_message, (void *)&client,"test_get_fill_push_message",
-		      print_serv);
-	ret &= test_carg(test_get_fill_ask_messages, (void *)&client,"test_get_fill_ask_messages",
-		      print_serv);
-	ret &= test_carg(test_get_fill_subscribe, (void *)&client,"test_get_fill_subscribe",
-		      print_serv);
-	ret &= test_carg(test_get_fill_push_file, (void *)&client,"test_get_fill_push_file",
-		      print_serv);
-	ret &= test_carg(test_get_fill_pull_file, (void *)&client,"test_get_fill_pull_file",
-		      print_serv);
-	ret &= test_carg(test_get_fill_push_file_udp, (void *)&client,"test_get_fill_push_file_udp",
-		      print_serv);
+	// CLIENT
+	ret &= test_carg(test_get_fill_inscription, (void *)&client,
+			 "test_get_fill_inscription", print_serv);
+	ret &= test_carg(test_get_fill_push_message, (void *)&client,
+			 "test_get_fill_push_message", print_serv);
+	ret &= test_carg(test_get_fill_ask_messages, (void *)&client,
+			 "test_get_fill_ask_messages", print_serv);
+	ret &= test_carg(test_get_fill_subscribe, (void *)&client,
+			 "test_get_fill_subscribe", print_serv);
+	ret &= test_carg(test_get_fill_push_file, (void *)&client,
+			 "test_get_fill_push_file", print_serv);
+	ret &= test_carg(test_get_fill_pull_file, (void *)&client,
+			 "test_get_fill_pull_file", print_serv);
+	ret &= test_carg(test_get_fill_push_file_udp, (void *)&client,
+			 "test_get_fill_push_file_udp", print_serv);
 
-	//TODO: SERVER
-	/*ret &= test_carg(test_fill_inscription, (void *)&client,"test_fill_inscription",
+	// TODO: SERVER
+	/*ret &= test_carg(test_fill_inscription, (void
+	*)&client,"test_fill_inscription", print_client); ret &=
+	test_carg(test_fill_push_message, (void
+	*)&client,"test_fill_push_message", print_client); ret &=
+	test_carg(test_fill_ask_messages, (void
+	*)&client,"test_fill_ask_messages", print_client); ret &=
+	test_carg(test_fill_asked_messages, (void
+	*)&client,"test_fill_asked_messages", print_client); ret &=
+	test_carg(test_fill_push_file, (void *)&client,"test_fill_push_file",
 		      print_client);
-	ret &= test_carg(test_fill_push_message, (void *)&client,"test_fill_push_message",
+	ret &= test_carg(test_fill_pull_file, (void
+	*)&client,"test_fill_pull_file", print_client); ret &=
+	test_carg(test_fill_push_file_udp, (void
+	*)&client,"test_fill_push_file_udp", print_client); ret &=
+	test_carg(test_fill_error,(void *)&client, "test_fill_error",
 		      print_client);
-	ret &= test_carg(test_fill_ask_messages, (void *)&client,"test_fill_ask_messages",
-		      print_client);
-	ret &= test_carg(test_fill_asked_messages, (void *)&client,"test_fill_asked_messages",
-		      print_client);
-	ret &= test_carg(test_fill_push_file, (void *)&client,"test_fill_push_file",
-		      print_client);
-	ret &= test_carg(test_fill_pull_file, (void *)&client,"test_fill_pull_file",
-		      print_client);
-	ret &= test_carg(test_fill_push_file_udp, (void *)&client,"test_fill_push_file_udp",
-		      print_client);
-	ret &= test_carg(test_fill_error,(void *)&client, "test_fill_error",
-		      print_client);
-	ret &= test_carg(test_fill_notification,(void *)&client, "test_fill_notification",
-		      print_client);*/
+	ret &= test_carg(test_fill_notification,(void *)&client,
+	"test_fill_notification", print_client);*/
 	close(client);
 	return (ret) ? malloc_return(ret) : NULL;
 }
@@ -180,16 +180,17 @@ int test_fill_notification(void *arg)
 	return ans;
 }
 
-int test_fill_asked_messages(void *arg) {
+int test_fill_asked_messages(void *arg)
+{
 	int client = *(int *)arg;
 	int size = 0;
-	char *msg = fill_asked_message(FIELD, NAME, NAME, TEXT_SIZE, TEXT, &size);
+	char *msg =
+		fill_asked_message(FIELD, NAME, NAME, TEXT_SIZE, TEXT, &size);
 	send(client, msg, size, 0);
 	free(msg);
 	uint8_t ans;
 	recv(client, &ans, sizeof(ans), 0);
 	return ans;
-
 }
 
 int test_get_message(void *arg, enum reqcode *req, uint16_t *id, uint16_t *chat,

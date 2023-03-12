@@ -9,7 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-void *fill_message(enum reqcode req, uint32_t id, uint16_t nbchat, uint16_t nb, int *size_msg)
+void *fill_message(enum reqcode req, uint32_t id, uint16_t nbchat, uint16_t nb,
+		   int *size_msg)
 {
 	void *h = malloc(MAX_HEADER);
 	if (h == NULL)
@@ -40,7 +41,8 @@ void *fill_push_message(uint16_t id, uint16_t nbchat, int *size_msg)
 	return fill_message(PUSH_MESS, id, nbchat, 0, size_msg);
 }
 
-void *fill_ask_messages(uint16_t id, uint16_t nbchat, uint16_t nb, int *size_msg)
+void *fill_ask_messages(uint16_t id, uint16_t nbchat, uint16_t nb,
+			int *size_msg)
 {
 	return fill_message(ASK_MESS, id, nbchat, nb, size_msg);
 }
@@ -58,13 +60,15 @@ void *fill_asked_message(uint16_t nbchat, void *origin, void *owner,
 	memcpy(m + sizeof(nbchat), origin, NAMELEN);
 	memcpy(m + sizeof(nbchat) + NAMELEN, owner, NAMELEN);
 	memcpy(m + 2 * NAMELEN + sizeof(nbchat), &datalen, sizeof(datalen));
-	memcpy(m + 2 * NAMELEN + sizeof(nbchat) + sizeof(datalen), data, datalen);
+	memcpy(m + 2 * NAMELEN + sizeof(nbchat) + sizeof(datalen), data,
+	       datalen);
 	if (size_msg != NULL)
 		*size_msg = size + datalen;
 	return m;
 }
 
-void *fill_subscribe(uint16_t id, uint16_t nbchat, uint16_t nb, void *addrmult, int *size_msg)
+void *fill_subscribe(uint16_t id, uint16_t nbchat, uint16_t nb, void *addrmult,
+		     int *size_msg)
 {
 	void *m = fill_message(SUBSCRIBE, id, nbchat, nb, NULL);
 	if (realloc(m, HEADER_SERVER + ADDRMULT_LEN) == NULL) {
@@ -77,7 +81,8 @@ void *fill_subscribe(uint16_t id, uint16_t nbchat, uint16_t nb, void *addrmult, 
 	return m;
 }
 
-void *fill_notification(uint16_t nbchat, void *owner, void *data, int datalen, int *size_msg)
+void *fill_notification(uint16_t nbchat, void *owner, void *data, int datalen,
+			int *size_msg)
 {
 	if (datalen > NOTIFICATION_CONTENT)
 		datalen = NOTIFICATION_CONTENT;
@@ -120,7 +125,8 @@ void *fill_udp(enum reqcode req, uint16_t id, uint16_t nb, int datalen,
 	return h;
 }
 
-void *fill_push_file_udp(uint16_t id, uint16_t nb, int datalen, void *data, int *size_msg)
+void *fill_push_file_udp(uint16_t id, uint16_t nb, int datalen, void *data,
+			 int *size_msg)
 {
 	return fill_udp(PUSH_FILE, id, nb, datalen, data, size_msg);
 }
@@ -158,13 +164,14 @@ int get_message(const void *msg, enum reqcode *req, uint16_t *id,
 	return 0;
 }
 
-int get_inscription(void *msg, enum reqcode *req, uint16_t *id, char **data) {
+int get_inscription(void *msg, enum reqcode *req, uint16_t *id, char **data)
+{
 	char buf[2048];
 	memset(buf, 0, 2048);
 	memcpy(buf, msg, MIN_HEADER + NAMELEN);
 	if (get_min_header(msg, req, id) != 0)
 		return -1;
-	*data = calloc(sizeof(*data), NAMELEN+1);
+	*data = calloc(sizeof(*data), NAMELEN + 1);
 	memcpy(*data, msg + MIN_HEADER, NAMELEN);
 	return 0;
 }

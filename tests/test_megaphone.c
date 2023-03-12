@@ -103,7 +103,7 @@ int launch_server()
 	switch (fork()) {
 	case 0:
 		close(pfd[0]);
-		//dup2(pfd[1], STDOUT_FILENO);
+		// dup2(pfd[1], STDOUT_FILENO);
 		execlp(TEST_SERVER, TEST_SERVER, (char *)&pid, NULL);
 		exit(1);
 
@@ -124,7 +124,7 @@ int launch_client()
 	switch (fork()) {
 	case 0:
 		close(pfd[0]);
-		//dup2(spipe, STDOUT_FILENO);
+		// dup2(spipe, STDOUT_FILENO);
 		execlp(TEST_CLIENT, TEST_CLIENT, (char *)&pid, NULL);
 		exit(1);
 

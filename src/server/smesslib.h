@@ -42,7 +42,7 @@ void *fill_ask_messages(uint16_t id, uint16_t nbchat, uint16_t nb,
 
 void *fill_asked_message(uint16_t nbchat, void *origin, void *owner,
 			 uint8_t datalen, void *data, int *size_msg);
-			 
+
 /**
  * @brief Shortened version of fill_message for the fill_subscribe request.
  * @param id The user id.

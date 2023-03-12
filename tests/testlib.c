@@ -30,7 +30,7 @@ int test(int (*f)(), const char *name)
 	return res;
 }
 
-int test_c(int (*f)(), const char *name, void (print)(char *))
+int test_c(int (*f)(), const char *name, void(print)(char *))
 {
 	char buf[4096];
 	sprintf(buf, "[TEST] %s...\n", name);
@@ -40,14 +40,14 @@ int test_c(int (*f)(), const char *name, void (print)(char *))
 	const time_t toc = clock();
 	const double delta = ((double)toc - tic) * 1000.0 / CLOCKS_PER_SEC;
 	if (res) {
-		sprintf(buf,"[%sPASSED%s] %s in %f ms \n\n", C_GREEN, C_CLEAR, name,
-		       delta);
+		sprintf(buf, "[%sPASSED%s] %s in %f ms \n\n", C_GREEN, C_CLEAR,
+			name, delta);
 		print(buf);
 	}
 	return res;
 }
 
-int test_arg(int (*f)(void *), void *arg,const char *name)
+int test_arg(int (*f)(void *), void *arg, const char *name)
 {
 	pthread_mutex_lock(&m1);
 	printf("[TEST] %s...\n", name);
@@ -65,7 +65,8 @@ int test_arg(int (*f)(void *), void *arg,const char *name)
 	return res;
 }
 
-int test_carg(int (*f)(void *), void *arg, const char *name, void (print)(char *))
+int test_carg(int (*f)(void *), void *arg, const char *name,
+	      void(print)(char *))
 {
 	char buf[4096];
 	sprintf(buf, "[TEST] %s...\n", name);
@@ -76,8 +77,8 @@ int test_carg(int (*f)(void *), void *arg, const char *name, void (print)(char *
 	const double delta = ((double)toc - tic) * 1000.0 / CLOCKS_PER_SEC;
 	if (res) {
 
-		sprintf(buf,"[%sPASSED%s] %s in %f ms \n\n", C_GREEN, C_CLEAR, name,
-		       delta);
+		sprintf(buf, "[%sPASSED%s] %s in %f ms \n\n", C_GREEN, C_CLEAR,
+			name, delta);
 		print(buf);
 	}
 	return res;
@@ -101,8 +102,8 @@ int assert_c(int b, int line, const char *filename, void *(print)(char *))
 		return 1;
 	}
 	char buf[4096];
-	sprintf(buf, "[%sFAILED%s] at line %d in file %s\n\n", C_RED, C_CLEAR, line,
-	       filename);
+	sprintf(buf, "[%sFAILED%s] at line %d in file %s\n\n", C_RED, C_CLEAR,
+		line, filename);
 	print(buf);
 	return 0;
 }
