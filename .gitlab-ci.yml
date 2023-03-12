@@ -29,7 +29,7 @@ test:
     - *install-utils
   script:
     - make test
-    - test/test_megaphone
+    - tests/test_megaphone
   cache:
     key: $CI_COMMIT_REF_NAME
     policy: pull-push
