@@ -71,11 +71,11 @@ static int connect_to_server()
 		return 1;
 	}
 
+
 	return 0;
 }
 
-static int client()
-{
+static int client(){
 	if (connect_to_server() == 1)
 		return 1;
 	if (registering(sock))
