@@ -38,40 +38,40 @@ int create_server(char *argv[]){
 	return sock;
 }
 
+void connect_to_client (int sock) {
+
+	/* le serveur accepte une connexion 
+	et crée la socket de communication avec le client */
+
+	struct sockaddr_in6 adrclient;
+	memset(&adrclient, 0, sizeof(adrclient));
+	socklen_t size = sizeof(adrclient);
+
+	int *sockclient = malloc(sizeof(int));
+	if (sockclient == NULL){
+		perror("malloc failed");
+		exit(2); 
+	}
+
+	*sockclient = accept(sock, (struct sockaddr *) &adrclient, &size);
+
+	if (sockclient >= 0){
+		pthread_t thread;
+
+		/* TODO : le serveur crée un thread 
+		* a priori il va falloir faire un traitement des messages du client ici 
+		*/
+	}
+}
+
 int main (int argc, char *argv[]) {
 	if (argc != 2) {
 		fprintf(stderr, "run with : ./server <PORT>\n");
 		exit(1);
 	}
-	
 	int sock = create_server(argv);
-
 	while (1) {
-	
-	/* le serveur accepte une connexion 
-	et crée la socket de communication avec le client */
-
-		struct sockaddr_in6 adrclient;
-		memset(&adrclient, 0, sizeof(adrclient));
-		socklen_t size = sizeof(adrclient);
-
-		int *sockclient = malloc(sizeof(int));
-		if (sockclient == NULL){
-			perror("malloc failed");
-			exit(2); /* ou break ? */
-		}
-
-		*sockclient = accept(sock, (struct sockaddr *) &adrclient, &size);
-
-		if (sockclient >= 0){
-			pthread_t thread;
-
-			/* TODO : le serveur crée un thread 
-			* a priori il va falloir faire un traitement des messages du client ici 
-			*/
-
-
-		}
+		connect_to_client(sock);
 	}
 	close(sock);
 	return 0;
