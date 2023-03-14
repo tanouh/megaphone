@@ -1,3 +1,4 @@
+#include "action.h"
 #include "view.h"
 
 #include <arpa/inet.h>
@@ -16,35 +17,6 @@
 
 uint16_t id;
 int sock;
-
-static int registering(int socket)
-{
-	char *buff_send = ask_pseudo();
-
-	int envoye = send(socket, buff_send, strlen(buff_send), 0);
-	free(buff_send);
-	if (envoye < 0) {
-		perror("Erreur d'envoi");
-		return 1;
-	}
-
-	char buff_rcv[SIZE_MSG];
-	memset(&buff_rcv, 0, SIZE_MSG + 1);
-
-	int recu = recv(socket, buff_rcv, SIZE_MSG * sizeof(char), 0);
-	if (recu < 0) {
-		perror("Erreur de réception");
-		return 1;
-	}
-
-	// get_message(buff_rcv, enum reqcode *req, &id, NULL, NULL);
-	// if (req == ERROR){
-	// 	print_error("Erreur d'inscription");
-	// }
-	// show_id(id);
-
-	return 0;
-}
 
 static int connect_to_server()
 {
@@ -71,15 +43,88 @@ static int connect_to_server()
 		return 1;
 	}
 
+	return 0;
+}
+
+static int registering(int socket)
+{
+	char *buff_send = ask_pseudo();
+
+	int envoye = send(socket, buff_send, strlen(buff_send), 0);
+	free(buff_send);
+	if (envoye < 0) {
+		perror("Erreur d'envoi");
+		return 1;
+	}
+
+	char buff_rcv[SIZE_MSG];
+	memset(&buff_rcv, 0, SIZE_MSG + 1);
+
+	int recu = recv(socket, buff_rcv, SIZE_MSG * sizeof(char), 0);
+	if (recu < 0) {
+		perror("Erreur de réception");
+		return 1;
+	}
+
+	// TODO : Reception identifiant
+
+	// get_message(buff_rcv, enum reqcode *req, &id, NULL, NULL);
+	// if (req == ERROR){
+	// 	print_error("Erreur d'inscription");
+	// }
+	// show_id(id);
 
 	return 0;
 }
 
-static int client(){
+void take_action()
+{
+	switch (choose_action()) {
+	case 0:
+		print_error("Réponse invalide.\n");
+		break;
+	case 1:
+		// Poster un billet
+		if (post())
+			print_error("Le billet n'a pas pu être poster.\n");
+		break;
+	case 2:
+		// Ajouter fichier
+		if (add_file())
+			print_error("Erreur lors de l'ajout du fichier.\n");
+		break;
+	case 3:
+		// Voir anciens billets
+		if (see_old_ticket())
+			print_error("Erreur lors de l'affichage des précédents "
+				    "fichiers.\n");
+
+		break;
+	case 4:
+		// Télécharger fichier
+		if (download())
+			print_error(
+				"Erreur lors du téléchargement du fichier.\n");
+		break;
+	case 5:
+		// S'abonner à un fil
+		if (subscribe())
+			print_error("Erreur lors de l'abonnement au fil.\n");
+		break;
+	default:
+		print_error("Option invalide.\n");
+	}
+}
+
+static int client()
+{
 	if (connect_to_server() == 1)
 		return 1;
 	if (registering(sock))
 		return 1;
+	while (1) {
+		take_action();
+	}
 	close(sock);
 
 	return 0;

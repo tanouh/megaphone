@@ -9,21 +9,21 @@ void welcome(int already_registered);
 
 void show_id(uint16_t id);
 
-char *choose_action();
+int choose_action();
 
-char *choose_thread_to_post_in();
+int choose_thread_to_post_in();
 
-char *post_ticket(char *thread);
+char *post_ticket(int num_thread);
 
-char *add_file();
+char *add_file_to_thread();
 
-char *select_thread_to_unfold();
+int select_thread_to_unfold();
 
-char *see_previous_tickets(char *thread);
+int see_previous_tickets(int num_thread);
 
-char *download_file();
+int download_file();
 
-char *subscribe_to_thread();
+int subscribe_to_thread();
 
 void print_error(char *error);
 

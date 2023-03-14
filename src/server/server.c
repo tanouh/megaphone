@@ -50,7 +50,7 @@ int create_server(int port){
 
 int connect_to_client (int sock) {
 
-	/* le serveur accepte une connexion 
+	/* le serveur accepte une connexion
 	et crée la socket de communication avec le client */
 
 	struct sockaddr_in6 adrclient;
@@ -91,4 +91,4 @@ int main (int argc, char *argv[]) {
 	}
 	close(server);
 	return 0;
-} 
+}

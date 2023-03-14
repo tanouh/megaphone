@@ -30,56 +30,56 @@ void show_id(uint16_t id)
 	printf("Le serveur Megaphone vous a attribué l'identifiant %u.\n", id);
 }
 
-char *choose_action()
+int choose_action()
 {
 	printf("Que souhaitez-vous faire ?\nPour :\n - poster un billet, tapez "
 	       "1\n - ajouter un fichier, taper 2\n - voir des billets "
 	       "précedents, taper 3\n - télécharger un fichier, taper 4\n - "
 	       "vous abonner à un fil, taper 5\n");
-	return readline("Action : ");
+	return atoi(readline("Action : "));
 }
 
-char *choose_thread_to_post_in()
+int choose_thread_to_post_in()
 {
 	printf("Vous avez choisi de poster un billet.\nDans quel fil "
 	       "souhaitez-vous le poster ?\n");
-	return readline("Numéro du fil : ");
+	return atoi(readline("Numéro du fil : "));
 }
 
-char *post_ticket(char *thread)
+char *post_ticket(int num_thread)
 {
-	printf("Vous avez choisi le fil %s.\n", thread);
+	printf("Vous avez choisi le fil %d.\n", num_thread);
 	return readline("Contenu du billet à poster : ");
 }
 
-char *add_file()
+char *add_file_to_thread()
 {
 	printf("Vous avez choisi d'ajouter un fichier.\n");
 	return readline("Lien du fichier I guess : ");
 }
 
-char *select_thread_to_unfold()
+int select_thread_to_unfold()
 {
 	printf("Vous avez choisi de voir des billets précédents.\n");
-	return readline("Nom du fil à dérouler : ");
+	return atoi(readline("Numéro du fil à dérouler : "));
 }
 
-char *see_previous_tickets(char *thread)
+int see_previous_tickets(int num_thread)
 {
-	printf("Combien de tickets de %s voulez-vous afficher ?\n", thread);
-	return readline("Nombre de tickets à afficher : ");
+	printf("Combien de tickets de %d voulez-vous afficher ?\n", num_thread);
+	return atoi(readline("Nombre de tickets à afficher : "));
 }
 
-char *download_file()
+int download_file()
 {
 	printf("Vous avez choisi de télécharger un fichier.\n");
-	return readline("Numéro du post I guess :");
+	return atoi(readline("Numéro du fichier I guess :"));
 }
 
-char *subscribe_to_thread()
+int subscribe_to_thread()
 {
 	printf("Vous avez choisi de vous abonner à un fil.\n");
-	return readline("Nom du fil I guess :");
+	return atoi(readline("Numéro du fil I guess :"));
 }
 
 void print_error(char *error)

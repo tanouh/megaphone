@@ -27,4 +27,9 @@ int test(int (*f)(), const char *name);
  */
 int assert(int b, int line, const char *filename);
 
+int test_c(int (*f)(), const char *name, void(print)(char *));
+
+int test_carg(int (*f)(void *), void *arg, const char *name,
+	      void(print)(char *));
+
 #endif
