@@ -24,4 +24,8 @@ int get_min_header(const void *msg, enum reqcode *req, uint16_t *id);
 
 void *malloc_return(int ret);
 
+void print_s(char *msg);
+
+void print_c(char *msg);
+
 #endif

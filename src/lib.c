@@ -1,12 +1,15 @@
 #include "lib.h"
 
 #include "reqcode.h"
+#include "constants.h"
+
 
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
 
 void *fill_min_header(enum reqcode req, uint16_t id)
 {
@@ -59,4 +62,20 @@ void *malloc_return(int ret)
 	void *p = malloc(sizeof(ret));
 	*(int *)p = ret;
 	return p;
+}
+
+pthread_mutex_t msrv = PTHREAD_MUTEX_INITIALIZER;
+
+void print_s(char *msg)
+{
+	pthread_mutex_lock(&msrv);
+	printf("%s: %s", SERVER, msg);
+	pthread_mutex_unlock(&msrv);
+}
+
+void print_c(char *msg)
+{
+	pthread_mutex_lock(&msrv);
+	printf("%s: %s", CLIENT, msg);
+	pthread_mutex_unlock(&msrv);
 }
