@@ -7,10 +7,20 @@
 #include <unistd.h>
 #include <pthread.h>
 
-int create_server(char *argv[]){
+#define DEFAULT_PORT 2424
+#define NBCLIENTS 10
+
+int get_server_port (int argc, char *argv[]){
+	if (argc != 2) 
+		return DEFAULT_PORT;
+	else
+		return atoi(argv[1]);	
+}
+
+int create_server(int port){
 	struct sockaddr_in6 address_sock;
 	address_sock.sin6_family = AF_INET6;
-	address_sock.sin6_port = htons(atoi(argv[1]));
+	address_sock.sin6_port = htons(port);
 	address_sock.sin6_addr = in6addr_any;
 
 	/*  ########## AFFICHAGE INTRO ########### */
@@ -38,7 +48,7 @@ int create_server(char *argv[]){
 	return sock;
 }
 
-void connect_to_client (int sock) {
+int connect_to_client (int sock) {
 
 	/* le serveur accepte une connexion 
 	et crée la socket de communication avec le client */
@@ -50,29 +60,35 @@ void connect_to_client (int sock) {
 	int *sockclient = malloc(sizeof(int));
 	if (sockclient == NULL){
 		perror("malloc failed");
-		exit(2); 
+		return -1; 
 	}
-
 	*sockclient = accept(sock, (struct sockaddr *) &adrclient, &size);
 
 	if (sockclient >= 0){
 		pthread_t thread;
-
-		/* TODO : le serveur crée un thread 
+		/* 
+		* TODO : le serveur crée un thread 
 		* a priori il va falloir faire un traitement des messages du client ici 
 		*/
 	}
+	return 0;
 }
 
 int main (int argc, char *argv[]) {
-	if (argc != 2) {
-		fprintf(stderr, "run with : ./server <PORT>\n");
-		exit(1);
-	}
-	int sock = create_server(argv);
+	int port = get_server_port(argc, argv);
+	int server = create_server(port);
+
+	/*
+	* TODO: Créer un tableau de thread qui stocke les threads
+	*/
+	pthread_t threads[NBCLIENTS];
+
 	while (1) {
-		connect_to_client(sock);
+		if (connect_to_client(server) == -1) break;
+		/*
+		* attendre que tous les threads se terminent 
+		*/
 	}
-	close(sock);
+	close(server);
 	return 0;
 } 
