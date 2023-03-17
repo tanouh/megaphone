@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 static int test_push_back();
 static int test_push_front();
@@ -16,8 +17,6 @@ static int test_search();
 static int test_sort();
 static int test_insert_sorted();
 static int test_bin_search();
-static int test_clear();
-static int test_free_array();
 
 static int cmp(int *a, int *b);
 
@@ -29,6 +28,7 @@ void *test_array(void *d)
 	ret &= test_c(test_set, "test_set", print_meg);
 	ret &= test_c(test_delete_at, "test_delete_at", print_meg);
 	ret &= test_c(test_search, "test_search", print_meg);
+	ret &= test_c(test_sort, "test_sort", print_meg);
 
 	return malloc_return(ret);
 }
@@ -155,21 +155,29 @@ static int test_search()
 
 static int test_sort()
 {
-	return 0;
+	int k = 10;
+	srand(time(NULL));
+	struct array *a = make_array_cap(sizeof(int),k);
+	for(int i = 0; i < k; i++) {
+		int b = rand() % 10;
+		push_back(a, &b);
+	}
+	sort(a, (int (*)(void *, void *))cmp);
+	int err = 0;
+	for (int i = 1; i < a->size; i++) {
+		if (cmp(at(a,i-1), at(a, i)) == -1) {
+			err = 1;
+			break;
+		}
+	}
+	free_array(a, NULL);
+	return ASSERT(err == 0);
 }
 static int test_insert_sorted()
 {
 	return 0;
 }
 static int test_bin_search()
-{
-	return 0;
-}
-static int test_clear()
-{
-	return 0;
-}
-static int test_free_array()
 {
 	return 0;
 }

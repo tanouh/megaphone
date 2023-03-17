@@ -22,9 +22,10 @@ struct array *make_array_cap(int elem_size, int capacity)
 		perror("make_array");
 		return NULL;
 	}
+	a->size = 0;
 	a->capacity = capacity;
 	a->elem_s = elem_size;
-	if ((a->buf = malloc(elem_size * capacity)) == NULL) {
+	if ((a->buf = calloc(capacity, elem_size)) == NULL) {
 		perror("make_array");
 		free(a);
 		return NULL;
@@ -228,35 +229,33 @@ static void sort_aux(struct array *a, int start, int end,
 
 static void swap(struct array *a, int i, int j)
 {
-	void *tmp = at(a, i);
+	void *tmp = malloc(a->elem_s);
+	memcpy(tmp, at(a, i), a->elem_s);
 	set(a, at(a, j), i);
 	set(a, tmp, j);
+	free(tmp);
 }
 
 static int partition(struct array *a, int start, int end,
 		     int (*cmp)(void *, void *))
 {
-	int rd = start + (rand() % end);
+	int rd = start + (rand() % (end - start));
 	swap(a, start, rd);
-	void *pivot = at(a, start);
+	void *pivot = malloc(a->elem_s);
+	memcpy(pivot, at(a, start), a->elem_s);
 	int l = start + 1;
 	int r = end - 1;
-	while (r <= l) {
-		switch (cmp(at(a, r), pivot)) {
-		case -1:
+	while (l <= r) {
+		if (cmp(at(a,l), pivot) >= 0)
 			l++;
-			break;
-		case 1:
+		else if (cmp(at(a,r), pivot) <= 0)
 			r--;
-			break;
-
-		default:
-			swap(a, r, l);
-			break;
-		}
+		else
+			swap(a,r,l);
 	}
 	set(a, at(a, r), start);
 	set(a, pivot, r);
+	free(pivot);
 	return r;
 }
 
