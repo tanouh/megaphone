@@ -11,11 +11,11 @@
 
 static int resize(struct array *a, double factor);
 
-static int partition(struct array *a, int start, int end,
+static int partition(struct array *a, size_t start, size_t end,
 		     int (*cmp)(void *, void *));
-static void sort_aux(struct array *a, int start, int end,
+static void sort_aux(struct array *a, size_t start, size_t end,
 		     int (*cmp)(void *, void *));
-struct array *make_array_cap(int elem_size, int capacity)
+struct array *make_array_cap(size_t elem_size, size_t capacity)
 {
 	struct array *a = malloc(sizeof(struct array));
 	if (a == NULL) {
@@ -33,14 +33,14 @@ struct array *make_array_cap(int elem_size, int capacity)
 	return a;
 }
 
-struct array *make_array(int elem_size)
+struct array *make_array(size_t elem_size)
 {
 	return make_array_cap(elem_size, DEFSIZE);
 }
 
-void *at(struct array *a, int i)
+void *at(struct array *a, size_t i)
 {
-	if (i >= a->size || i < 0)
+	if (i >= a->size)
 		return NULL;
 	return ((void *)(char *)a->buf + i * a->elem_s);
 }
@@ -77,15 +77,15 @@ int push_front(struct array *a, void *e)
 	return 0;
 }
 
-int set(struct array *a, void *e, int i)
+int set(struct array *a, void *e, size_t i)
 {
-	if (i >= a->size || i < 0)
+	if (i >= a->size)
 		return -1;
 	memcpy((char *)a->buf + i * a->elem_s, e, a->elem_s);
 	return 0;
 }
 
-int delete_at(struct array *a, int i, void (*free_elem)(void *))
+int delete_at(struct array *a, size_t i, void (*free_elem)(void *))
 {
 	void *e = at(a, i);
 	if (e == NULL)
@@ -106,15 +106,15 @@ int remove_elt(struct array *a, void *elem, int (*cmp)(void *, void *))
 	return delete_at(a, search(a, elem, cmp), NULL);
 }
 
-int search(struct array *a, void *elem, int (*cmp)(void *, void *))
+ssize_t search(struct array *a, void *elem, int (*cmp)(void *, void *))
 {
-	int i = 0;
+	size_t i = 0;
 	for (; i < a->size; i++) {
 		void *e = at(a, i);
 		if (cmp(elem, e) == 0)
 			break;
 	}
-	return (i == a->size) ? -1 : i;
+	return (i == a->size) ? -1 : (ssize_t)i;
 }
 
 void sort(struct array *a, int (*cmp)(void *, void *))
@@ -130,9 +130,9 @@ int remove_sorted(struct array *a, void *elem, int (*cmp)(void *, void *))
 
 int insert_sorted(struct array *a, void *elem, int (*cmp)(void *, void *))
 {
-	int l = 0;
-	int r = a->size;
-	int i = -1;
+	size_t l = 0;
+	size_t r = a->size;
+	ssize_t i = -1;
 	while (l > r && i == -1) {
 		int m = (l + r) / 2;
 		switch (cmp(elem, at(a, m))) {
@@ -172,8 +172,8 @@ int insert_sorted(struct array *a, void *elem, int (*cmp)(void *, void *))
 
 int bin_search(struct array *a, void *elem, int (*cmp)(void *, void *))
 {
-	int l = 0;
-	int r = a->size;
+	size_t l = 0;
+	size_t r = a->size;
 	while (l >= r) {
 		int m = (l + r) / 2;
 		switch (cmp(elem, at(a, m))) {
@@ -193,7 +193,7 @@ int bin_search(struct array *a, void *elem, int (*cmp)(void *, void *))
 
 int clear(struct array *a, void (*free_elem)(void *))
 {
-	for (int i = 0; i < a->size; i++) {
+	for (size_t i = 0; i < a->size; i++) {
 		void *p = ((void *)(char *)a->buf + i * a->elem_s);
 		if (free_elem != NULL)
 			free_elem(p);
@@ -217,17 +217,17 @@ void free_array(struct array *a, void (*free_elem)(void *))
 	free(a);
 }
 
-static void sort_aux(struct array *a, int start, int end,
+static void sort_aux(struct array *a, size_t start, size_t end,
 		     int (*cmp)(void *, void *))
 {
 	if (end - start < 2)
 		return;
-	int p = partition(a, start, end, cmp);
+	size_t p = partition(a, start, end, cmp);
 	sort_aux(a, start, p, cmp);
 	sort_aux(a, p + 1, end, cmp);
 }
 
-static void swap(struct array *a, int i, int j)
+static void swap(struct array *a, size_t i, size_t j)
 {
 	void *tmp = malloc(a->elem_s);
 	memcpy(tmp, at(a, i), a->elem_s);
@@ -236,22 +236,22 @@ static void swap(struct array *a, int i, int j)
 	free(tmp);
 }
 
-static int partition(struct array *a, int start, int end,
+static int partition(struct array *a, size_t start, size_t end,
 		     int (*cmp)(void *, void *))
 {
-	int rd = start + (rand() % (end - start));
+	size_t rd = start + (rand() % (end - start));
 	swap(a, start, rd);
 	void *pivot = malloc(a->elem_s);
 	memcpy(pivot, at(a, start), a->elem_s);
-	int l = start + 1;
-	int r = end - 1;
+	size_t l = start + 1;
+	size_t r = end - 1;
 	while (l <= r) {
-		if (cmp(at(a,l), pivot) >= 0)
+		if (cmp(at(a, l), pivot) >= 0)
 			l++;
-		else if (cmp(at(a,r), pivot) <= 0)
+		else if (cmp(at(a, r), pivot) <= 0)
 			r--;
 		else
-			swap(a,r,l);
+			swap(a, r, l);
 	}
 	set(a, at(a, r), start);
 	set(a, pivot, r);
@@ -261,7 +261,7 @@ static int partition(struct array *a, int start, int end,
 
 static int resize(struct array *a, double factor)
 {
-	int newcap = a->capacity * factor;
+	size_t newcap = a->capacity * factor;
 	if (newcap < MINCAP)
 		newcap = MINCAP;
 	void *tmp = realloc(a->buf, a->elem_s * newcap);

@@ -20,22 +20,52 @@ It will test server functions and the communication with the client.
 #include <sys/types.h>
 #include <unistd.h>
 
-#define NBTEST 1
+#define NB_TEST 0
 #define NBCLIENT 1
+#define SIZE_MESS 512
 
 int id = 1;
-#define SIZE_MESS 512
+
+static void print(char *msg);
+static void print_connected_client(struct sockaddr_in adrclient);
+static int create_server();
+static void *test_network();
+static int do_tests(pthread_t *pts);
 
 pthread_mutex_t p = PTHREAD_MUTEX_INITIALIZER;
 
-void print(char *msg)
+void *(*tests[NB_TEST])(void *) = {};
+
+int main()
 {
-	pthread_mutex_lock(&p);
-	print_serv(msg);
-	pthread_mutex_unlock(&p);
+	pthread_t pts[NB_TEST + 1];
+	if (pthread_create(pts, NULL, (void *(*)(void *))test_network, NULL) ==
+	    -1) {
+		perror("Thread didn't laucnhed");
+		return ESYS;
+	}
+
+	int ret = 1;
+	print_serv("Waiting for thread to finish...\n");
+	int ntest = do_tests(pts + 1);
+	for (int i = 0; i < ntest + 1; i++) {
+		int *tmp;
+		if (pthread_join(pts[i], (void *)&tmp) != 0)
+			perror("thread join");
+		if (tmp != NULL) {
+			ret &= *tmp;
+			free(tmp);
+		} else {
+			ret = 0;
+		}
+	}
+	char buf[512];
+	sprintf(buf, "End of server (%d)\n", !ret);
+	print_serv(buf);
+	return !ret;
 }
 
-void print_connected_client(struct sockaddr_in adrclient)
+static void print_connected_client(struct sockaddr_in adrclient)
 {
 	char buf[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &(adrclient.sin_addr), buf, INET_ADDRSTRLEN);
@@ -46,7 +76,7 @@ void print_connected_client(struct sockaddr_in adrclient)
 	id++;
 }
 
-int create_server()
+static int create_server()
 {
 	print_serv("Creating server...\n");
 	int sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -66,7 +96,7 @@ int create_server()
 	return sock;
 }
 
-void *test_network()
+static void *test_network()
 {
 	int server = create_server();
 	kill(getppid(), SIGUSR1);
@@ -106,30 +136,15 @@ void *test_network()
 	return (ret) ? malloc_return(ret) : NULL;
 }
 
-int main()
+static int do_tests(pthread_t *pts)
 {
-	pthread_t pts[NBTEST];
-	if (pthread_create(pts, NULL, (void *(*)(void *))test_network, NULL) ==
-	    -1) {
-		perror("Thread didn't laucnhed");
-		return ESYS;
-	}
-
-	int ret = 1;
-	print_serv("Waiting for thread to finish...\n");
-	for (int i = 0; i < NBTEST; i++) {
-		int *tmp;
-		if (pthread_join(pts[i], (void *)&tmp) != 0)
-			perror("thread join");
-		if (tmp != NULL) {
-			ret &= *tmp;
-			free(tmp);
-		} else {
-			ret = 0;
+	int ntest = NB_TEST;
+	for (int i = 0; i < ntest; i++) {
+		if (pthread_create(pts + i, NULL, tests[i], NULL) == -1) {
+			perror("test error");
+			ntest--;
+			i--;
 		}
 	}
-	char buf[512];
-	sprintf(buf, "End of server (%d)\n", !ret);
-	print_serv(buf);
-	return !ret;
+	return ntest;
 }

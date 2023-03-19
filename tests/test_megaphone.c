@@ -1,3 +1,4 @@
+#include "printlib.h"
 #include "test_array.h"
 #include "test_constants.h"
 #include "testlib.h"
@@ -17,49 +18,13 @@ void *(*tests[NB_TEST])(void *) = {test_array};
 
 pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 
-int launch_server();
-int launch_client();
-void print_meg(char *msg);
+static int launch_server();
+static int launch_client();
+static int test_net();
+static int do_tests(pthread_t *pts);
 int server_created = 0;
 
 // clear code and the part with the pipe or try to fix it
-
-void servalrm(int sig)
-{
-	if (sig == SIGUSR1)
-		server_created = 1;
-}
-
-int test_net()
-{
-	struct sigaction act = {0};
-	act.sa_handler = servalrm;
-	sigaction(SIGUSR1, &act, NULL);
-	if (launch_server()) {
-
-		return ESYS;
-	}
-	print_meg("Waiting...");
-	if (!server_created)
-		pause();
-	if (launch_client() < 0) {
-		return ESYS;
-	}
-	return 0;
-}
-
-int do_tests(pthread_t *pts)
-{
-	int ntest = NB_TEST;
-	for (int i = 0; i < ntest; i++) {
-		if (pthread_create(pts + i, NULL, tests[i], NULL) == -1) {
-			perror("test error");
-			ntest--;
-			i--;
-		}
-	}
-	return ntest;
-}
 
 int main()
 {
@@ -89,7 +54,44 @@ int main()
 	return ret;
 }
 
-int launch_server()
+static void servalrm(int sig)
+{
+	if (sig == SIGUSR1)
+		server_created = 1;
+}
+
+static int test_net()
+{
+	struct sigaction act = {0};
+	act.sa_handler = servalrm;
+	sigaction(SIGUSR1, &act, NULL);
+	if (launch_server()) {
+
+		return ESYS;
+	}
+	print_meg("Waiting...");
+	if (!server_created)
+		pause();
+	if (launch_client() < 0) {
+		return ESYS;
+	}
+	return 0;
+}
+
+static int do_tests(pthread_t *pts)
+{
+	int ntest = NB_TEST;
+	for (int i = 0; i < ntest; i++) {
+		if (pthread_create(pts + i, NULL, tests[i], NULL) == -1) {
+			perror("test error");
+			ntest--;
+			i--;
+		}
+	}
+	return ntest;
+}
+
+static int launch_server()
 {
 	print_meg("Launching server");
 	switch (fork()) {
@@ -104,7 +106,7 @@ int launch_server()
 	}
 }
 
-int launch_client()
+static int launch_client()
 {
 	print_meg("Launching client");
 	switch (fork()) {
@@ -117,12 +119,4 @@ int launch_client()
 	default:
 		return 0;
 	}
-}
-
-int print(const char *buf, int size)
-{
-	pthread_mutex_lock(&m);
-	write(STDOUT_FILENO, buf, size);
-	pthread_mutex_unlock(&m);
-	return 0;
 }

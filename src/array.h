@@ -1,10 +1,12 @@
 #ifndef MEGAPHONE_ARRAY_H
 #define MEGAPHONE_ARRAY_H
+#include <stddef.h>
+#include <sys/types.h>
 
 struct array {
-	int elem_s;
-	int capacity;
-	int size;
+	size_t elem_s;
+	size_t capacity;
+	size_t size;
 	void *buf;
 };
 
@@ -12,14 +14,14 @@ struct array {
  * @brief Make an array with the default capacity.
  * @param elem_s Size of an element.
  */
-struct array *make_array(int elem_s);
+struct array *make_array(size_t elem_s);
 
 /**
  * @brief Make an array with the given capacity
  * @param elem_s Size of an element.
  * @param capacity Buffer's capacity.
  */
-struct array *make_array_cap(int elem_s, int capacity);
+struct array *make_array_cap(size_t elem_s, size_t capacity);
 
 /**
  * @brief Gets the content stored at the position i of the array.
@@ -27,7 +29,7 @@ struct array *make_array_cap(int elem_s, int capacity);
  * @param i the position of the requested data.
  * @return The data.
  */
-void *at(struct array *a, int i);
+void *at(struct array *a, size_t i);
 
 /**
  * @brief Gets the first data of the array.
@@ -63,7 +65,7 @@ int push_front(struct array *a, void *elem);
  * @param i The position of where the new data willbe stored.
  * @return -1 if an error occured, 0 otherwise.
  */
-int set(struct array *a, void *elem, int i);
+int set(struct array *a, void *elem, size_t i);
 
 /**
  * @brief Delete the element of the position i and free it if the free function
@@ -73,7 +75,7 @@ int set(struct array *a, void *elem, int i);
  * @param free_elem The data free function.
  * @return -1 if an error occured, 0 otherwise.
  */
-int delete_at(struct array *a, int i, void (*free_elem)(void *));
+int delete_at(struct array *a, size_t i, void (*free_elem)(void *));
 
 /**
  * @brief Revove the given element from the list.
@@ -89,9 +91,9 @@ int remove_elt(struct array *a, void *elem, int (*cmp)(void *, void *));
  * @param a The array.
  * @param elem The element that will be researched.
  * @param cmp The data comparison function.
- * @return The index of the given data.
+ * @return The index of the given data or -1 if not found.
  */
-int search(struct array *a, void *elem, int (*cmp)(void *, void *));
+ssize_t search(struct array *a, void *elem, int (*cmp)(void *, void *));
 
 /**
  * @brief Sorts the array acconding to the given comparison function

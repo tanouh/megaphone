@@ -20,7 +20,7 @@ static int test_bin_search();
 
 static int cmp(int *a, int *b);
 
-void *test_array(void *d)
+void *test_array()
 {
 	int ret = 1;
 	ret &= test_c(test_push_back, "test_push_back", print_meg);
@@ -50,7 +50,6 @@ static int test_push_back()
 	b++;
 	push_back(a, &b);
 	int ret = 1;
-	printf("%d\n", a->size);
 	ret &= ASSERT(a->size == 3);
 	ret &= ASSERT(a->capacity = 4);
 	ret &= ASSERT(*(int *)back(a) == b);
@@ -157,15 +156,15 @@ static int test_sort()
 {
 	int k = 10;
 	srand(time(NULL));
-	struct array *a = make_array_cap(sizeof(int),k);
-	for(int i = 0; i < k; i++) {
+	struct array *a = make_array_cap(sizeof(int), k);
+	for (int i = 0; i < k; i++) {
 		int b = rand() % 10;
 		push_back(a, &b);
 	}
 	sort(a, (int (*)(void *, void *))cmp);
 	int err = 0;
-	for (int i = 1; i < a->size; i++) {
-		if (cmp(at(a,i-1), at(a, i)) == -1) {
+	for (size_t i = 1; i < a->size; i++) {
+		if (cmp(at(a, i - 1), at(a, i)) == -1) {
 			err = 1;
 			break;
 		}
