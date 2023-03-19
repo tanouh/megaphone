@@ -10,10 +10,14 @@
 #include "smesslib.h"
 #include "../constants.h"
 #include "../lib.h"
+#include "../chat.h"
 
-#define NBCLIENTS 10
+#define NBCLIENTSMAX 2048
 
 int server;
+int c_connected;
+pthread_t threads[NBCLIENTSMAX];
+pthread_mutex_t mserv = PTHREAD_MUTEX_INITIALIZER;
 
 int get_server_port (int argc, char *argv[]){
 	if (argc != 2) 
@@ -24,6 +28,7 @@ int get_server_port (int argc, char *argv[]){
 
 int create_server(int port){
 	struct sockaddr_in6 address_sock;
+	memset(&address_sock, 0, sizeof(address_sock));
 	address_sock.sin6_family = AF_INET6;
 	address_sock.sin6_port = htons(port);
 	address_sock.sin6_addr = in6addr_any;
@@ -51,17 +56,34 @@ int create_server(int port){
 	return 0;
 }
 
-void *init(){
+void *init(void *sockclient){
+	int sock = *(int *)sockclient;
+	free(sockclient);
+
 	print_s("Connexion établie\n");
+
 	//TODO : création de thread qui exécute les actions ? 
+	
+
+	/* A la fin de la connexion on décrémente le nombre de clients connectés*/
+	pthread_mutex_lock(&mserv);
+	c_connected--;
+	pthread_mutex_unlock(&mserv);
+	print_s("Déconnexion\n");
+
+	close(sock);
 	return NULL;
 }
 
-int connect_to_client (int *sockclient, pthread_t *thread) {
-
+int connect_to_client () {
 	/* le serveur accepte une connexion
 	et crée la socket de communication avec le client */
-
+	int *sockclient = malloc(sizeof(int));
+	if(sockclient == NULL){
+		perror("malloc failed");
+		close(server);
+		return 1;
+	}
 	struct sockaddr_in6 adrclient;
 	memset(&adrclient, 0, sizeof(adrclient));
 	socklen_t size = sizeof(adrclient);
@@ -70,7 +92,8 @@ int connect_to_client (int *sockclient, pthread_t *thread) {
 	if (*sockclient < 0){
 		return -1;
 	}
-	if (pthread_create(thread, NULL, init, sockclient) == -1){
+	
+	if (pthread_create(threads+c_connected, NULL, init, sockclient) == -1){
 		perror("Thread creation failed");
 		return -1;
 	}
@@ -78,21 +101,20 @@ int connect_to_client (int *sockclient, pthread_t *thread) {
 }
 
 int serve(int port){
-
 	if(create_server(port)==-1)
 		return 1;
 	print_s("Ouverture du serveur \nEN ATTENTE DE CONNEXION...\n");
 
-	pthread_t threads [NBCLIENTS];
-	int *scs = calloc(NBCLIENTS, sizeof(int));
-	if(scs == NULL){
-		perror("malloc failed");
-		close(server);
-		return 1;
-	}
-	int c_connected = 0;
-	while(c_connected < NBCLIENTS){
-		if(connect_to_client(scs+c_connected,&threads[c_connected]) == -1) break;
+	chat_counter = 0;
+	c_connected = 0;
+
+	/*
+	Suggestion : créer un thread qui écoute constamment le terminal 
+	responsable de la terminaison du serveur 
+	*/
+
+	while(c_connected < NBCLIENTSMAX){
+		if(connect_to_client() == -1) break;
 		c_connected ++;
 	}
 	int ret = 1;
@@ -107,7 +129,7 @@ int serve(int port){
 			ret = 0;
 		}
 	}
-	free(scs);
+	
 	char buf[SBUF];
 	sprintf(buf, "Fin de session (%d)\n", !ret);
 	print_s(buf);
