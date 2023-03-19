@@ -48,7 +48,8 @@ memcheck-test:
   script:
     - apt-get update -qq && apt-get install -y -qq valgrind &> /dev/null
     - make test
-    - valgrind --trace-children=yes --leak-check=full tests/test_megaphone
+    - valgrind --trace-children=yes --leak-check=full --error-exitcode=1 tests/test_megaphone
+  allow_failure: true
   cache:
     key: $CI_COMMIT_REF_NAME
     policy: pull

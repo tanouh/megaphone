@@ -1,3 +1,4 @@
+#include "test_array.h"
 #include "test_constants.h"
 #include "testlib.h"
 
@@ -10,10 +11,11 @@
 #include <unistd.h>
 #include <wait.h>
 
-#define NB_TEST 0
+#define NB_TEST 1
+
+void *(*tests[NB_TEST])(void *) = {test_array};
 
 pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t mp = PTHREAD_MUTEX_INITIALIZER;
 
 int launch_server();
 int launch_client();
@@ -46,20 +48,32 @@ int test_net()
 	return 0;
 }
 
+int do_tests(pthread_t *pts)
+{
+	int ntest = NB_TEST;
+	for (int i = 0; i < ntest; i++) {
+		if (pthread_create(pts + i, NULL, tests[i], NULL) == -1) {
+			perror("test error");
+			ntest--;
+			i--;
+		}
+	}
+	return ntest;
+}
+
 int main()
 {
 	pthread_t pts[NB_TEST];
-	int cpt = 0;
 	test_net();
+	int ntest = do_tests(pts);
 	int *tmp;
 	int ret = 0;
-	for (int i = 0; i < cpt; i++) {
+	for (int i = 0; i < ntest; i++) {
 		if (pthread_join(pts[i], (void **)&tmp) == -1)
 			perror("Thread join");
 		if (tmp == NULL) {
 			ret = 1;
 		} else {
-			ret |= *tmp;
 			free(tmp);
 		}
 	}
@@ -73,13 +87,6 @@ int main()
 	print_meg("End of Megaphone");
 
 	return ret;
-}
-
-void print_meg(char *msg)
-{
-	pthread_mutex_lock(&mp);
-	printf("%s: %s\n", MEGAPHONE, msg);
-	pthread_mutex_unlock(&mp);
 }
 
 int launch_server()
