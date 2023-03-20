@@ -2,6 +2,7 @@
 #include "test_array.h"
 #include "test_constants.h"
 #include "testlib.h"
+#include "test_map.h"
 
 #include <limits.h>
 #include <pthread.h>
@@ -12,9 +13,9 @@
 #include <unistd.h>
 #include <wait.h>
 
-#define NB_TEST 1
+#define NB_TEST 2
 
-void *(*tests[NB_TEST])(void *) = {test_array};
+void *(*tests[NB_TEST])(void *) = {test_array, test_map};
 
 pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 

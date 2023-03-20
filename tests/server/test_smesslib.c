@@ -77,6 +77,8 @@ void *test_smesslib(void *data)
 			 print_serv);
 	ret &= test_carg(test_fill_notification, (void *)&client,
 			 "test_fill_notification", print_serv);
+	ret &= test_carg(test_fill_subscribe, (void *)&client,
+			 "test_fill_subscribe", print_serv);
 	close(client);
 	return (ret) ? malloc_return(ret) : NULL;
 }
@@ -179,6 +181,7 @@ static int test_fill_notification(void *arg)
 	free(msg);
 	uint8_t ans;
 	recv(client, &ans, sizeof(ans), 0);
+	sleep(1); // TODO: Improve sync
 	return ans;
 }
 

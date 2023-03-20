@@ -26,7 +26,6 @@ It will test server functions and the communication with the client.
 
 int id = 1;
 
-static void print(char *msg);
 static void print_connected_client(struct sockaddr_in adrclient);
 static int create_server();
 static void *test_network();

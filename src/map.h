@@ -77,6 +77,9 @@ int put_map(struct map *m, void *key, void *data, void *old_data, size_t ksize,
 int remove_map(struct map *m, void *key, void (*free_data)(void *data),
 	       size_t ksize);
 
+int get_map(struct map *m, void *key, void *data, size_t ksize);
+
+
 void free_map(struct map *m, void (*free_key)(void *),
 	      void (*free_data)(void *));
 void clear_map(struct map *m, void (*free_key)(void *),

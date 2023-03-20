@@ -71,6 +71,8 @@ int test_cmesslib(int sock)
 			 "test_get_fill_error", print_client);
 	ret &= test_carg(test_get_fill_notification, (void *)&sock,
 			 "test_get_fill_notification", print_client);
+	ret &= test_carg(test_get_fill_subscribe, (void *)&sock,
+			 "test_get_fill_subscribe", print_client);
 
 	return ret;
 }
@@ -251,7 +253,7 @@ static int test_get_fill_subscribe(void *arg)
 	ret &= ASSERT(req == SUBSCRIBE);
 	ret &= ASSERT(chat == FIELD);
 	ret &= ASSERT(nb == FIELD);
-	ret &= ASSERT(strncmp(addr, MULT, ADDRMULT_LEN));
+	ret &= ASSERT(strncmp(addr, MULT, ADDRMULT_LEN) == 0);
 	send(client, &ret, sizeof(ret), 0);
 	free(addr);
 	return (int)ret;

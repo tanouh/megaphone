@@ -11,7 +11,7 @@ static const size_t HASH_M = 23;
 
 #define MIN_RATIO 0.25
 #define MAX_RATIO 0.75
-#define DEFSIZE 11
+#define DEFSIZE 16
 
 enum status { FILLED, DUMMY, EMPTY };
 
@@ -36,7 +36,7 @@ static size_t hash2(size_t key);
 static ssize_t find(struct map *m, void *key, int flag, size_t ksize);
 static int fill_data(struct map *m, struct map_data *md, void *key, void *data,
 		     size_t ksize, size_t dsize);
-static int resize(struct map *m, int factor);
+static int resize(struct map *m, float factor);
 static struct map_data *malloc_data_buf(size_t capacity);
 
 struct map *make_map(int (*cmp)(void *key1, void *key2),
@@ -47,12 +47,13 @@ struct map *make_map(int (*cmp)(void *key1, void *key2),
 		perror("make map");
 		return NULL;
 	}
+	map_iter_start(m);
 	m->cmp = cmp;
 	m->capacity = DEFSIZE;
 	m->nkey = 0;
 	m->ndummy = 0;
 	m->data = malloc_data_buf(m->capacity);
-	m->hash = hash;
+	m->hash = (hash == NULL) ? default_hash : hash;
 	if (m->data == NULL) {
 		perror("make map");
 		free(m);
@@ -66,6 +67,8 @@ int put_map(struct map *m, void *key, void *data, void *old_data, size_t ksize,
 {
 	int ret = 0;
 	ssize_t ind = find(m, key, 1, ksize);
+	if (ind == -1)
+		return -1;
 	struct map_data *md = m->data + ind;
 	switch (md->status) {
 	case EMPTY:
@@ -76,6 +79,8 @@ int put_map(struct map *m, void *key, void *data, void *old_data, size_t ksize,
 		m->nkey++;
 		break;
 	case FILLED:
+		if (md->data == NULL)
+			break;
 		if (old_data != NULL) {
 			memcpy(old_data, md->data, md->dsize);
 			ret = 1; /* old data is set */
@@ -101,25 +106,27 @@ void map_iter_start(struct map *m)
 }
 int map_iter_next(struct map *m, void *key, void *data)
 {
-	while (m->data[m->it].status != FILLED && m->it < m->capacity)
+	while (m->it < m->capacity && m->data[m->it].status != FILLED)
 		m->it++;
 	if (m->it >= m->capacity)
 		return 0;
 	struct map_data md = m->data[m->it];
 	if (key != NULL)
-		memcpy(key, &md, md.ksize);
-	if (data != NULL)
+		memcpy(key, md.key, md.ksize);
+	if (data != NULL && md.data != NULL)
 		memcpy(data, md.data, md.dsize);
+	m->it++;
 	return 1;
 }
 
 int get_map(struct map *m, void *key, void *data, size_t ksize)
 {
-	ssize_t ind;
+	ssize_t ind = 0;
 	if ((ind = find(m, key, 0, ksize)) < 0)
 		return -1;
 	struct map_data md = m->data[(size_t)ind];
-	memcpy(data, m->data[(size_t)ind].data, md.dsize);
+	if (data != NULL && m->data[(size_t)ind].data != NULL)
+		memcpy(data, m->data[(size_t)ind].data, md.dsize);
 	return 0;
 }
 
@@ -130,14 +137,21 @@ int remove_map(struct map *m, void *key, void (*free_data)(void *data),
 	if (ind < 0)
 		return -1;
 	struct map_data *md = m->data + (size_t)ind;
-	if (free_data != NULL)
-		free_data(md->data);
-	free(md->data);
+	if (md->data != NULL) {
+		if (free_data != NULL)
+			free_data(md->data);
+		free(md->data);
+	}
 	free(md->key);
 	md->data = NULL;
 	md->key = NULL;
 	md->status = DUMMY;
 	m->ndummy++;
+	m->nkey--;
+	if ((m->nkey < MIN_RATIO * m->capacity)) {
+		float ratio = (m->ndummy > m->nkey)? 1 : 0.5;
+		resize(m, ratio);
+	}
 	return 0;
 }
 
@@ -176,7 +190,7 @@ void free_map(struct map *m, void (*free_key)(void *),
 		if (md->status == FILLED) {
 			if (free_key != NULL)
 				free_key(md->key);
-			if (free_data != NULL)
+			if (free_data != NULL && md->data != NULL)
 				free_data(md->data);
 			free(md->key);
 			free(md->data);
@@ -191,7 +205,7 @@ size_t default_hash(void *key, size_t ksize)
 	size_t h = 0;
 	char *p = (char *)key;
 	for (size_t i = 0; i < ksize; i++) {
-		h += p[i] * (ksize - i) >> 5;
+		h += (('a' + p[i]) % 'Z') * ((ksize - i) << 5);
 	}
 	return h;
 }
@@ -203,7 +217,7 @@ size_t int_hash(void *key, size_t ksize)
 	size_t h = 0;
 	for (size_t i = 0; i < ksize; i += incr) {
 		incr = s > ksize ? ksize : s;
-		size_t x;
+		size_t x = 0;
 		memcpy(&x, key + i, incr);
 		double ax = HASH_A * x;
 		h += (size_t)(HASH_M * (ax - (size_t)(ax)));
@@ -238,8 +252,8 @@ static ssize_t find(struct map *m, void *key, int flag, size_t ksize)
 				dummy = ind;
 			break;
 		default:
-			if (m->data[i].hkey == h &&
-			    m->cmp(m->data[i].key, key) == 0)
+			if (m->data[ind].hkey == h &&
+			    m->cmp(m->data[ind].key, key) == 0)
 				return ind;
 			break;
 		}
@@ -252,42 +266,47 @@ static int fill_data(struct map *m, struct map_data *md, void *key, void *data,
 		     size_t ksize, size_t dsize)
 {
 	md->hkey = m->hash(key, ksize);
-	md->key = malloc(ksize);
+	if (md->key == NULL)
+		md->key = malloc(ksize);
 	if (md->key == NULL) {
 		perror("fill_data");
 		return -1;
 	}
 	memcpy(md->key, key, ksize);
-	md->data = malloc(dsize);
-	if (md->data == NULL) {
-		free(md->key);
-		md->key = NULL;
-		perror("fill_data");
-		return -1;
+	if (data != NULL) {
+		md->data = malloc(dsize);
+		if (md->data == NULL) {
+			free(md->key);
+			md->key = NULL;
+			perror("fill_data");
+			return -1;
+		}
+		memcpy(md->data, data, dsize);
 	}
-	memcpy(md->data, data, dsize);
 	md->status = FILLED;
 	md->ksize = ksize;
 	md->dsize = dsize;
 	return 0;
 }
 
-static int resize(struct map *m, int factor)
+static int resize(struct map *m, float factor)
 {
+	size_t newsize = m->capacity * factor;
+	newsize = (newsize < DEFSIZE) ? DEFSIZE : newsize;
 	struct map_data *old = m->data;
 	size_t oldcap = m->capacity;
-	m->data = malloc(m->capacity * factor);
+	m->data = malloc_data_buf(newsize);
 	if (m->data == NULL) {
 		perror("resize");
 		m->data = old;
 		return -1;
 	}
-	m->capacity = factor * m->capacity;
+	m->capacity = newsize;
 	m->nkey = 0;
 	m->ndummy = 0;
 	map_iter_start(m);
 	for (size_t i = 0; i < oldcap; i++) {
-		if (old[i].status == FILLED)
+		if (old[i].status == FILLED) {
 			if (put_map(m, old[i].key, old[i].data, NULL,
 				    old[i].ksize, old[i].dsize) != 0) {
 				perror("resize");
@@ -295,6 +314,9 @@ static int resize(struct map *m, int factor)
 				m->data = old;
 				return -1;
 			}
+			free(old[i].key);
+			free(old[i].data);
+		}
 	}
 	free(old);
 	return 0;
