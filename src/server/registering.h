@@ -4,8 +4,7 @@
 #include <arpa/inet.h>
 #include "../map.h"
 
-uint16_t next_id;
-
+extern uint16_t next_id;
 uint16_t new_id();
 
 int compare_identifiers(void *key1, void *key2);

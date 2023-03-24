@@ -12,6 +12,8 @@
 
 #define SIZE_MSG 256
 
+uint16_t next_id = 0;
+
 uint16_t new_id()
 {
 	uint16_t ret = next_id;
@@ -45,11 +47,11 @@ int accept_registering(int sockclient, struct map *identifiers)
 		return -1;
 	}
 
-	enum reqcode *req;
+	enum reqcode req = 0;
 	uint16_t id;
 	char *nickname;
-	get_inscription(buff_rcv, req, &id, &nickname);
-	if (reqtoi(*req) != 1) {
+	get_inscription(buff_rcv, &req, &id, &nickname);
+	if (reqtoi(req) != 1) {
 		perror("Erreur de requete");
 		return -1;
 	}
