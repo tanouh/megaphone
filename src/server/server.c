@@ -1,5 +1,7 @@
 #include "../constants.h"
 #include "../lib.h"
+#include "../map.h"
+#include "slib.h"
 #include "smesslib.h"
 
 #include <arpa/inet.h>
@@ -76,6 +78,10 @@ int accept_inscription(void *sockclient)
 		perror("Erreur de requete");
 		return -1;
 	}
+
+	put_map(identifiers, &id, &nickname, NULL, sizeof(uint16_t),
+		sizeof(char *));
+
 	return 0;
 }
 
@@ -129,6 +135,9 @@ int serve(int port)
 			break;
 		c_connected++;
 	}
+
+	identifiers = make_map(compare_identifiers, default_hash);
+
 	int ret = 1;
 	int *tmp;
 	for (int i = 0; i < c_connected; i++) {
@@ -144,6 +153,7 @@ int serve(int port)
 	free(scs);
 	char buf[SBUF];
 	sprintf(buf, "Fin de session (%d)\n", !ret);
+	free_map(identifiers, free_identifier, free_nickname);
 	print_s(buf);
 	close(server);
 	return !ret;
