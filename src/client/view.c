@@ -1,5 +1,7 @@
 #include "view.h"
 
+#include "../lib.h"
+
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <stdio.h>
@@ -11,8 +13,8 @@
 
 char *ask_pseudo()
 {
-	printf("Bienvenue sur le serveur *Nom Provisoire*\nVeuillez saisir un "
-	       "pseudo de 10 caractères\n");
+	print_c("Bienvenue sur le serveur *Nom Provisoire*\nVeuillez saisir un "
+		"pseudo de 10 caractères\n");
 
 	return readline("Pseudo : ");
 }
@@ -32,17 +34,18 @@ void show_id(uint16_t id)
 
 int choose_action()
 {
-	printf("Que souhaitez-vous faire ?\nPour :\n - poster un billet, tapez "
-	       "1\n - ajouter un fichier, taper 2\n - voir des billets "
-	       "précedents, taper 3\n - télécharger un fichier, taper 4\n - "
-	       "vous abonner à un fil, taper 5\n");
+	print_c("Que souhaitez-vous faire ?\nPour :\n - poster un billet, "
+		"tapez "
+		"1\n - ajouter un fichier, taper 2\n - voir des billets "
+		"précedents, taper 3\n - télécharger un fichier, taper 4\n - "
+		"vous abonner à un fil, taper 5\n");
 	return atoi(readline("Action : "));
 }
 
 int choose_thread_to_post_in()
 {
-	printf("Vous avez choisi de poster un billet.\nDans quel fil "
-	       "souhaitez-vous le poster ?\n");
+	print_c("Vous avez choisi de poster un billet.\nDans quel fil "
+		"souhaitez-vous le poster ?\n");
 	return atoi(readline("Numéro du fil : "));
 }
 
@@ -54,13 +57,13 @@ char *post_ticket(int num_thread)
 
 char *add_file_to_thread()
 {
-	printf("Vous avez choisi d'ajouter un fichier.\n");
+	print_c("Vous avez choisi d'ajouter un fichier.\n");
 	return readline("Lien du fichier I guess : ");
 }
 
 int select_thread_to_unfold()
 {
-	printf("Vous avez choisi de voir des billets précédents.\n");
+	print_c("Vous avez choisi de voir des billets précédents.\n");
 	return atoi(readline("Numéro du fil à dérouler : "));
 }
 
@@ -72,13 +75,13 @@ int see_previous_tickets(int num_thread)
 
 int download_file()
 {
-	printf("Vous avez choisi de télécharger un fichier.\n");
+	print_c("Vous avez choisi de télécharger un fichier.\n");
 	return atoi(readline("Numéro du fichier I guess :"));
 }
 
 int subscribe_to_thread()
 {
-	printf("Vous avez choisi de vous abonner à un fil.\n");
+	print_c("Vous avez choisi de vous abonner à un fil.\n");
 	return atoi(readline("Numéro du fil I guess :"));
 }
 
