@@ -1,7 +1,6 @@
 #include "../constants.h"
 #include "../lib.h"
 #include "../map.h"
-#include "slib.h"
 #include "smesslib.h"
 
 #include <arpa/inet.h>
@@ -17,6 +16,8 @@
 #define SIZE_MSG 256
 
 int server;
+u_int16_t next_id;
+struct map *identifiers;
 
 int get_server_port(int argc, char *argv[])
 {
@@ -57,6 +58,28 @@ int create_server(int port)
 		return -1;
 	}
 	return 0;
+}
+
+u_int16_t new_id()
+{
+	u_int16_t ret = next_id;
+	next_id++;
+	return ret;
+}
+
+int compare_identifiers(void *key1, void *key2)
+{
+	return strcmp((char *)key1, (char *)key2) == 0;
+}
+
+void free_identifier(void *id)
+{
+	free(id);
+}
+
+void free_nickname(void *nickname)
+{
+	free(nickname);
 }
 
 int accept_inscription(void *sockclient)
