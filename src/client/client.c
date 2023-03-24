@@ -1,6 +1,7 @@
 #include "action.h"
 #include "cmesslib.h"
 #include "view.h"
+#include "../constants.h"
 
 #include <arpa/inet.h>
 #include <readline/history.h>
@@ -12,9 +13,6 @@
 #include <sys/types.h>
 #include <sys/unistd.h>
 
-#define SERVER_PORT 4242
-#define SERVER_ADDR "fdc7:9dd5:2c66:be86:4849:43ff:fe49:79be/64"
-#define SIZE_MSG 256
 #define ERROR 31
 
 uint16_t id;

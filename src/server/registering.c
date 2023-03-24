@@ -1,7 +1,6 @@
-#include "registering.h"
-
 #include "../constants.h"
 #include "../reqcode.h"
+#include "registering.h"
 #include "smesslib.h"
 
 #include <arpa/inet.h>
@@ -49,7 +48,11 @@ int accept_registering(int sockclient, struct map *identifiers,
 	enum reqcode req = 0;
 	uint16_t id;
 	char *nickname;
-	get_inscription(buff_rcv, &req, &id, &nickname);
+
+	if(get_inscription(buff_rcv, &req, &id, &nickname) == -1){
+		perror("get_incripition");
+		return -1;
+	}
 	if (reqtoi(req) != 1) {
 		perror("Erreur de requete");
 		return -1;

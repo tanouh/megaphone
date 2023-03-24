@@ -1,8 +1,11 @@
+#include "../array.h"
+#include "../chat.h"
+#include "../map.h"
+#include "../ticket.h"
+#include "registering.h"
 #include "saction.h"
 #include "smesslib.h"
-#include "../chat.h"
-#include "../ticket.h"
-#include "../array.h"
+
 
 #include <arpa/inet.h>
 #include <stdio.h>
@@ -13,13 +16,13 @@
 
 //variable globale : liste des users 
 
-void *execute_action(void *arg){
+void *execute_action(void *arg, int sockclient, struct map *identifiers, uint16_t *next_id){
 	enum reqcode req = 0;
 	uint16_t id = 0, chat = 0, nb = 0;
 	uint8_t datalen = 0;
 	char *data = NULL; 
 	
-	void *ret_msg;
+	void *ret_msg = NULL;
 	int size_msg = 0;
 
 	int ret = get_message(arg, &req, &id, &chat, &nb, &datalen, (void **)&data);
@@ -31,14 +34,17 @@ void *execute_action(void *arg){
 		return fill_error(&size_msg);
 	}
 	switch (req) {
-		case INSCRIPTION : //TODO
+		case INSCRIPTION : 
+			if(accept_registering(sockclient, identifiers, next_id) == -1){
+				ret_msg = fill_error(&size_msg);
+			} // Reponse serveur ?
 			break;
-		case PUSH_MESS : //TODO
-			index = push_mess(id,chat,datalen, data);
+		case PUSH_MESS : 
+			index = push_mess(identifiers, &id, chat, datalen, data);
 			if (index == -1 ){
 				ret_msg = fill_error(&size_msg);
 			}else{
-				ret_msg = fill_message(req,index,chat,nb,&size_msg);
+				ret_msg = fill_message(req, index, chat, nb, &size_msg);
 			} 
 			break ;
 		case ASK_MESS : // TODO
@@ -55,20 +61,27 @@ void *execute_action(void *arg){
 	return ret_msg;
 }
 
-int push_mess(uint16_t id, uint16_t chat, uint16_t datalen, void *data){
+int push_mess(struct map *identifiers, uint16_t *id, uint16_t chat, uint16_t datalen, void *data){
 	// struct array ulist = NULL; // TODO
 	struct chat *c;
 	struct ticket *t;
+	char usr[ID_MAX];
+	memset(usr, 0, sizeof(usr));
 
 	/*if((get_user(id,ulist)) == NULL){ //TODO : recherche dans un hashmap plutôt
 		perror("User not found "); //GERER
 		return -1;
 	}*/
+	if(get_map(identifiers, id, (void *)usr, sizeof(uint16_t)) == -1){
+		perror("User not found");
+		return -1;
+	}
+
 	if((c = get_chat(chat)) == NULL){ 
 		perror("chat not found/couldn't be created"); //GERER
 		return -1;
 	}
-	if( (t = build_ticket(id, c, datalen, (char *)data, 0)) == NULL) {
+	if( (t = build_ticket(*id, c, datalen, (char *)data, 0)) == NULL) {
 		perror("ticket creation failer "); //GERER 
 		return -1;
 	}

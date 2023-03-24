@@ -1,18 +1,4 @@
-#include "../constants.h"
-#include "../lib.h"
 #include "registering.h"
-#include "smesslib.h"
-
-#include <arpa/inet.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <pthread.h>
-
 #include "smesslib.h"
 #include "saction.h"
 #include "../constants.h"
@@ -21,8 +7,15 @@
 #include "../array.h"
 
 
-#define NBCLIENTS 10
-#define SIZE_MSG 256
+#include <unistd.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
+
 
 int server;
 uint16_t *next_id;
@@ -48,8 +41,10 @@ int get_server_port(int argc, char *argv[])
 
 int initialise_data()
 {
-	all_chats = make_array(sizeof(struct chat));
 	c_connected = 0;
+	*next_id = 1;
+	identifiers = make_map(compare_identifiers, default_hash);
+	all_chats = make_array(sizeof(struct chat));
 	return 0;
 }
 
@@ -95,8 +90,6 @@ void *init(void *sockclient)
 	free(sockclient);
 
 
-	//accept_registering(sock, identifiers, next_id);
-
 	char msg_rcv[SBUF];
 	memset(msg_rcv, 0 , sizeof(msg_rcv));
 
@@ -106,7 +99,7 @@ void *init(void *sockclient)
 	}if(rcv == 0){
 		perror("send null");
 	}else{
-		execute_action((void *)msg_rcv);
+		execute_action((void *)msg_rcv, sock, identifiers, next_id);
 	}
 	decrease_c_connected();
 	close(sock);
@@ -155,9 +148,7 @@ int serve(int port){
 		c_connected ++;
 	}
 
-	*next_id = 1;
-	identifiers = make_map(compare_identifiers, default_hash);
-
+	
 	int ret = 1;
 	int *tmp;
 	for (int i = 0; i < c_connected; i++) {
@@ -182,6 +173,5 @@ int serve(int port){
 int main(int argc, char *argv[])
 {
 	int port = get_server_port(argc, argv);
-	
 	return serve(port);
 }
