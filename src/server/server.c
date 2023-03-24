@@ -16,6 +16,7 @@
 #define SIZE_MSG 256
 
 int server;
+uint16_t *next_id;
 struct map *identifiers;
 
 int get_server_port(int argc, char *argv[])
@@ -62,7 +63,7 @@ int create_server(int port)
 void *init(void *sockclient)
 {
 	print_s("Connexion établie\n");
-	accept_registering(*(int *)sockclient, identifiers);
+	accept_registering(*(int *)sockclient, identifiers, next_id);
 	// TODO : création de thread qui exécute les actions ?
 	return NULL;
 }
@@ -110,7 +111,7 @@ int serve(int port)
 		c_connected++;
 	}
 
-	next_id = 1;
+	*next_id = 1;
 	identifiers = make_map(compare_identifiers, default_hash);
 
 	int ret = 1;
