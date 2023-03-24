@@ -8,22 +8,37 @@
 #include <pthread.h>
 
 #include "smesslib.h"
+#include "saction.h"
 #include "../constants.h"
 #include "../lib.h"
 #include "../chat.h"
+#include "../array.h"
 
-#define NBCLIENTSMAX 2048
+
 
 int server;
 int c_connected;
 pthread_t threads[NBCLIENTSMAX];
 pthread_mutex_t mserv = PTHREAD_MUTEX_INITIALIZER;
 
+void decrease_c_connected(){
+	/* A la fin de la connexion on décrémente le nombre de clients connectés*/
+	pthread_mutex_lock(&mserv);
+	c_connected--;
+	pthread_mutex_unlock(&mserv);
+}
+
 int get_server_port (int argc, char *argv[]){
 	if (argc != 2) 
 		return PORT;
 	else
 		return atoi(argv[1]);	
+}
+
+int initialise_data(){
+	all_chats = make_array(sizeof(struct chat));
+	c_connected = 0;
+	return 0;
 }
 
 int create_server(int port){
@@ -60,17 +75,19 @@ void *init(void *sockclient){
 	int sock = *(int *)sockclient;
 	free(sockclient);
 
-	print_s("Connexion établie\n");
-
 	//TODO : création de thread qui exécute les actions ? 
-	
+	char msg_rcv[SBUF];
+	memset(msg_rcv, 0 , sizeof(msg_rcv));
 
-	/* A la fin de la connexion on décrémente le nombre de clients connectés*/
-	pthread_mutex_lock(&mserv);
-	c_connected--;
-	pthread_mutex_unlock(&mserv);
-	print_s("Déconnexion\n");
-
+	int rcv = recv(sock, msg_rcv, SBUF,0);
+	if(rcv < 0){
+		perror("Message not received");
+	}if(rcv == 0){
+		perror("send null");
+	}else{
+		execute_action((void *)msg_rcv);
+	}
+	decrease_c_connected();
 	close(sock);
 	return NULL;
 }
@@ -92,7 +109,6 @@ int connect_to_client () {
 	if (*sockclient < 0){
 		return -1;
 	}
-	
 	if (pthread_create(threads+c_connected, NULL, init, sockclient) == -1){
 		perror("Thread creation failed");
 		return -1;
@@ -105,9 +121,7 @@ int serve(int port){
 		return 1;
 	print_s("Ouverture du serveur \nEN ATTENTE DE CONNEXION...\n");
 
-	chat_counter = 0;
-	c_connected = 0;
-
+	if (initialise_data() != 0 ) return 1;
 	/*
 	Suggestion : créer un thread qui écoute constamment le terminal 
 	responsable de la terminaison du serveur 
@@ -139,5 +153,6 @@ int serve(int port){
 
 int main (int argc, char *argv[]) {
 	int port = get_server_port(argc, argv);
+	
 	return serve(port);
 }

@@ -11,6 +11,9 @@
 #include <unistd.h>
 #include <pthread.h>
 
+
+pthread_mutex_t msrv = PTHREAD_MUTEX_INITIALIZER;
+
 void *fill_min_header(enum reqcode req, uint16_t id)
 {
 	void *h = malloc(MIN_HEADER);
@@ -63,19 +66,16 @@ void *malloc_return(int ret)
 	*(int *)p = ret;
 	return p;
 }
-
-pthread_mutex_t msrv = PTHREAD_MUTEX_INITIALIZER;
-
 void print_s(char *msg)
 {
 	pthread_mutex_lock(&msrv);
 	printf("%s: %s", SERVER, msg);
 	pthread_mutex_unlock(&msrv);
 }
-
 void print_c(char *msg)
 {
 	pthread_mutex_lock(&msrv);
 	printf("%s: %s", CLIENT, msg);
 	pthread_mutex_unlock(&msrv);
 }
+

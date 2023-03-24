@@ -85,7 +85,7 @@ void take_action()
 		break;
 	case 1:
 		// Poster un billet
-		if (post())
+		if (post(id, sock))
 			print_error("Le billet n'a pas pu être poster.\n");
 		break;
 	case 2:
