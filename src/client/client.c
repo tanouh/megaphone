@@ -1,4 +1,5 @@
 #include "action.h"
+#include "cmesslib.h"
 #include "view.h"
 
 #include <arpa/inet.h>
@@ -14,6 +15,7 @@
 #define SERVER_PORT 4242
 #define SERVER_ADDR "fdc7:9dd5:2c66:be86:4849:43ff:fe49:79be/64"
 #define SIZE_MSG 256
+#define ERROR 31
 
 uint16_t id;
 int sock;
@@ -49,9 +51,11 @@ static int connect_to_server()
 static int registering(int socket)
 {
 	char *buff_send = ask_pseudo();
+	int size_msg;
+	void *buff = fill_inscription(buff_send, strlen(buff_send), &size_msg);
 
-	int envoye = send(socket, buff_send, strlen(buff_send), 0);
-	free(buff_send);
+	int envoye = send(socket, buff, size_msg, 0);
+	free(buff);
 	if (envoye < 0) {
 		perror("Erreur d'envoi");
 		return 1;
@@ -60,20 +64,23 @@ static int registering(int socket)
 	char buff_rcv[SIZE_MSG];
 	memset(&buff_rcv, 0, SIZE_MSG + 1);
 
-	int recu = recv(socket, buff_rcv, SIZE_MSG * sizeof(char), 0);
+	int recu = recv(socket, buff_rcv, SIZE_MSG, 0);
 	if (recu < 0) {
 		perror("Erreur de réception");
 		return 1;
 	}
 
-	// TODO : Reception identifiant
+	enum reqcode req=0;
+	uint16_t id;
 
-	// get_message(buff_rcv, enum reqcode *req, &id, NULL, NULL);
-	// if (req == ERROR){
-	// 	print_error("Erreur d'inscription");
-	// }
-	// show_id(id);
-
+	get_message(buff_rcv, &req, &id, NULL, NULL);
+	if (reqtoi(req) == ERROR) {
+		print_error("Erreur d'inscription");
+	}
+	if (id == 0) {
+		print_error("Pseudo trop court");
+	} else
+		show_id(id);
 	return 0;
 }
 
@@ -96,20 +103,22 @@ void take_action()
 	case 3:
 		// Voir anciens billets
 		if (see_old_ticket())
-			print_error("Erreur lors de l'affichage des précédents "
+			print_error("Erreur lors de l'affichage des "
+				    "précédents "
 				    "fichiers.\n");
 
 		break;
 	case 4:
 		// Télécharger fichier
 		if (download())
-			print_error(
-				"Erreur lors du téléchargement du fichier.\n");
+			print_error("Erreur lors du téléchargement du "
+				    "fichier.\n");
 		break;
 	case 5:
 		// S'abonner à un fil
 		if (subscribe())
-			print_error("Erreur lors de l'abonnement au fil.\n");
+			print_error("Erreur lors de l'abonnement au "
+				    "fil.\n");
 		break;
 	default:
 		print_error("Option invalide.\n");

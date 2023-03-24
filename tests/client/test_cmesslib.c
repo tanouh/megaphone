@@ -14,26 +14,26 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-int test_get_fill_inscription(void *arg);
-int test_get_fill_push_message(void *arg);
-int test_get_fill_ask_messages(void *arg);
-int test_get_fill_asked_messages(void *arg);
-int test_get_fill_subscribe(void *arg);
-int test_get_fill_push_file(void *arg);
-int test_get_fill_pull_file(void *arg);
-int test_get_fill_push_file_udp(void *arg);
-int test_get_fill_error(void *arg);
-int test_get_fill_notification(void *arg);
-int test_get_message(void *arg, enum reqcode *req, uint16_t *id, uint16_t *chat,
-		     uint16_t *nb);
+static int test_get_fill_inscription(void *arg);
+static int test_get_fill_push_message(void *arg);
+static int test_get_fill_ask_messages(void *arg);
+static int test_get_fill_asked_messages(void *arg);
+static int test_get_fill_subscribe(void *arg);
+static int test_get_fill_push_file(void *arg);
+static int test_get_fill_pull_file(void *arg);
+static int test_get_fill_push_file_udp(void *arg);
+static int test_get_fill_error(void *arg);
+static int test_get_fill_notification(void *arg);
+static int test_get_message(void *arg, enum reqcode *req, uint16_t *id,
+			    uint16_t *chat, uint16_t *nb);
 
-int test_fill_inscription(void *arg);
-int test_fill_push_message(void *arg);
-int test_fill_ask_messages(void *arg);
-int test_fill_subscribe(void *arg);
-int test_fill_push_file(void *arg);
-int test_fill_pull_file(void *arg);
-int test_fill_push_file_udp(void *arg);
+static int test_fill_inscription(void *arg);
+static int test_fill_push_message(void *arg);
+static int test_fill_ask_messages(void *arg);
+static int test_fill_subscribe(void *arg);
+static int test_fill_push_file(void *arg);
+static int test_fill_pull_file(void *arg);
+static int test_fill_push_file_udp(void *arg);
 
 int test_cmesslib(int sock)
 {
@@ -53,7 +53,6 @@ int test_cmesslib(int sock)
 			 "test_fill_pull_file", print_client);
 	ret &= test_carg(test_fill_push_file_udp, (void *)&sock,
 			 "test_fill_push_file_udp", print_client);
-	// TODO: SERVER
 	ret &= test_carg(test_get_fill_inscription, (void *)&sock,
 			 "test_get_fill_inscription", print_client);
 	ret &= test_carg(test_get_fill_push_message, (void *)&sock,
@@ -72,11 +71,13 @@ int test_cmesslib(int sock)
 			 "test_get_fill_error", print_client);
 	ret &= test_carg(test_get_fill_notification, (void *)&sock,
 			 "test_get_fill_notification", print_client);
+	ret &= test_carg(test_get_fill_subscribe, (void *)&sock,
+			 "test_get_fill_subscribe", print_client);
 
 	return ret;
 }
 
-int test_fill_inscription(void *arg)
+static int test_fill_inscription(void *arg)
 {
 	int client = *(int *)arg;
 	int size = 0;
@@ -90,7 +91,7 @@ int test_fill_inscription(void *arg)
 	return ans;
 }
 
-int test_fill_push_message(void *arg)
+static int test_fill_push_message(void *arg)
 {
 	int client = *(int *)arg;
 	int size = 0;
@@ -102,7 +103,7 @@ int test_fill_push_message(void *arg)
 	return ans;
 }
 
-int test_fill_ask_messages(void *arg)
+static int test_fill_ask_messages(void *arg)
 {
 	int client = *(int *)arg;
 	int size = 0;
@@ -114,7 +115,7 @@ int test_fill_ask_messages(void *arg)
 	return ans;
 }
 
-int test_fill_subscribe(void *arg)
+static int test_fill_subscribe(void *arg)
 {
 	int client = *(int *)arg;
 	int size = 0;
@@ -126,7 +127,7 @@ int test_fill_subscribe(void *arg)
 	return ans;
 }
 
-int test_fill_push_file(void *arg)
+static int test_fill_push_file(void *arg)
 {
 	int client = *(int *)arg;
 	int size = 0;
@@ -138,7 +139,7 @@ int test_fill_push_file(void *arg)
 	return ans;
 }
 
-int test_fill_pull_file(void *arg)
+static int test_fill_pull_file(void *arg)
 {
 	int client = *(int *)arg;
 	int size = 0;
@@ -150,7 +151,7 @@ int test_fill_pull_file(void *arg)
 	return ans;
 }
 
-int test_fill_push_file_udp(void *arg)
+static int test_fill_push_file_udp(void *arg)
 {
 	int client = *(int *)arg;
 	int size = 0;
@@ -162,8 +163,8 @@ int test_fill_push_file_udp(void *arg)
 	return ans;
 }
 
-int test_get_message(void *arg, enum reqcode *req, uint16_t *id, uint16_t *chat,
-		     uint16_t *nb)
+static int test_get_message(void *arg, enum reqcode *req, uint16_t *id,
+			    uint16_t *chat, uint16_t *nb)
 {
 	int client = *(int *)arg;
 	char buf[HEADER_SERVER];
@@ -173,7 +174,7 @@ int test_get_message(void *arg, enum reqcode *req, uint16_t *id, uint16_t *chat,
 	return 1;
 }
 
-int test_get_fill_inscription(void *arg)
+static int test_get_fill_inscription(void *arg)
 {
 	int client = *(int *)arg;
 	enum reqcode req = 0;
@@ -187,7 +188,7 @@ int test_get_fill_inscription(void *arg)
 	send(client, &ret, sizeof(ret), 0);
 	return (int)ret;
 }
-int test_get_fill_push_message(void *arg)
+static int test_get_fill_push_message(void *arg)
 {
 	int client = *(int *)arg;
 	enum reqcode req = 0;
@@ -201,7 +202,7 @@ int test_get_fill_push_message(void *arg)
 	send(client, &ret, sizeof(ret), 0);
 	return (int)ret;
 }
-int test_get_fill_ask_messages(void *arg)
+static int test_get_fill_ask_messages(void *arg)
 {
 	int client = *(int *)arg;
 	enum reqcode req = 0;
@@ -215,7 +216,7 @@ int test_get_fill_ask_messages(void *arg)
 	send(client, &ret, sizeof(ret), 0);
 	return (int)ret;
 }
-int test_get_fill_asked_messages(void *arg)
+static int test_get_fill_asked_messages(void *arg)
 {
 	int client = *(int *)arg;
 	char buf[BUFSIZ];
@@ -238,7 +239,7 @@ int test_get_fill_asked_messages(void *arg)
 	free(data);
 	return (int)ret;
 }
-int test_get_fill_subscribe(void *arg)
+static int test_get_fill_subscribe(void *arg)
 {
 	int client = *(int *)arg;
 	char buf[BUFSIZ];
@@ -252,12 +253,12 @@ int test_get_fill_subscribe(void *arg)
 	ret &= ASSERT(req == SUBSCRIBE);
 	ret &= ASSERT(chat == FIELD);
 	ret &= ASSERT(nb == FIELD);
-	ret &= ASSERT(strncmp(addr, MULT, ADDRMULT_LEN));
+	ret &= ASSERT(strncmp(addr, MULT, ADDRMULT_LEN) == 0);
 	send(client, &ret, sizeof(ret), 0);
 	free(addr);
 	return (int)ret;
 }
-int test_get_fill_push_file(void *arg)
+static int test_get_fill_push_file(void *arg)
 {
 	int client = *(int *)arg;
 	enum reqcode req = 0;
@@ -271,7 +272,7 @@ int test_get_fill_push_file(void *arg)
 	send(client, &ret, sizeof(ret), 0);
 	return (int)ret;
 }
-int test_get_fill_pull_file(void *arg)
+static int test_get_fill_pull_file(void *arg)
 {
 	int client = *(int *)arg;
 	enum reqcode req = 0;
@@ -285,7 +286,7 @@ int test_get_fill_pull_file(void *arg)
 	send(client, &ret, sizeof(ret), 0);
 	return (int)ret;
 }
-int test_get_fill_push_file_udp(void *arg)
+static int test_get_fill_push_file_udp(void *arg)
 {
 	int client = *(int *)arg;
 	enum reqcode req = 0;
@@ -306,7 +307,7 @@ int test_get_fill_push_file_udp(void *arg)
 	free(data);
 	return ret;
 }
-int test_get_fill_error(void *arg)
+static int test_get_fill_error(void *arg)
 {
 	int client = *(int *)arg;
 	enum reqcode req = 0;
@@ -320,7 +321,7 @@ int test_get_fill_error(void *arg)
 	send(client, &ret, sizeof(ret), 0);
 	return (int)ret;
 }
-int test_get_fill_notification(void *arg)
+static int test_get_fill_notification(void *arg)
 {
 	int client = *(int *)arg;
 	char buf[BUFSIZ];
