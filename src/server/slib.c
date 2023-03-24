@@ -6,6 +6,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+u_int16_t new_id()
+{
+	u_int16_t ret = next_id;
+	next_id++;
+	return ret;
+}
+
 int compare_identifiers(void *key1, void *key2)
 {
 	return strcmp((char *)key1, (char *)key2) == 0;

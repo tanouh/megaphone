@@ -79,8 +79,13 @@ int accept_inscription(void *sockclient)
 		return -1;
 	}
 
-	put_map(identifiers, &id, &nickname, NULL, sizeof(uint16_t),
-		sizeof(char *));
+	id = new_id();
+
+	if (!put_map(identifiers, &id, &nickname, NULL, sizeof(uint16_t),
+		     sizeof(char *))) {
+		perror("Erreur de stockage de l'identifiant");
+		return -1;
+	}
 
 	return 0;
 }
@@ -136,6 +141,7 @@ int serve(int port)
 		c_connected++;
 	}
 
+	next_id = 1;
 	identifiers = make_map(compare_identifiers, default_hash);
 
 	int ret = 1;
