@@ -12,12 +12,10 @@
 
 #define SIZE_MSG 256
 
-uint16_t next_id = 0;
-
-uint16_t new_id()
+uint16_t new_id(uint16_t *next_id)
 {
-	uint16_t ret = next_id;
-	next_id++;
+	uint16_t ret = *next_id;
+	(*next_id)++;
 	return ret;
 }
 
@@ -36,7 +34,8 @@ void free_nickname(void *nickname)
 	free(nickname);
 }
 
-int accept_registering(int sockclient, struct map *identifiers)
+int accept_registering(int sockclient, struct map *identifiers,
+		       uint16_t *next_id)
 {
 	char buff_rcv[SIZE_MSG];
 	memset(&buff_rcv, 0, SIZE_MSG + 1);

@@ -25,6 +25,7 @@
 #define SIZE_MSG 256
 
 int server;
+uint16_t *next_id;
 struct map *identifiers;
 int c_connected;
 pthread_t threads[NBCLIENTSMAX];
@@ -94,7 +95,7 @@ void *init(void *sockclient)
 	free(sockclient);
 
 
-	//accept_registering(sock, identifiers);
+	//accept_registering(sock, identifiers, next_id);
 
 	char msg_rcv[SBUF];
 	memset(msg_rcv, 0 , sizeof(msg_rcv));
@@ -109,6 +110,7 @@ void *init(void *sockclient)
 	}
 	decrease_c_connected();
 	close(sock);
+	
 	// TODO : création de thread qui exécute les actions ?
 	return NULL;
 }
@@ -153,7 +155,7 @@ int serve(int port){
 		c_connected ++;
 	}
 
-	next_id = 1;
+	*next_id = 1;
 	identifiers = make_map(compare_identifiers, default_hash);
 
 	int ret = 1;
