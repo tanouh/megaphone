@@ -2,6 +2,7 @@
 #include "cmesslib.h"
 #include "view.h"
 #include "../constants.h"
+#include "../msghead.h"
 
 #include <arpa/inet.h>
 #include <readline/history.h>
@@ -49,17 +50,17 @@ static int connect_to_server()
 static int registering(int socket)
 {
 	char *buff_send = ask_pseudo();
-	int size_msg;
-	void *buff = fill_inscription(buff_send, strlen(buff_send), &size_msg);
-
-	int envoye = send(socket, buff, size_msg, 0);
-	free(buff);
+	struct msghead h = fill_msghead(INSCRIPTION, 0, 0, 0, 0);
+	char buf[SIZE_MSG];
+	int size = fill_inscription(h, buf, SIZE_MSG, 
+			buff_send, strlen(buff_send));
+	int envoye = send(socket, buf, size, 0);
 	if (envoye < 0) {
 		perror("Erreur d'envoi");
 		return 1;
 	}
 
-	char buff_rcv[SIZE_MSG];
+	char buff_rcv[SIZE_MSG + 1];
 	memset(&buff_rcv, 0, SIZE_MSG + 1);
 
 	int recu = recv(socket, buff_rcv, SIZE_MSG, 0);
@@ -68,11 +69,10 @@ static int registering(int socket)
 		return 1;
 	}
 
-	enum reqcode req=0;
-	uint16_t id;
-
-	get_message(buff_rcv, &req, &id, NULL, NULL);
-	if (reqtoi(req) == ERROR) {
+	memset(&h, 0, sizeof(h));
+	get_message(buff_rcv, &h);
+	id = h.id;
+	if (reqtoi(h.req) == ERROR) {
 		print_error("Erreur d'inscription");
 	}
 	if (id == 0) {

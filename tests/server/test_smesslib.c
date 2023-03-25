@@ -23,17 +23,17 @@ static int test_get_fill_push_file(void *arg);
 static int test_get_fill_pull_file(void *arg);
 static int test_get_fill_push_file_udp(void *arg);
 
-int test_fill_inscription(void *arg);
-int test_fill_push_message(void *arg);
-int test_fill_ask_messages(void *arg);
-int test_fill_asked_messages(void *arg);
-int test_fill_subscribe(void *arg);
-int test_fill_push_file(void *arg);
-int test_fill_pull_file(void *arg);
-int test_fill_push_file_udp(void *arg);
-int test_fill_error(void *arg);
-int test_fill_notification(void *arg);
-int test_get_message(void *arg, struct msghead *h, void *data, int bufsize);
+static int test_fill_inscription(void *arg);
+static int test_fill_push_message(void *arg);
+static int test_fill_ask_messages(void *arg);
+static int test_fill_asked_messages(void *arg);
+static int test_fill_subscribe(void *arg);
+static int test_fill_push_file(void *arg);
+static int test_fill_pull_file(void *arg);
+static int test_fill_push_file_udp(void *arg);
+static int test_fill_error(void *arg);
+static int test_fill_notification(void *arg);
+static int test_get_message(void *arg, struct msghead *h, void *data, int bufsize);
 
 void *test_smesslib(void *data)
 {
@@ -117,7 +117,7 @@ static int test_fill_subscribe(void *arg)
 {
 	int client = *(int *)arg;
 	struct msghead h =
-		fill_msghead(SUBSCRIBE, FIELD, FIELD, FIELD, ADDRMULT_LEN);
+		fill_msghead(SUBSCRIBE, FIELD, FIELD, FIELD, 0);
 	char msg[BUFSIZ];
 	int size = fill_subscribe(h, msg, BUFSIZ, MULT);
 	send(client, msg, size, 0);
@@ -200,7 +200,7 @@ static int test_fill_asked_messages(void *arg)
 	return ans;
 }
 
-int test_get_message(void *arg, struct msghead *h, void *data, int bufsize)
+static int test_get_message(void *arg, struct msghead *h, void *data, int bufsize)
 {
 	int client = *(int *)arg;
 	char buf[BUFSIZ];

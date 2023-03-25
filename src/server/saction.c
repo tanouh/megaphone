@@ -5,6 +5,7 @@
 #include "registering.h"
 #include "saction.h"
 #include "smesslib.h"
+#include "../msghead.h"
 
 
 #include <arpa/inet.h>
@@ -17,34 +18,34 @@
 //variable globale : liste des users 
 
 void *execute_action(void *arg, int sockclient, struct map *identifiers, uint16_t *next_id){
-	enum reqcode req = 0;
-	uint16_t id = 0, chat = 0, nb = 0;
-	uint8_t datalen = 0;
-	char *data = NULL; 
-	
-	void *ret_msg = NULL;
-	int size_msg = 0;
-
-	int ret = get_message(arg, &req, &id, &chat, &nb, &datalen, (void **)&data);
-	free(arg);
+	struct msghead h;	
+	char data[SBUF];
+	char *buf = malloc(SBUF+1);
+	memset(buf, 0, SBUF+1);
+	int ret = get_message(arg, &h, data, SBUF);
+	//free(arg); TODO : verifier l'origine de arg (pile ou tas tout le temps ?)
 
 	int index = -1;
 
 	if (ret == -1) {
-		return fill_error(&size_msg);
+		h = fill_errhead(0);
+		fill_message(h, buf, SBUF);
+		return buf;
 	}
-	switch (req) {
+	switch (h.req) {
 		case INSCRIPTION : 
 			if(accept_registering(sockclient, identifiers, next_id) == -1){
-				ret_msg = fill_error(&size_msg);
+				h = fill_errhead(0);
+				fill_message(h, buf, SBUF);
 			} // Reponse serveur ?
 			break;
 		case PUSH_MESS : 
-			index = push_mess(identifiers, &id, chat, datalen, data);
+			index = push_mess(identifiers, &(h.id), h.chat, h.datalen, data);
 			if (index == -1 ){
-				ret_msg = fill_error(&size_msg);
+				h = fill_errhead(0);
+				fill_message(h, buf, SBUF);
 			}else{
-				ret_msg = fill_message(req, index, chat, nb, &size_msg);
+				fill_message(h, buf, SBUF);
 			} 
 			break ;
 		case ASK_MESS : // TODO
@@ -56,9 +57,11 @@ void *execute_action(void *arg, int sockclient, struct map *identifiers, uint16_
 		case PULL_FILE : //TODO
 			break ;
 		default : 
-			return fill_error(&size_msg); 
+			h = fill_errhead(0);
+			fill_message(h, buf, SBUF); 
+			return buf;
 	}
-	return ret_msg;
+	return buf;
 }
 
 int push_mess(struct map *identifiers, uint16_t *id, uint16_t chat, uint16_t datalen, void *data){

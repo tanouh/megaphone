@@ -14,17 +14,17 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-int test_get_fill_inscription(void *arg);
-int test_get_fill_push_message(void *arg);
-int test_get_fill_ask_messages(void *arg);
-int test_get_fill_asked_messages(void *arg);
-int test_get_fill_subscribe(void *arg);
-int test_get_fill_push_file(void *arg);
-int test_get_fill_pull_file(void *arg);
-int test_get_fill_push_file_udp(void *arg);
-int test_get_fill_error(void *arg);
-int test_get_fill_notification(void *arg);
-int test_get_message(void *arg, struct msghead *h);
+static int test_get_fill_inscription(void *arg);
+static int test_get_fill_push_message(void *arg);
+static int test_get_fill_ask_messages(void *arg);
+static int test_get_fill_asked_messages(void *arg);
+static int test_get_fill_subscribe(void *arg);
+static int test_get_fill_push_file(void *arg);
+static int test_get_fill_pull_file(void *arg);
+static int test_get_fill_push_file_udp(void *arg);
+static int test_get_fill_error(void *arg);
+static int test_get_fill_notification(void *arg);
+static int test_get_message(void *arg, struct msghead *h);
 
 static int test_fill_inscription(void *arg);
 static int test_fill_push_message(void *arg);
@@ -166,7 +166,7 @@ static int test_fill_push_file_udp(void *arg)
 	return ans;
 }
 
-int test_get_message(void *arg, struct msghead *h)
+static int test_get_message(void *arg, struct msghead *h)
 {
 	int client = *(int *)arg;
 	char buf[HEADER_SERVER];
@@ -255,7 +255,7 @@ static int test_get_fill_subscribe(void *arg)
 	ret &= ASSERT(h.req == SUBSCRIBE);
 	ret &= ASSERT(h.chat == FIELD);
 	ret &= ASSERT(h.nb == FIELD);
-	ret &= ASSERT(strncmp(addr, MULT, ADDRMULT_LEN));
+	ret &= ASSERT(strncmp(addr, MULT, ADDRMULT_LEN) == 0);
 	send(client, &ret, sizeof(ret), 0);
 	return (int)ret;
 }

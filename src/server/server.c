@@ -18,7 +18,7 @@
 
 
 int server;
-uint16_t *next_id;
+uint16_t next_id;
 struct map *identifiers;
 int c_connected;
 pthread_t threads[NBCLIENTSMAX];
@@ -42,7 +42,7 @@ int get_server_port(int argc, char *argv[])
 int initialise_data()
 {
 	c_connected = 0;
-	*next_id = 1;
+	next_id = 1;
 	identifiers = make_map(compare_identifiers, default_hash);
 	all_chats = make_array(sizeof(struct chat));
 	return 0;
@@ -99,7 +99,7 @@ void *init(void *sockclient)
 	}if(rcv == 0){
 		perror("send null");
 	}else{
-		execute_action((void *)msg_rcv, sock, identifiers, next_id);
+		execute_action((void *)msg_rcv, sock, identifiers, &next_id);
 	}
 	decrease_c_connected();
 	close(sock);

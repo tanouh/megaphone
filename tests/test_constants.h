@@ -1,10 +1,8 @@
 #ifndef MEGAPHONE_TEST_CONSANTS_H
 #define MEGAPHONE_TEST_CONSANTS_H
 
-#define PORT 4242
 #define LOCALHOST4 "127.0.0.1"
 #define LOCALHOST6 "::1"
-#define SBUF 4096
 
 #define ESYS 5
 #define EMUL 4

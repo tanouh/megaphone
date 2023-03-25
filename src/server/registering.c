@@ -9,8 +9,6 @@
 #include <string.h>
 #include <sys/socket.h>
 
-#define SIZE_MSG 256
-
 uint16_t new_id(uint16_t *next_id)
 {
 	uint16_t ret = *next_id;
@@ -45,24 +43,32 @@ int accept_registering(int sockclient, struct map *identifiers,
 		return -1;
 	}
 
-	enum reqcode req = 0;
-	uint16_t id;
-	char *nickname;
-
-	if(get_inscription(buff_rcv, &req, &id, &nickname) == -1){
-		perror("get_incripition");
+	char *nickname = malloc(NAMELEN + 1);
+	if (nickname == NULL){
+		perror("malloc");
 		return -1;
 	}
-	if (reqtoi(req) != 1) {
+	struct msghead h;
+	memset(nickname, 0, NAMELEN);
+	memset(&h, 0, sizeof(h));
+
+	if(get_inscription(buff_rcv, &h, nickname) == -1){
+		perror("get_incription");
+		free(nickname);
+		return -1;
+	}
+	if (h.req != INSCRIPTION) {
 		perror("Erreur de requete");
+		free(nickname);
 		return -1;
 	}
 
-	id = new_id(next_id);
+	h.id = new_id(next_id);
 
-	if (!put_map(identifiers, &id, &nickname, NULL, sizeof(uint16_t),
+	if (!put_map(identifiers, &(h.id), &nickname, NULL, sizeof(uint16_t),
 		     sizeof(char *))) {
 		perror("Erreur de stockage de l'identifiant");
+		free(nickname);
 		return -1;
 	}
 
