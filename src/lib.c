@@ -1,5 +1,6 @@
 #include "lib.h"
 
+#include "msghead.h"
 #include "reqcode.h"
 #include "constants.h"
 
@@ -14,50 +15,28 @@
 
 pthread_mutex_t msrv = PTHREAD_MUTEX_INITIALIZER;
 
-void *fill_min_header(enum reqcode req, uint16_t id)
+int fill_min_header(struct msghead h, char *buf, int bufsize)
 {
-	void *h = malloc(MIN_HEADER);
-	if (h == NULL)
-		return NULL;
-	int dcrq = reqtoi(req);
-	uint16_t tmp = dcrq | (id << REQ_BITS);
+	if (bufsize < MIN_HEADER)
+		return -1;
+	int dcrq = reqtoi(h.req);
+	uint16_t tmp = dcrq | (h.id << REQ_BITS);
 	tmp = htons(tmp);
 
-	memcpy(h, &tmp, sizeof(tmp));
-	return h;
+	memcpy(buf, &tmp, sizeof(tmp));
+	return MIN_HEADER;
 }
 
-int fill_buffer(const void *msg, void **buf, int size)
-{
-	if (buf != NULL) {
-		if (size == 0) {
-			*buf = NULL;
-			return 0;
-		}
-		if ((*buf = malloc(size)) == NULL)
-			return -1;
-		if (memcpy(*buf, msg, size) == NULL) {
-			free(*buf);
-			*buf = NULL;
-			return -1;
-		}
-	}
-
-	return 0;
-}
-
-int get_min_header(const void *msg, enum reqcode *req, uint16_t *id)
+int get_min_header(const void *msg, struct msghead *h)
 {
 	uint16_t buf;
 
 	if (memcpy(&buf, msg, sizeof(buf)) == NULL)
 		return -1;
 	buf = ntohs(buf);
-	if (req != NULL)
-		*req = itoreq(REQ_MASK(buf));
-	if (id != NULL)
-		*id = ID_MASK(buf);
-	return 0;
+	h->req = itoreq(REQ_MASK(buf));
+	h->id = ID_MASK(buf);
+	return MIN_HEADER;
 }
 
 void *malloc_return(int ret)

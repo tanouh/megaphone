@@ -2,6 +2,7 @@
 #define MEGAPHONE_LIB_H
 
 #include "constants.h"
+#include "msghead.h"
 #include "reqcode.h"
 
 #include <arpa/inet.h>
@@ -16,11 +17,9 @@
  * @param id The user id.
  * @return The header filled correctly.
  */
-void *fill_min_header(enum reqcode req, uint16_t id);
+int fill_min_header(struct msghead h, char *buf, int bufsize);
 
-int fill_buffer(const void *msg, void **buf, int size);
-
-int get_min_header(const void *msg, enum reqcode *req, uint16_t *id);
+int get_min_header(const void *msg, struct msghead *h);
 
 void *malloc_return(int ret);
 

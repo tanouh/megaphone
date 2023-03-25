@@ -14,18 +14,17 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-static int test_get_fill_inscription(void *arg);
-static int test_get_fill_push_message(void *arg);
-static int test_get_fill_ask_messages(void *arg);
-static int test_get_fill_asked_messages(void *arg);
-static int test_get_fill_subscribe(void *arg);
-static int test_get_fill_push_file(void *arg);
-static int test_get_fill_pull_file(void *arg);
-static int test_get_fill_push_file_udp(void *arg);
-static int test_get_fill_error(void *arg);
-static int test_get_fill_notification(void *arg);
-static int test_get_message(void *arg, enum reqcode *req, uint16_t *id,
-			    uint16_t *chat, uint16_t *nb);
+int test_get_fill_inscription(void *arg);
+int test_get_fill_push_message(void *arg);
+int test_get_fill_ask_messages(void *arg);
+int test_get_fill_asked_messages(void *arg);
+int test_get_fill_subscribe(void *arg);
+int test_get_fill_push_file(void *arg);
+int test_get_fill_pull_file(void *arg);
+int test_get_fill_push_file_udp(void *arg);
+int test_get_fill_error(void *arg);
+int test_get_fill_notification(void *arg);
+int test_get_message(void *arg, struct msghead *h);
 
 static int test_fill_inscription(void *arg);
 static int test_fill_push_message(void *arg);
@@ -80,11 +79,11 @@ int test_cmesslib(int sock)
 static int test_fill_inscription(void *arg)
 {
 	int client = *(int *)arg;
-	int size = 0;
-	char *msg = fill_inscription("TEST", 4, &size);
+	struct msghead h = fill_msghead(INSCRIPTION, 0, 0, 0, 0);
+	char msg[BUFSIZ];
+	int size = fill_inscription(h, msg, BUFSIZ, "TEST", 4);
 	print_client("Sending message...\n");
 	send(client, msg, size, 0);
-	free(msg);
 	uint8_t ans;
 	print_client("Waiting for answer...\n");
 	recv(client, &ans, sizeof(ans), 0);
@@ -94,10 +93,10 @@ static int test_fill_inscription(void *arg)
 static int test_fill_push_message(void *arg)
 {
 	int client = *(int *)arg;
-	int size = 0;
-	char *msg = fill_push_message(FIELD, FIELD, TEXT_SIZE, TEXT, &size);
+	struct msghead h = fill_msghead(PUSH_MESS, FIELD, FIELD, 0, TEXT_SIZE);
+	char msg[BUFSIZ];
+	int size = fill_message(h, msg, BUFSIZ, TEXT);
 	send(client, msg, size, 0);
-	free(msg);
 	uint8_t ans;
 	recv(client, &ans, sizeof(ans), 0);
 	return ans;
@@ -106,10 +105,10 @@ static int test_fill_push_message(void *arg)
 static int test_fill_ask_messages(void *arg)
 {
 	int client = *(int *)arg;
-	int size = 0;
-	char *msg = fill_ask_messages(FIELD, FIELD, FIELD, &size);
+	char msg[BUFSIZ];
+	struct msghead h = fill_msghead(ASK_MESS, FIELD, FIELD, FIELD, 0);
+	int size = fill_message(h, msg, BUFSIZ, NULL);
 	send(client, msg, size, 0);
-	free(msg);
 	uint8_t ans;
 	recv(client, &ans, sizeof(ans), 0);
 	return ans;
@@ -118,10 +117,10 @@ static int test_fill_ask_messages(void *arg)
 static int test_fill_subscribe(void *arg)
 {
 	int client = *(int *)arg;
-	int size = 0;
-	char *msg = fill_subscribe(FIELD, FIELD, &size);
+	struct msghead h = fill_msghead(SUBSCRIBE, FIELD, FIELD, 0, 0);
+	char msg[BUFSIZ];
+	int size = fill_message(h, msg, BUFSIZ, NULL);
 	send(client, msg, size, 0);
-	free(msg);
 	uint8_t ans;
 	recv(client, &ans, sizeof(ans), 0);
 	return ans;
@@ -130,10 +129,10 @@ static int test_fill_subscribe(void *arg)
 static int test_fill_push_file(void *arg)
 {
 	int client = *(int *)arg;
-	int size = 0;
-	char *msg = fill_push_file(FIELD, FIELD, TEXT_SIZE, TEXT, &size);
+	struct msghead h = fill_msghead(PUSH_FILE, FIELD, FIELD, 0, TEXT_SIZE);
+	char msg[BUFSIZ];
+	int size = fill_message(h, msg, BUFSIZ, TEXT);
 	send(client, msg, size, 0);
-	free(msg);
 	uint8_t ans;
 	recv(client, &ans, sizeof(ans), 0);
 	return ans;
@@ -142,10 +141,11 @@ static int test_fill_push_file(void *arg)
 static int test_fill_pull_file(void *arg)
 {
 	int client = *(int *)arg;
-	int size = 0;
-	char *msg = fill_pull_file(FIELD, FIELD, FIELD, TEXT_SIZE, TEXT, &size);
+	char msg[BUFSIZ];
+	struct msghead h =
+		fill_msghead(PULL_FILE, FIELD, FIELD, FIELD, TEXT_SIZE);
+	int size = fill_message(h, msg, BUFSIZ, TEXT);
 	send(client, msg, size, 0);
-	free(msg);
 	uint8_t ans;
 	recv(client, &ans, sizeof(ans), 0);
 	return ans;
@@ -154,65 +154,67 @@ static int test_fill_pull_file(void *arg)
 static int test_fill_push_file_udp(void *arg)
 {
 	int client = *(int *)arg;
-	int size = 0;
-	char *msg = fill_push_file_udp(FIELD, FIELD, TEXT_SIZE, TEXT, &size);
+	struct msghead h = fill_msghead(PUSH_FILE, FIELD, 0, FIELD, TEXT_SIZE);
+	char msg[BUFSIZ];
+	memset(msg, 0, BUFSIZ);
+	int size = fill_udp(h, msg, BUFSIZ, TEXT);
+	if (size == -1)
+		return 0;
 	send(client, msg, size, 0);
-	free(msg);
 	uint8_t ans;
 	recv(client, &ans, sizeof(ans), 0);
 	return ans;
 }
 
-static int test_get_message(void *arg, enum reqcode *req, uint16_t *id,
-			    uint16_t *chat, uint16_t *nb)
+int test_get_message(void *arg, struct msghead *h)
 {
 	int client = *(int *)arg;
 	char buf[HEADER_SERVER];
 	memset(buf, 0, HEADER_SERVER);
 	recv(client, buf, HEADER_SERVER, 0);
-	get_message(buf, req, id, chat, nb);
+	get_message(buf, h);
 	return 1;
 }
 
 static int test_get_fill_inscription(void *arg)
 {
 	int client = *(int *)arg;
-	enum reqcode req = 0;
-	uint16_t id = 0, chat = 0, nb = 0;
-	test_get_message(arg, &req, &id, &chat, &nb);
+	struct msghead h;
+	memset(&h, 0, sizeof(h));
+	test_get_message(arg, &h);
 	uint8_t ret = 1;
-	ret &= ASSERT(req == INSCRIPTION);
-	ret &= ASSERT(id == FIELD);
-	ret &= ASSERT(chat == 0);
-	ret &= ASSERT(nb == 0);
+	ret &= ASSERT(h.req == INSCRIPTION);
+	ret &= ASSERT(h.id == FIELD);
+	ret &= ASSERT(h.chat == 0);
+	ret &= ASSERT(h.nb == 0);
 	send(client, &ret, sizeof(ret), 0);
 	return (int)ret;
 }
 static int test_get_fill_push_message(void *arg)
 {
 	int client = *(int *)arg;
-	enum reqcode req = 0;
-	uint16_t id = 0, chat = 0, nb = 0;
-	test_get_message(arg, &req, &id, &chat, &nb);
+	struct msghead h;
+	memset(&h, 0, sizeof(h));
+	test_get_message(arg, &h);
 	u_int8_t ret = 1;
-	ret &= ASSERT(req == PUSH_MESS);
-	ret &= ASSERT(id == FIELD);
-	ret &= ASSERT(chat == FIELD);
-	ret &= ASSERT(nb == 0);
+	ret &= ASSERT(h.req == PUSH_MESS);
+	ret &= ASSERT(h.id == FIELD);
+	ret &= ASSERT(h.chat == FIELD);
+	ret &= ASSERT(h.nb == 0);
 	send(client, &ret, sizeof(ret), 0);
 	return (int)ret;
 }
 static int test_get_fill_ask_messages(void *arg)
 {
 	int client = *(int *)arg;
-	enum reqcode req = 0;
-	uint16_t id = 0, chat = 0, nb = 0;
-	test_get_message(arg, &req, &id, &chat, &nb);
+	struct msghead h;
+	memset(&h, 0, sizeof(h));
+	test_get_message(arg, &h);
 	u_int8_t ret = 1;
-	ret &= ASSERT(req == ASK_MESS);
-	ret &= ASSERT(id == FIELD);
-	ret &= ASSERT(chat == FIELD);
-	ret &= ASSERT(nb == FIELD);
+	ret &= ASSERT(h.req == ASK_MESS);
+	ret &= ASSERT(h.id == FIELD);
+	ret &= ASSERT(h.chat == FIELD);
+	ret &= ASSERT(h.nb == FIELD);
 	send(client, &ret, sizeof(ret), 0);
 	return (int)ret;
 }
@@ -222,21 +224,20 @@ static int test_get_fill_asked_messages(void *arg)
 	char buf[BUFSIZ];
 	memset(buf, 0, BUFSIZ);
 	recv(client, buf, BUFSIZ, 0);
-	uint16_t chat;
-	uint8_t datalen;
-	char *owner, *origin, *data;
-	get_asked_messages(buf, &chat, (void **)&origin, (void **)&owner,
-			   &datalen, (void **)&data);
+	struct msghead h;
+	memset(&h, 0, sizeof(h));
+	char owner[NAMELEN + 1], origin[NAMELEN + 1], data[BUFSIZ];
+	memset(data, 0, BUFSIZ);
+	owner[NAMELEN] = 0;
+	origin[NAMELEN] = 0;
+	get_asked_messages(buf, &h, origin, owner, data, BUFSIZ);
 	uint8_t ret = 1;
-	ret &= ASSERT(chat == FIELD);
+	ret &= ASSERT(h.chat == FIELD);
 	ret &= ASSERT(strncmp(origin, NAME, NAMELEN) == 0);
 	ret &= ASSERT(strncmp(owner, NAME, NAMELEN) == 0);
-	ret &= ASSERT(datalen == TEXT_SIZE);
+	ret &= ASSERT(h.datalen == TEXT_SIZE);
 	ret &= ASSERT(strncmp(data, TEXT, NAMELEN) == 0);
 	send(client, &ret, sizeof(ret), 0);
-	free(origin);
-	free(owner);
-	free(data);
 	return (int)ret;
 }
 static int test_get_fill_subscribe(void *arg)
@@ -245,79 +246,79 @@ static int test_get_fill_subscribe(void *arg)
 	char buf[BUFSIZ];
 	memset(buf, 0, BUFSIZ);
 	recv(client, buf, BUFSIZ, 0);
-	enum reqcode req;
-	uint16_t chat, nb, id;
-	char *addr;
-	get_subscribed_message(buf, &req, &id, &chat, &nb, (void **)&addr);
+	char addr[ADDRMULT_LEN + 1];
+	addr[ADDRMULT_LEN] = 0;
+	struct msghead h;
+	memset(&h, 0, sizeof(h));
+	get_subscribed_message(buf, &h, addr);
 	int ret = 1;
-	ret &= ASSERT(req == SUBSCRIBE);
-	ret &= ASSERT(chat == FIELD);
-	ret &= ASSERT(nb == FIELD);
-	ret &= ASSERT(strncmp(addr, MULT, ADDRMULT_LEN) == 0);
+	ret &= ASSERT(h.req == SUBSCRIBE);
+	ret &= ASSERT(h.chat == FIELD);
+	ret &= ASSERT(h.nb == FIELD);
+	ret &= ASSERT(strncmp(addr, MULT, ADDRMULT_LEN));
 	send(client, &ret, sizeof(ret), 0);
-	free(addr);
 	return (int)ret;
 }
 static int test_get_fill_push_file(void *arg)
 {
 	int client = *(int *)arg;
-	enum reqcode req = 0;
-	uint16_t id = 0, chat = 0, nb = 0;
-	test_get_message(arg, &req, &id, &chat, &nb);
+	struct msghead h;
+	memset(&h, 0, sizeof(h));
+	test_get_message(arg, &h);
 	u_int8_t ret = 1;
-	ret &= ASSERT(req == PUSH_FILE);
-	ret &= ASSERT(id == FIELD);
-	ret &= ASSERT(chat == FIELD);
-	ret &= ASSERT(nb == 0);
+	ret &= ASSERT(h.req == PUSH_FILE);
+	ret &= ASSERT(h.id == FIELD);
+	ret &= ASSERT(h.chat == FIELD);
+	ret &= ASSERT(h.nb == 0);
+	printf("h.nb = %ud\n", h.nb);
 	send(client, &ret, sizeof(ret), 0);
 	return (int)ret;
 }
 static int test_get_fill_pull_file(void *arg)
 {
 	int client = *(int *)arg;
-	enum reqcode req = 0;
-	uint16_t id = 0, chat = 0, nb = 0;
-	test_get_message(arg, &req, &id, &chat, &nb);
+	struct msghead h;
+	memset(&h, 0, sizeof(h));
+	test_get_message(arg, &h);
 	u_int8_t ret = 1;
-	ret &= ASSERT(req == PULL_FILE);
-	ret &= ASSERT(id == FIELD);
-	ret &= ASSERT(chat == FIELD);
-	ret &= ASSERT(nb == FIELD);
+	ret &= ASSERT(h.req == PULL_FILE);
+	ret &= ASSERT(h.id == FIELD);
+	ret &= ASSERT(h.chat == FIELD);
+	ret &= ASSERT(h.nb == FIELD);
 	send(client, &ret, sizeof(ret), 0);
 	return (int)ret;
 }
 static int test_get_fill_push_file_udp(void *arg)
 {
 	int client = *(int *)arg;
-	enum reqcode req = 0;
-	uint16_t id = 0, nb = 0;
-	uint16_t datalen = 0;
-	char *data = NULL;
+	char data[BUFSIZ];
+	memset(data, 0, BUFSIZ);
 	char buf[BUFSIZ];
 	memset(buf, 0, BUFSIZ);
+	struct msghead h;
+	memset(&h, 0, sizeof(h));
 	int size = recv(client, buf, BUFSIZ, 0);
-	get_udp_message(buf, size, &req, &id, &nb, &datalen, (void **)&data);
+	get_udp_message(buf, size, &h, data, BUFSIZ);
 	int ret = 1;
-	ret &= ASSERT(req == PUSH_FILE);
-	ret &= ASSERT(id == FIELD);
-	ret &= ASSERT(nb == FIELD);
-	ret &= ASSERT(datalen == TEXT_SIZE);
+	ret &= ASSERT(h.req == PUSH_FILE);
+	ret &= ASSERT(h.id == FIELD);
+	ret &= ASSERT(h.nb == FIELD);
+	ret &= ASSERT(h.datalen == TEXT_SIZE);
 	ret &= ASSERT(strncmp(data, TEXT, TEXT_SIZE) == 0);
 	send(client, &ret, sizeof(ret), 0);
-	free(data);
 	return ret;
 }
 static int test_get_fill_error(void *arg)
 {
 	int client = *(int *)arg;
-	enum reqcode req = 0;
-	uint16_t id = 0, chat = 0, nb = 0;
-	test_get_message(arg, &req, &id, &chat, &nb);
+	struct msghead h;
+	memset(&h, 0, sizeof(h));
+	test_get_message(arg, &h);
 	u_int8_t ret = 1;
-	ret &= ASSERT(req == ERROR);
-	ret &= ASSERT(id == 0);
-	ret &= ASSERT(chat == 0);
-	ret &= ASSERT(nb == 0);
+	ret &= ASSERT(h.req == ERROR);
+	ret &= ASSERT(h.id == 0);
+	ret &= ASSERT(h.chat == 0);
+	ret &= ASSERT(h.nb == 0);
 	send(client, &ret, sizeof(ret), 0);
 	return (int)ret;
 }
@@ -327,19 +328,18 @@ static int test_get_fill_notification(void *arg)
 	char buf[BUFSIZ];
 	memset(buf, 0, BUFSIZ);
 	recv(client, buf, BUFSIZ, 0);
-	enum reqcode req;
-	uint16_t chat, id;
-	char *owner, *data;
-	get_notification_message(buf, &req, &id, &chat, (void **)&owner,
-				 (void **)&data);
+	char owner[NAMELEN + 1], data[BUFSIZ];
+	memset(data, 0, BUFSIZ);
+	memset(owner, 0, NAMELEN);
+	struct msghead h;
+	memset(&h, 0, sizeof(h));
+	get_notification_message(buf, &h, &owner, &data);
 	int ret = 1;
-	ret &= ASSERT(req == SUBSCRIBE);
-	ret &= ASSERT(id == 0);
-	ret &= ASSERT(chat == FIELD);
+	ret &= ASSERT(h.req == SUBSCRIBE);
+	ret &= ASSERT(h.id == 0);
+	ret &= ASSERT(h.chat == FIELD);
 	ret &= ASSERT(strncmp(owner, NAME, NAMELEN) == 0);
 	ret &= ASSERT(strncmp(data, TEXT, TEXT_SIZE) == 0);
 	send(client, &ret, sizeof(ret), 0);
-	free(owner);
-	free(data);
 	return (int)ret;
 }
