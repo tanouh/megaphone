@@ -24,7 +24,8 @@ int c_connected;
 pthread_t threads[NBCLIENTSMAX];
 pthread_mutex_t mserv = PTHREAD_MUTEX_INITIALIZER;
 
-void decrease_c_connected(){
+void decrease_c_connected()
+{
 	/* A la fin de la connexion on décrémente le nombre de clients connectés*/
 	pthread_mutex_lock(&mserv);
 	c_connected--;
@@ -109,7 +110,8 @@ void *init(void *sockclient)
 	return NULL;
 }
 
-int connect_to_client () {
+int connect_to_client () 
+{
 	int *sockclient = malloc(sizeof(int));
 	if(sockclient == NULL){
 		perror("malloc failed");
@@ -131,7 +133,8 @@ int connect_to_client () {
 	return 0;
 }
 
-int serve(int port){
+int serve(int port)
+{
 	if(create_server(port)==-1)
 		return 1;
 	print_s("Ouverture du serveur \nEN ATTENTE DE CONNEXION...\n");

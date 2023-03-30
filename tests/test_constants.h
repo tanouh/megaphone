@@ -24,4 +24,8 @@
 #define MULT "123456789123456"
 #define DONE "done"
 #define DONE_SIZE 5
+#define ISFILE 1
+#define ISNOTFILE 0
+
+#define USER 1
 #endif

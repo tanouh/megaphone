@@ -14,7 +14,7 @@
 #include <ctype.h>
 
 
-pthread_mutex_t msrv = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mlib = PTHREAD_MUTEX_INITIALIZER;
 
 int fill_min_header(struct msghead h, char *buf, int bufsize)
 {
@@ -48,15 +48,15 @@ void *malloc_return(int ret)
 }
 void print_s(char *msg)
 {
-	pthread_mutex_lock(&msrv);
+	pthread_mutex_lock(&mlib);
 	printf("%s: %s", SERVER, msg);
-	pthread_mutex_unlock(&msrv);
+	pthread_mutex_unlock(&mlib);
 }
 void print_c(char *msg)
 {
-	pthread_mutex_lock(&msrv);
+	pthread_mutex_lock(&mlib);
 	printf("%s: %s", CLIENT, msg);
-	pthread_mutex_unlock(&msrv);
+	pthread_mutex_unlock(&mlib);
 }
 
 int our_atoi(char *string, int *result)

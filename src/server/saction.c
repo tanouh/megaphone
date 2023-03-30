@@ -20,7 +20,8 @@
 //variable globale : liste des users 
 pthread_mutex_t maction = PTHREAD_MUTEX_INITIALIZER;
 
-void *execute_action(void *arg, int sockclient, struct map *identifiers, uint16_t *next_id){
+void *execute_action(void *arg, int sockclient, struct map *identifiers, uint16_t *next_id)
+{
 	struct msghead h;	
 	char data[SBUF];
 	char *buf = malloc(SBUF);
@@ -74,7 +75,8 @@ void *execute_action(void *arg, int sockclient, struct map *identifiers, uint16_
 	return buf;
 }
 
-int push_mess(struct map *identifiers, uint16_t *id, uint16_t chat, uint16_t datalen, void *data){
+int push_mess(struct map *identifiers, uint16_t *id, uint16_t chat, uint16_t datalen, void *data)
+{
 	struct chat *c;
 	struct ticket *t;
 	char usr[ID_MAX];

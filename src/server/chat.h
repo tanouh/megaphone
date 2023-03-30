@@ -2,7 +2,6 @@
 #define MEGAPHONE_CHAT_H
 
 #include "../array.h"
-#include "../ticket.h"
 
 #include <arpa/inet.h>
 
@@ -17,8 +16,9 @@ extern int chat_counter;
 extern struct array *all_chats; /* A changer en hashmap */
 
 struct chat *build_chat();
-int add_tickets_to_chat(struct chat *c, struct ticket *t);
+int add_tickets_to_chat(struct chat *c, void *t);
 struct chat *get_chat(uint16_t chat_id);
 /* get n_tickets_in_chat() retourne un tableau dynamique de tickets (?) */ 
 
+//fonction suppress_chat()
 #endif

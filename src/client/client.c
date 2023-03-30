@@ -90,7 +90,7 @@ void take_action()
 		break;
 	case 1:
 		// Poster un billet
-		if (post(id, sock))
+		if (post(id, sock) == -1)
 			print_error("Le billet n'a pas pu être poster.\n");
 		break;
 	case 2:

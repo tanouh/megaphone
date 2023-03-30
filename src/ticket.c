@@ -1,14 +1,14 @@
 #include "ticket.h"
 #include "lib.h"
 #include "constants.h"
-#include "server/chat.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <arpa/inet.h>
 
-struct ticket *build_ticket(uint16_t owner, struct chat *chat, uint16_t datalen, char *data, int isFile){
+struct ticket *build_ticket(uint16_t owner, struct chat *chat, uint16_t datalen, char *data, int isFile)
+{
 	struct ticket *t = malloc(sizeof(struct ticket));
 	if(t==NULL){
 		perror("malloc ticket failed");
@@ -20,4 +20,13 @@ struct ticket *build_ticket(uint16_t owner, struct chat *chat, uint16_t datalen,
 	memcpy(t->data,data,datalen);
 	t->isFile = isFile;
 	return t;
+}
+int set_chat(struct ticket *t, struct chat *c)
+{
+	if(c == NULL){
+		perror("Chat identifier is null.");
+		return -1;
+	}
+	t->feed = c;
+	return 0;
 }
