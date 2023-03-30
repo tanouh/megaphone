@@ -17,22 +17,32 @@
 /*This is the client side test file.
 It will test client functions and the communication with the server.
 */
-#define NB_TEST 1
+#define NB_TEST 0
 
 static int connect_to_server();
 
 static void *test_network();
 static int do_tests(pthread_t *pts);
 
-static void *(*tests[NB_TEST])(void *) = {test_network};
+static void *(*tests[NB_TEST])(void *) = {};
 
-int main()
+int main(int argc, char **argv)
 {
-	pthread_t pts[NB_TEST];
-	int ntest = do_tests(pts);
+	int net = 0;
+	pthread_t pts[NB_TEST + 1];
+	if (argc <= 1 || strcmp(argv[1], NONET) != 0) {
+		if (pthread_create(pts, NULL, (void *(*)(void *))test_network,
+				   NULL) == -1) {
+			perror("Thread didn't laucnhed");
+			return ESYS;
+		}
+		net = 1;
+	}
+
+	int ntest = do_tests(pts + net);
 
 	int ret = 1;
-	for (int i = 0; i < ntest; i++) {
+	for (int i = 0; i < ntest + net; i++) {
 		int *tmp;
 		if (pthread_join(pts[i], (void *)&tmp) != 0)
 			perror("thread join");

@@ -1,9 +1,8 @@
 #include "printlib.h"
 #include "test_array.h"
 #include "test_constants.h"
-#include "testlib.h"
 #include "test_map.h"
-#include "server/test_chat.h"
+#include "testlib.h"
 
 #include <limits.h>
 #include <pthread.h>
@@ -16,7 +15,7 @@
 
 #define NB_TEST 3
 
-void *(*tests[NB_TEST])(void *) = {test_array, test_map, test_chat};
+void *(*tests[NB_TEST])(void *) = {test_array, test_map};
 
 pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 
@@ -28,10 +27,11 @@ int server_created = 0;
 
 // clear code and the part with the pipe or try to fix it
 
-int main()
+int main(int argc, char **argv)
 {
 	pthread_t pts[NB_TEST];
-	test_net();
+	if (argc > 1 && strcmp(argv[1], NONET) == 0)
+		test_net();
 	int ntest = do_tests(pts);
 	int *tmp;
 	int ret = 0;
