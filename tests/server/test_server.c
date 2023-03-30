@@ -8,6 +8,7 @@ It will test server functions and the communication with the client.
 #include "../printlib.h"
 #include "../test_constants.h"
 #include "../testlib.h"
+#include "test_chat.h"
 #include "test_smesslib.h"
 #include "test_chat.h"
 
@@ -36,19 +37,23 @@ pthread_mutex_t p = PTHREAD_MUTEX_INITIALIZER;
 
 void *(*tests[NB_TEST])(void *) = {test_chat};
 
-int main()
+int main(int argc, char **argv)
 {
+	int net = 0;
 	pthread_t pts[NB_TEST + 1];
-	if (pthread_create(pts, NULL, (void *(*)(void *))test_network, NULL) ==
-	    -1) {
-		perror("Thread didn't laucnhed");
-		return ESYS;
+	if (argc <= 1 || strcmp(argv[1], NONET) != 0) {
+		if (pthread_create(pts, NULL, (void *(*)(void *))test_network,
+				   NULL) == -1) {
+			perror("Thread didn't laucnhed");
+			return ESYS;
+		}
+		net = 1;
 	}
 
 	int ret = 1;
 	print_serv("Waiting for thread to finish...\n");
-	int ntest = do_tests(pts + 1);
-	for (int i = 0; i < ntest + 1; i++) {
+	int ntest = do_tests(pts + net);
+	for (int i = 0; i < ntest + net; i++) {
 		int *tmp;
 		if (pthread_join(pts[i], (void *)&tmp) != 0)
 			perror("thread join");

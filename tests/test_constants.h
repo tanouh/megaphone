@@ -28,4 +28,5 @@
 #define ISNOTFILE 0
 
 #define USER 1
+#define NONET "-NONET"
 #endif

@@ -1,13 +1,12 @@
 #include "test_chat.h"
+
 #include "../../src/server/chat.h"
 #include "../../src/lib.h"
 #include "../../src/ticket.h"
 #include "../testlib.h"
 #include "../printlib.h"
 #include "../test_constants.h"
-
 #include <stdlib.h>
-
 
 static int test_add_ticket_to_chat();
 //static int test_get_chat();
