@@ -3,6 +3,7 @@
 #include "test_constants.h"
 #include "testlib.h"
 #include "test_map.h"
+#include "server/test_chat.h"
 
 #include <limits.h>
 #include <pthread.h>
