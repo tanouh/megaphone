@@ -2,6 +2,7 @@
 #define MEGAPHONE_VIEW_H
 
 #include <arpa/inet.h>
+#include "../reqcode.h"
 
 char *ask_pseudo();
 
@@ -9,7 +10,7 @@ void welcome(int already_registered);
 
 void show_id(uint16_t id);
 
-int choose_action();
+enum reqcode choose_action();
 
 int choose_thread_to_post_in();
 

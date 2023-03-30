@@ -1,8 +1,9 @@
+#include "../constants.h"
+#include "../msghead.h"
+#include "../reqcode.h"
 #include "action.h"
 #include "cmesslib.h"
 #include "view.h"
-#include "../constants.h"
-#include "../msghead.h"
 
 #include <arpa/inet.h>
 #include <readline/history.h>
@@ -52,8 +53,8 @@ static int registering(int socket)
 	char *buff_send = ask_pseudo();
 	struct msghead h = fill_msghead(INSCRIPTION, 0, 0, 0, 0);
 	char buf[SIZE_MSG];
-	int size = fill_inscription(h, buf, SIZE_MSG, 
-			buff_send, strlen(buff_send));
+	int size = fill_inscription(h, buf, SIZE_MSG, buff_send,
+				    strlen(buff_send));
 	int envoye = send(socket, buf, size, 0);
 	if (envoye < 0) {
 		perror("Erreur d'envoi");
@@ -84,7 +85,7 @@ static int registering(int socket)
 
 void take_action()
 {
-	switch (choose_action()) {
+	switch (reqtoi(choose_action())) {
 	case 0:
 		print_error("Réponse invalide.\n");
 		break;
@@ -95,12 +96,12 @@ void take_action()
 		break;
 	case 2:
 		// Ajouter fichier
-		if (add_file())
+		if (add_file() == -1)
 			print_error("Erreur lors de l'ajout du fichier.\n");
 		break;
 	case 3:
 		// Voir anciens billets
-		if (see_old_ticket())
+		if (see_old_ticket() == -1)
 			print_error("Erreur lors de l'affichage des "
 				    "précédents "
 				    "fichiers.\n");
@@ -108,13 +109,13 @@ void take_action()
 		break;
 	case 4:
 		// Télécharger fichier
-		if (download())
+		if (download() == -1)
 			print_error("Erreur lors du téléchargement du "
 				    "fichier.\n");
 		break;
 	case 5:
 		// S'abonner à un fil
-		if (subscribe())
+		if (subscribe() == -1)
 			print_error("Erreur lors de l'abonnement au "
 				    "fil.\n");
 		break;

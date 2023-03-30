@@ -11,24 +11,22 @@
 
 uint16_t new_id(uint16_t *next_id)
 {
-	uint16_t ret = *next_id;
-	(*next_id)++;
-	return ret;
+	return *(next_id)++;
 }
 
-int compare_identifiers(void *key1, void *key2)
+int cmp_id(void *key1, void *key2)
 {
 	return strcmp((char *)key1, (char *)key2) == 0;
 }
 
-void free_identifier(void *id)
+void free_id(void *id)
 {
 	free(id);
 }
 
-void free_nickname(void *nickname)
+void free_name(void *name)
 {
-	free(nickname);
+	free(name);
 }
 
 int accept_registering(int sockclient, struct map *identifiers,
@@ -43,32 +41,32 @@ int accept_registering(int sockclient, struct map *identifiers,
 		return -1;
 	}
 
-	char *nickname = malloc(NAMELEN + 1);
-	if (nickname == NULL){
+	char *name = malloc(NAMELEN + 1);
+	if (name == NULL){
 		perror("malloc");
 		return -1;
 	}
 	struct msghead h;
-	memset(nickname, 0, NAMELEN);
+	memset(name, 0, NAMELEN);
 	memset(&h, 0, sizeof(h));
 
-	if(get_inscription(buff_rcv, &h, nickname) == -1){
+	if(get_inscription(buff_rcv, &h, name) == -1){
 		perror("get_incription");
-		free(nickname);
+		free(name);
 		return -1;
 	}
 	if (h.req != INSCRIPTION) {
 		perror("Erreur de requete");
-		free(nickname);
+		free(name);
 		return -1;
 	}
 
 	h.id = new_id(next_id);
 
-	if (!put_map(identifiers, &(h.id), &nickname, NULL, sizeof(uint16_t),
+	if (!put_map(identifiers, &(h.id), &name, NULL, sizeof(uint16_t),
 		     sizeof(char *))) {
 		perror("Erreur de stockage de l'identifiant");
-		free(nickname);
+		free(name);
 		return -1;
 	}
 
