@@ -2,6 +2,7 @@
 #define MEGAPHONE_TICKET_H
 
 #include "constants.h"
+#include "server/chat.h"
 #include <arpa/inet.h>
 
 struct ticket {

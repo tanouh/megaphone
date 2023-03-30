@@ -1,8 +1,8 @@
 #ifndef MEGAPHONE_CHAT_H
 #define MEGAPHONE_CHAT_H
 
-#include "array.h"
-#include "ticket.h"
+#include "../array.h"
+#include "../ticket.h"
 
 #include <arpa/inet.h>
 

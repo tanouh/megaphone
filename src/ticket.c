@@ -1,7 +1,7 @@
 #include "ticket.h"
 #include "lib.h"
-#include "chat.h"
 #include "constants.h"
+#include "server/chat.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +16,7 @@ struct ticket *build_ticket(uint16_t owner, struct chat *chat, uint16_t datalen,
 	}
 	t->owner = owner;
 	t->feed = chat;
-	memset(t->data,0,SBUF+1);
+	memset(t->data,0,SBUF);
 	memcpy(t->data,data,datalen);
 	t->isFile = isFile;
 	return t;

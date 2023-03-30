@@ -1,9 +1,9 @@
+#include "chat.h"
 #include "registering.h"
 #include "smesslib.h"
 #include "saction.h"
 #include "../constants.h"
 #include "../lib.h"
-#include "../chat.h"
 #include "../array.h"
 
 

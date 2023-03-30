@@ -1,11 +1,12 @@
-#include "../array.h"
-#include "../chat.h"
-#include "../map.h"
-#include "../ticket.h"
+#include "chat.h"
 #include "registering.h"
 #include "saction.h"
 #include "smesslib.h"
 #include "../msghead.h"
+#include "../ticket.h"
+#include "../array.h"
+#include "../map.h"
+#include "../lib.h"
 
 
 #include <arpa/inet.h>
@@ -20,9 +21,10 @@
 void *execute_action(void *arg, int sockclient, struct map *identifiers, uint16_t *next_id){
 	struct msghead h;	
 	char data[SBUF];
-	char *buf = malloc(SBUF+1);
-	memset(buf, 0, SBUF+1);
-	int ret = get_message(arg, &h, data, SBUF);
+	char *buf = malloc(SBUF);
+	int ret = get_min_header(arg, &h);
+	
+	//get_message(arg, &h, data, SBUF);
 	//free(arg); TODO : verifier l'origine de arg (pile ou tas tout le temps ?)
 
 	int index = -1;
@@ -40,6 +42,8 @@ void *execute_action(void *arg, int sockclient, struct map *identifiers, uint16_
 			} // Reponse serveur ?
 			break;
 		case PUSH_MESS : 
+			memset(buf, 0, SBUF);
+			ret = get_message(arg, &h, data, SBUF);
 			index = push_mess(identifiers, &(h.id), h.chat, h.datalen, data);
 			if (index == -1 ){
 				h = fill_errhead(0);

@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "ticket.h"
 #include "chat.h"
 
 int chat_counter = 0;
