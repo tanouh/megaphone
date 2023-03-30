@@ -45,7 +45,7 @@ int initialise_data()
 {
 	c_connected = 0;
 	next_id = 1;
-	identifiers = make_map(compare_identifiers, default_hash);
+	identifiers = make_map(cmp_id, default_hash);
 	all_chats = make_array(sizeof(struct chat));
 	return 0;
 }
@@ -166,7 +166,7 @@ int serve(int port)
 	
 	char buf[SBUF];
 	sprintf(buf, "Fin de session (%d)\n", !ret);
-	free_map(identifiers, free_identifier, free_nickname);
+	free_map(identifiers, free_id, free_name);
 	print_s(buf);
 	close(server);
 	return !ret;

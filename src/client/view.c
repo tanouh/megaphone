@@ -1,7 +1,6 @@
 #include "view.h"
 
 #include "../lib.h"
-
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <stdio.h>
@@ -32,14 +31,17 @@ void show_id(uint16_t id)
 	printf("Le serveur Megaphone vous a attribué l'identifiant %u.\n", id);
 }
 
-int choose_action()
+enum reqcode choose_action()
 {
 	print_c("Que souhaitez-vous faire ?\nPour :\n - poster un billet, "
 		"tapez "
 		"1\n - ajouter un fichier, taper 2\n - voir des billets "
 		"précedents, taper 3\n - télécharger un fichier, taper 4\n - "
 		"vous abonner à un fil, taper 5\n");
-	return atoi(readline("Action : "));
+	char *answer = readline("Action : ");
+	if (atoi(answer) == 0 && strcmp(answer, "0"))
+		return -1;
+	return itoreq(atoi(answer));
 }
 
 int choose_thread_to_post_in()
