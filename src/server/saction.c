@@ -15,8 +15,10 @@
 #include <string.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <pthread.h>
 
 //variable globale : liste des users 
+pthread_mutex_t maction = PTHREAD_MUTEX_INITIALIZER;
 
 void *execute_action(void *arg, int sockclient, struct map *identifiers, uint16_t *next_id){
 	struct msghead h;	
@@ -44,7 +46,11 @@ void *execute_action(void *arg, int sockclient, struct map *identifiers, uint16_
 		case PUSH_MESS : 
 			memset(buf, 0, SBUF);
 			ret = get_message(arg, &h, data, SBUF);
+
+			pthread_mutex_lock(&maction);
 			index = push_mess(identifiers, &(h.id), h.chat, h.datalen, data);
+			pthread_mutex_unlock(&maction);
+			
 			if (index == -1 ){
 				h = fill_errhead(0);
 				fill_message(h, buf, SBUF);
@@ -69,16 +75,11 @@ void *execute_action(void *arg, int sockclient, struct map *identifiers, uint16_
 }
 
 int push_mess(struct map *identifiers, uint16_t *id, uint16_t chat, uint16_t datalen, void *data){
-	// struct array ulist = NULL; // TODO
 	struct chat *c;
 	struct ticket *t;
 	char usr[ID_MAX];
 	memset(usr, 0, sizeof(usr));
 
-	/*if((get_user(id,ulist)) == NULL){ //TODO : recherche dans un hashmap plutôt
-		perror("User not found "); //GERER
-		return -1;
-	}*/
 	if(get_map(identifiers, id, (void *)usr, sizeof(uint16_t)) == -1){
 		perror("User not found");
 		return -1;

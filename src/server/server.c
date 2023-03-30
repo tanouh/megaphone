@@ -33,10 +33,11 @@ void decrease_c_connected(){
 
 int get_server_port(int argc, char *argv[])
 {
-	if (argc != 2)
+	int ret = PORT;
+	if (argc != 2 || our_atoi(argv[1], &ret) == -1)
 		return PORT;
 	else
-		return atoi(argv[1]);
+		return ret;
 }
 
 int initialise_data()
@@ -109,8 +110,6 @@ void *init(void *sockclient)
 }
 
 int connect_to_client () {
-	/* le serveur accepte une connexion
-	et crée la socket de communication avec le client */
 	int *sockclient = malloc(sizeof(int));
 	if(sockclient == NULL){
 		perror("malloc failed");
