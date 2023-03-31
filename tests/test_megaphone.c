@@ -30,7 +30,7 @@ int server_created = 0;
 int main(int argc, char **argv)
 {
 	pthread_t pts[NB_TEST];
-	if (argc > 1 && strcmp(argv[1], NONET) == 0)
+	if (argc <= 1 || strcmp(argv[1], NONET) != 0)
 		test_net();
 	int ntest = do_tests(pts);
 	int *tmp;
@@ -122,3 +122,4 @@ static int launch_client()
 		return 0;
 	}
 }
+
