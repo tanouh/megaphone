@@ -13,7 +13,7 @@
 #include <unistd.h>
 #include <wait.h>
 
-#define NB_TEST 3
+#define NB_TEST 2
 
 void *(*tests[NB_TEST])(void *) = {test_array, test_map};
 
@@ -30,7 +30,7 @@ int server_created = 0;
 int main(int argc, char **argv)
 {
 	pthread_t pts[NB_TEST];
-	if (argc > 1 && strcmp(argv[1], NONET) == 0)
+	if (argc <= 1 || strcmp(argv[1], NONET) != 0)
 		test_net();
 	int ntest = do_tests(pts);
 	int *tmp;
@@ -122,3 +122,4 @@ static int launch_client()
 		return 0;
 	}
 }
+
