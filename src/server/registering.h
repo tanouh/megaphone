@@ -8,9 +8,10 @@
 /**
  * @brief Gives an available id
  * @param next_id The requested id
+ * @param id_available An array containing the id of unsubscribed users
  * @return An available id
  */
-uint16_t new_id(uint16_t *next_id);
+uint16_t new_id(uint16_t *next_id, struct array *id_available);
 
 /**
  * @brief Compares two given ids
@@ -34,9 +35,9 @@ void free_name(void *name);
  * @param sockclient The socket linking the server to the client
  * @param identifiers The hashmap that contains all the registered users
  * @param next_id The id that the user will receive
- * @return 0 if the inscription was accepted, -1 otherwise 
+ * @return 0 if the inscription was accepted, -1 otherwise
  */
 int accept_registering(int sockclient, struct map *identifiers,
-		       uint16_t *next_id);
+		       uint16_t *next_id, struct array *id_available);
 
 #endif
