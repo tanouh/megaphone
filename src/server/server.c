@@ -1,32 +1,32 @@
-#include "chat.h"
-#include "registering.h"
-#include "smesslib.h"
-#include "saction.h"
+#include "../array.h"
 #include "../constants.h"
 #include "../lib.h"
-#include "../array.h"
+#include "chat.h"
+#include "registering.h"
+#include "saction.h"
+#include "smesslib.h"
 
-
-#include <unistd.h>
+#include <arpa/inet.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <arpa/inet.h>
-
+#include <unistd.h>
 
 int server;
 uint16_t next_id;
 struct map *identifiers;
+struct array *id_available;
 int c_connected;
 pthread_t threads[NBCLIENTSMAX];
 pthread_mutex_t mserv = PTHREAD_MUTEX_INITIALIZER;
 
 void decrease_c_connected()
 {
-	/* A la fin de la connexion on décrémente le nombre de clients connectés*/
+	/* A la fin de la connexion on décrémente le nombre de clients
+	 * connectés*/
 	pthread_mutex_lock(&mserv);
 	c_connected--;
 	pthread_mutex_unlock(&mserv);
@@ -46,6 +46,7 @@ int initialise_data()
 	c_connected = 0;
 	next_id = 1;
 	identifiers = make_map(cmp_id, default_hash);
+	id_available = make_array(sizeof(uint16_t));
 	all_chats = make_array(sizeof(struct chat));
 	return 0;
 }
@@ -91,29 +92,30 @@ void *init(void *sockclient)
 	int sock = *(int *)sockclient;
 	free(sockclient);
 
-
 	char msg_rcv[SBUF];
-	memset(msg_rcv, 0 , sizeof(msg_rcv));
+	memset(msg_rcv, 0, sizeof(msg_rcv));
 
-	int rcv = recv(sock, msg_rcv, SBUF,0);
-	if(rcv < 0){
+	int rcv = recv(sock, msg_rcv, SBUF, 0);
+	if (rcv < 0) {
 		perror("Message not received");
-	}if(rcv == 0){
+	}
+	if (rcv == 0) {
 		perror("send null");
-	}else{
-		execute_action((void *)msg_rcv, sock, identifiers, &next_id);
+	} else {
+		execute_action((void *)msg_rcv, sock, identifiers, &next_id,
+			       id_available);
 	}
 	decrease_c_connected();
 	close(sock);
-	
+
 	// TODO : création de thread qui exécute les actions ?
 	return NULL;
 }
 
-int connect_to_client () 
+int connect_to_client()
 {
 	int *sockclient = malloc(sizeof(int));
-	if(sockclient == NULL){
+	if (sockclient == NULL) {
 		perror("malloc failed");
 		close(server);
 		return 1;
@@ -126,7 +128,8 @@ int connect_to_client ()
 	if (*sockclient < 0) {
 		return -1;
 	}
-	if (pthread_create(threads+c_connected, NULL, init, sockclient) == -1){
+	if (pthread_create(threads + c_connected, NULL, init, sockclient) ==
+	    -1) {
 		perror("Thread creation failed");
 		return -1;
 	}
@@ -135,22 +138,23 @@ int connect_to_client ()
 
 int serve(int port)
 {
-	if(create_server(port)==-1)
+	if (create_server(port) == -1)
 		return 1;
 	print_s("Ouverture du serveur \nEN ATTENTE DE CONNEXION...\n");
 
-	if (initialise_data() != 0 ) return 1;
+	if (initialise_data() != 0)
+		return 1;
 	/*
-	Suggestion : créer un thread qui écoute constamment le terminal 
-	responsable de la terminaison du serveur 
+	Suggestion : créer un thread qui écoute constamment le terminal
+	responsable de la terminaison du serveur
 	*/
 
-	while(c_connected < NBCLIENTSMAX){
-		if(connect_to_client() == -1) break;
-		c_connected ++;
+	while (c_connected < NBCLIENTSMAX) {
+		if (connect_to_client() == -1)
+			break;
+		c_connected++;
 	}
 
-	
 	int ret = 1;
 	int *tmp;
 	for (int i = 0; i < c_connected; i++) {
@@ -163,7 +167,7 @@ int serve(int port)
 			ret = 0;
 		}
 	}
-	
+
 	char buf[SBUF];
 	sprintf(buf, "Fin de session (%d)\n", !ret);
 	free_map(identifiers, free_id, free_name);

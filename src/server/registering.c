@@ -1,6 +1,8 @@
+#include "registering.h"
+
+#include "../array.h"
 #include "../constants.h"
 #include "../reqcode.h"
-#include "registering.h"
 #include "smesslib.h"
 
 #include <arpa/inet.h>
@@ -9,8 +11,13 @@
 #include <string.h>
 #include <sys/socket.h>
 
-uint16_t new_id(uint16_t *next_id)
+uint16_t new_id(uint16_t *next_id, struct array *id_available)
 {
+	uint16_t *ret = at(id_available, 0);
+	if (ret != NULL) {
+		if (delete_at(id_available, 0, NULL) == 0)
+			return *ret;
+	}
 	return *(next_id)++;
 }
 
@@ -30,7 +37,7 @@ void free_name(void *name)
 }
 
 int accept_registering(int sockclient, struct map *identifiers,
-		       uint16_t *next_id)
+		       uint16_t *next_id, struct array *id_available)
 {
 	char buff_rcv[SIZE_MSG];
 	memset(&buff_rcv, 0, SIZE_MSG + 1);
@@ -42,7 +49,7 @@ int accept_registering(int sockclient, struct map *identifiers,
 	}
 
 	char *name = malloc(NAMELEN + 1);
-	if (name == NULL){
+	if (name == NULL) {
 		perror("malloc");
 		return -1;
 	}
@@ -50,7 +57,7 @@ int accept_registering(int sockclient, struct map *identifiers,
 	memset(name, 0, NAMELEN);
 	memset(&h, 0, sizeof(h));
 
-	if(get_inscription(buff_rcv, &h, name) == -1){
+	if (get_inscription(buff_rcv, &h, name) == -1) {
 		perror("get_incription");
 		free(name);
 		return -1;
@@ -61,7 +68,7 @@ int accept_registering(int sockclient, struct map *identifiers,
 		return -1;
 	}
 
-	h.id = new_id(next_id);
+	h.id = new_id(next_id, id_available);
 
 	if (!put_map(identifiers, &(h.id), &name, NULL, sizeof(uint16_t),
 		     sizeof(char *))) {
