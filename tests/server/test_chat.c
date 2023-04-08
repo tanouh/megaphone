@@ -12,6 +12,13 @@
 static int test_add_ticket_to_chat();
 //static int test_get_chat();
 
+static void print_chat(struct chat *c){
+	printf("Chat n. : %d\nInitUser : %d\nNbMsg: %ld\n", c->id, c->origin_user, c->nbMessages);
+}
+static void print_ticket(struct ticket *t){
+	printf("Ticket n. : %d\nNchat: %d\n", t->owner, t->feed->id);
+}
+
 static int cmptck (struct ticket *t1, struct ticket *t2)
 {
 	if(t1->feed == NULL || t2->feed == NULL) {
