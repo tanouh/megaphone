@@ -26,14 +26,7 @@ void *malloc_return(int ret);
 void print_s(char *msg);
 
 void print_c(char *msg);
-/**
- * @brief - our own atoi conversion program
- * @param [in] string - string that has the integer value init
- * @param [out] result - integer pointer that will have the final converted integer
- *
- * @returns returns 0 on success and -1 on failure
- */
-int our_atoi(char *string, int *result);
 
+int init_allchats();
 
 #endif

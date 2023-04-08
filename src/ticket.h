@@ -9,6 +9,7 @@ struct ticket {
 	uint16_t owner;
 	struct chat *feed;
 	char data[SBUF];
+	uint16_t datalen;
 	int isFile; /*0 false 1 true*/
 };
 struct ticket *build_ticket(uint16_t owner, struct chat *c, uint16_t datalen, char *data, int isFile);

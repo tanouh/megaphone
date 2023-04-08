@@ -59,7 +59,8 @@ void *execute_action(void *arg, int sockclient, struct map *identifiers, uint16_
 				fill_message(h, buf, SBUF);
 			} 
 			break ;
-		case ASK_MESS : // TODO
+		case ASK_MESS : 
+		// TODO
 			break ; 
 		case SUBSCRIBE : //TODO
 			break ;

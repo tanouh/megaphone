@@ -9,6 +9,7 @@ It will test server functions and the communication with the client.
 #include "../test_constants.h"
 #include "../testlib.h"
 #include "test_smesslib.h"
+#include "test_chat.h"
 
 #include <arpa/inet.h>
 #include <pthread.h>
@@ -20,7 +21,7 @@ It will test server functions and the communication with the client.
 #include <sys/types.h>
 #include <unistd.h>
 
-#define NB_TEST 0
+#define NB_TEST 1
 #define NBCLIENT 1
 #define SIZE_MESS 512
 
@@ -33,7 +34,7 @@ static int do_tests(pthread_t *pts);
 
 pthread_mutex_t p = PTHREAD_MUTEX_INITIALIZER;
 
-void *(*tests[NB_TEST])(void *) = {};
+void *(*tests[NB_TEST])(void *) = {test_chat};
 
 int main()
 {

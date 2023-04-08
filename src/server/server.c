@@ -34,11 +34,12 @@ void decrease_c_connected()
 
 int get_server_port(int argc, char *argv[])
 {
-	int ret = PORT;
-	if (argc != 2 || our_atoi(argv[1], &ret) == -1)
-		return PORT;
-	else
+	int ret ;
+	if (argc != 2 || (sscanf(argv[0], "%d", &ret) == 0) || (ret < 1024 || ret > 49151) ){
+		return PORT;	
+	} else{
 		return ret;
+	}
 }
 
 int initialise_data()
@@ -46,7 +47,8 @@ int initialise_data()
 	c_connected = 0;
 	next_id = 1;
 	identifiers = make_map(compare_identifiers, default_hash);
-	all_chats = make_array(sizeof(struct chat));
+	if (identifiers == NULL || init_allchats() == -1)
+		return -1;
 	return 0;
 }
 

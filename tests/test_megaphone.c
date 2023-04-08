@@ -14,9 +14,9 @@
 #include <unistd.h>
 #include <wait.h>
 
-#define NB_TEST 3
+#define NB_TEST 2
 
-void *(*tests[NB_TEST])(void *) = {test_array, test_map, test_chat};
+void *(*tests[NB_TEST])(void *) = {test_array, test_map};
 
 pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 
