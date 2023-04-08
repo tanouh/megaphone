@@ -58,12 +58,12 @@ int add_file()
 
 int see_old_ticket()
 {
-	int num_thread = select_thread_to_unfold();
-	if (num_thread == 0) {
+	int nchat = select_thread_to_unfold();
+	if (nchat == 0) {
 		print_error("Numéro de thread incorrect.\n");
 		return -1;
 	}
-	int nb_ticket = see_previous_tickets(num_thread);
+	int nb_ticket = see_previous_tickets(nchat);
 	if (nb_ticket == 0) {
 		print_error("Nombre de billets à voir invalide.\n");
 		return -1;

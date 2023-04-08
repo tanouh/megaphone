@@ -1,16 +1,16 @@
-#include <pthread.h>
-#include <sys/types.h>
-#include <arpa/inet.h>
-#include <stdlib.h>
-#include <stdio.h>
-
 #include "chat.h"
+
 #include "../ticket.h"
+
+#include <arpa/inet.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
 
 int chat_counter = 0;
 struct map *all_chats = NULL;
 pthread_mutex_t mchat = PTHREAD_MUTEX_INITIALIZER;
-
 
 int cmp_ckey(uint16_t *a, uint16_t *b)
 {
@@ -25,7 +25,8 @@ int cmp_ckey(uint16_t *a, uint16_t *b)
 }
 int init_allchats()
 {
-	all_chats = make_map((int(*)(void *, void *))cmp_ckey, default_hash); // à vérifier
+	all_chats = make_map((int (*)(void *, void *))cmp_ckey,
+			     default_hash); // à vérifier
 	return (all_chats == NULL) ? -1 : 0;
 }
 
@@ -36,46 +37,47 @@ void increase_chat_counter()
 	pthread_mutex_unlock(&mchat);
 }
 
-struct chat *build_chat()
+struct chat *build_chat(uint16_t u)
 {
 	struct chat *c = malloc(sizeof(struct chat));
-	if(c == NULL){
+	if (c == NULL) {
 		perror("malloc chat failed");
 		return NULL;
 	}
 
 	increase_chat_counter();
-	
+
 	c->id = chat_counter;
+	c->origin_user = u;
 	c->nbMessages = 0;
-	c->messages = make_array(sizeof(struct ticket)) ;
+	c->messages = make_array(sizeof(struct ticket));
 	c->followers = make_array(sizeof(uint16_t));
 	return c;
 }
 
 int add_tickets_to_chat(struct chat *c, void *t)
 {
-	if (push_back(c->messages,t) == -1 || set_chat((struct ticket *)t, c) == -1){
+	if (push_back(c->messages, t) == -1 ||
+	    set_chat((struct ticket *)t, c) == -1) {
 		perror("Couldn't add the ticket in the chat.");
 		return -1;
 	}
-	c->nbMessages ++;
+	c->nbMessages++;
 	return 0;
-
 }
-struct chat *get_chat(uint16_t chat_id)
+struct chat *get_chat(uint16_t u, uint16_t chat_id)
 {
 	struct chat *c = malloc(sizeof(struct chat));
-	if(c == NULL){
+	if (c == NULL) {
 		perror("malloc failed");
 		return NULL;
 	}
-	if(chat_id > chat_counter){
+	if (chat_id > chat_counter) {
 		perror("Chat doesn't exist");
 		return NULL;
 	}
-	if (chat_id == 0){
-		return build_chat();
+	if (chat_id == 0) {
+		return build_chat(u);
 	}
 	int i = get_map(all_chats, (void *)&chat_id, c, sizeof(uint16_t));
 	if (i == -1)

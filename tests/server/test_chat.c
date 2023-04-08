@@ -53,7 +53,7 @@ void *test_chat()
 
 static int test_add_ticket_to_chat()
 {
-	struct chat *c = build_chat();
+	struct chat *c = build_chat(USER);
 	struct ticket *t1 = build_ticket(USER,NULL,TEXT_SIZE,TEXT,ISNOTFILE);
 	add_tickets_to_chat(c,t1);
 

@@ -8,6 +8,7 @@
 #include "chat.h"
 #include "registering.h"
 #include "smesslib.h"
+#include "askmsg.h"
 
 #include <arpa/inet.h>
 #include <pthread.h>
@@ -18,13 +19,13 @@
 #include <unistd.h>
 
 // variable globale : liste des users
-pthread_mutex_t maction = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mpushmess = PTHREAD_MUTEX_INITIALIZER;
 
 void *execute_action(void *arg, int sockclient, struct map *identifiers,
 		     uint16_t *next_id, struct array *id_available)
 {
 	struct msghead h;
-	char data[SBUF];
+	char data[SIZE_MSG];
 	char *buf = malloc(SBUF);
 	int ret = get_min_header(arg, &h);
 
@@ -49,12 +50,12 @@ void *execute_action(void *arg, int sockclient, struct map *identifiers,
 		break;
 	case PUSH_MESS:
 		memset(buf, 0, SBUF);
-		ret = get_message(arg, &h, data, SBUF);
+		ret = get_message(arg, &h, data, SIZE_MSG);
 
-		pthread_mutex_lock(&maction);
+		pthread_mutex_lock(&mpushmess);
 		index = push_mess(identifiers, &(h.id), h.chat, h.datalen,
 				  data);
-		pthread_mutex_unlock(&maction);
+		pthread_mutex_unlock(&mpushmess);
 
 		if (index == -1) {
 			h = fill_errhead(0);
@@ -64,6 +65,10 @@ void *execute_action(void *arg, int sockclient, struct map *identifiers,
 		}
 		break;
 	case ASK_MESS: // TODO
+		memset(buf, 0, SBUF);
+		ret = get_message(arg, &h, data, SIZE_MSG);
+		
+		index = ask_mess(identifiers, &h, buf, SBUF);
 		break;
 	case SUBSCRIBE: // TODO
 		break;
@@ -92,7 +97,7 @@ int push_mess(struct map *identifiers, uint16_t *id, uint16_t chat,
 		return -1;
 	}
 
-	if ((c = get_chat(chat)) == NULL) {
+	if ((c = get_chat(*id, chat)) == NULL) {
 		perror("chat not found/couldn't be created"); // GERER
 		return -1;
 	}
