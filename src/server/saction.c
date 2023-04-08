@@ -23,8 +23,6 @@ pthread_mutex_t mpushmess = PTHREAD_MUTEX_INITIALIZER;
 
 void *execute_action(void *arg, int sockclient, struct map *identifiers,
 		     uint16_t *next_id, struct array *id_available)
-void *execute_action(void *arg, int sockclient, struct map *identifiers,
-		     uint16_t *next_id, struct array *id_available)
 {
 	struct msghead h;
 	char data[SIZE_MSG];
@@ -81,8 +79,6 @@ void *execute_action(void *arg, int sockclient, struct map *identifiers,
 	return buf;
 }
 
-int push_mess(struct map *identifiers, uint16_t *id, uint16_t chat,
-	      uint16_t datalen, void *data)
 int push_mess(struct map *identifiers, uint16_t *id, uint16_t chat,
 	      uint16_t datalen, void *data)
 {
