@@ -39,7 +39,7 @@ static int cmptck (struct ticket *t1, struct ticket *t2)
 			return -1;
 		}
 	}
-	return (*a < b->id) ? 1 : -1;
+	return 0;
 }
 
 void *test_chat()
