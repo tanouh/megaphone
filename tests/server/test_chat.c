@@ -18,28 +18,19 @@ static int test_add_ticket_to_chat();
 // 	}
 // 	return (*a < b->id) ? 1 : -1;
 // }
-//static int test_get_chat();
-
-// static int cmpc (uint16_t *a, struct chat *b)
-// {
-// 	if(*a == b->id){
-// 		return 0;
-// 	}
-// 	return (*a < b->id) ? 1 : -1;
-// }
 
 static int cmptck (struct ticket *t1, struct ticket *t2)
 {
 	if ((t1->owner != t2->owner) || (t1->feed->id != t2->feed->id) 
 	|| (t1->isFile != t2->isFile) || (t1->datalen != t2->datalen)){
-		return -1;
+		return 0;
 	}
 	for (int i = 0; i < t1->datalen ; i++){
 		if(t2->data[i] != t1->data[i]){
-			return -1;
+			return 0;
 		}
 	}
-	return 0;
+	return 1;
 }
 
 void *test_chat()

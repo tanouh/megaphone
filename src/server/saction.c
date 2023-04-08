@@ -28,11 +28,6 @@ void *execute_action(void *arg, int sockclient, struct map *identifiers,
 	char data[SIZE_MSG];
 	char *buf = malloc(SBUF);
 	int ret = get_min_header(arg, &h);
-
-	// get_message(arg, &h, data, SBUF);
-	// free(arg); TODO : verifier l'origine de arg (pile ou tas tout le
-	// temps ?)
-
 	int index = -1;
 
 	if (ret == -1) {
@@ -89,10 +84,9 @@ int push_mess(struct map *identifiers, uint16_t *id, uint16_t chat,
 {
 	struct chat *c;
 	struct ticket *t;
-	char usr[ID_MAX];
-	memset(usr, 0, sizeof(usr));
+	uint16_t u;
 
-	if (get_map(identifiers, id, (void *)usr, sizeof(uint16_t)) == -1) {
+	if (get_map(identifiers, id, (void *)&u, sizeof(uint16_t)) == -1) {
 		perror("User not found");
 		return -1;
 	}
