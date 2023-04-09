@@ -21,11 +21,6 @@ uint16_t new_id(uint16_t *next_id, struct array *id_available)
 	return *(next_id)++;
 }
 
-int cmp_id(void *key1, void *key2)
-{
-	return strcmp((char *)key1, (char *)key2) == 0;
-}
-
 void free_id(void *id)
 {
 	free(id);
@@ -39,7 +34,7 @@ void free_name(void *name)
 int accept_registering(int sockclient, struct map *identifiers,
 		       uint16_t *next_id, struct array *id_available)
 {
-	char buff_rcv[SIZE_MSG];
+	char buff_rcv[SIZE_MSG +1];
 	memset(&buff_rcv, 0, SIZE_MSG + 1);
 
 	int recu = recv(sockclient, buff_rcv, SIZE_MSG, 0);

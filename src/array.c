@@ -210,6 +210,30 @@ int clear(struct array *a, void (*free_elem)(void *))
 	return 0;
 }
 
+struct array *sub_array(struct array *a, size_t start, size_t end, void *(copy)(void *)) {
+	size_t size = end - start;
+	if(end > a->size)
+		return NULL;
+	struct array *sub = make_array_cap(a->elem_s, size);
+	if (sub == NULL) {
+		perror("sub_array");
+		return NULL;
+	}
+
+	if (copy == NULL) {
+		memcpy(sub->buf, a->buf, size * a->elem_s);
+		sub->size = size;
+		return sub;
+	}
+	for (size_t i = start; i < end; i++) {
+		void *tmp = copy(at(a,i));
+		push_back(sub,tmp);
+		free(tmp);
+	}
+	return sub;
+}
+
+
 void free_array(struct array *a, void (*free_elem)(void *))
 {
 	clear(a, free_elem);

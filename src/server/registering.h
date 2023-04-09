@@ -14,12 +14,7 @@
  */
 uint16_t new_id(uint16_t *next_id, struct array *id_available);
 
-/**
- * @brief Compares two given ids
- * @param key1 and @param key2 The ids to compare
- * @return true if the ids are equal and false otherwise
- */
-int cmp_id(void *key1, void *key2);
+
 
 /**
  * @brief Frees @param id

@@ -1,18 +1,16 @@
 #include "lib.h"
 
+#include "constants.h"
 #include "msghead.h"
 #include "reqcode.h"
-#include "constants.h"
-
 
 #include <arpa/inet.h>
+#include <ctype.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <pthread.h>
-#include <ctype.h>
-
 
 pthread_mutex_t mlib = PTHREAD_MUTEX_INITIALIZER;
 
@@ -59,4 +57,9 @@ void print_c(char *msg)
 	pthread_mutex_unlock(&mlib);
 }
 
-
+int cmp_id(void *key1, void *key2)
+{
+	uint16_t a = *(uint16_t *)key1;
+	uint16_t b = *(uint16_t *)key2;
+	return (a < b)? 1 : ((a > b) ? -1 : 0);
+}

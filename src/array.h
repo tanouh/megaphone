@@ -146,4 +146,6 @@ int clear(struct array *a, void (*free_elem)(void *));
  */
 void free_array(struct array *a, void (*free_elem)(void *));
 
+struct array *sub_array(struct array *a, size_t start, size_t end, void *(copy)(void *));
+
 #endif

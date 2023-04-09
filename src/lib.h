@@ -29,4 +29,11 @@ void print_c(char *msg);
 
 int init_allchats();
 
+/**
+ * @brief Compares two given ids
+ * @param key1 and @param key2 The ids to compare
+ * @return true if the ids are equal and false otherwise
+ */
+int cmp_id(void *key1, void *key2);
+
 #endif

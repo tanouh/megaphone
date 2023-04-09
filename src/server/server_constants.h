@@ -7,8 +7,7 @@ extern uint16_t mult_port;
 extern char *mult_index_name;
 
 #define DEFAULT_MULT_PORT 10405
-#define NBCLIENTSMAX 2048
-
+#define NBCLIENTSMAX	  2048
 
 #define DEFAULT_INDEX_NAME "eth0"
 

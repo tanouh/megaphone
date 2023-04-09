@@ -12,11 +12,9 @@
  * Iterate through the contents of a hashmap.
  * Key and data are assigned pointers to the current hashmap entry.
  * It should be used like this :
- *\code{.c}
  * map_foreach(m, &key, &data) {
  * 	//Some code
  * }
- *\endcode
  * @param m The hashmap.
  * @param key The key buffer that will be updated at each iteration.
  * @param data The data buufer that will be updated at each iteration.
@@ -27,11 +25,9 @@
  * Iterate through the contents of a hashmap.
  * Key is an assigned pointer to the current hashmap entry.
  * It should be used like this :
- *\code{.c}
  * map_foreach_key(m, &key) {
  * 	//Some code
  * }
- *\endcode
  * @param m The hashmap.
  * @param key The key buffer that will be updated at each iteration.
  */
@@ -41,11 +37,11 @@
  * Iterate through the contents of a hashmap.
  * Data is an assigned pointer to the current hashmap entry.
  * It should be used like this :
- *\code{.c}
+ *
  * map_foreach_data(m, &data) {
  * 	//Some code
  * }
- *\endcode
+ *
  * @param m The hashmap.
  * @param data The data buufer that will be updated at each iteration.
  */
