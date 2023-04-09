@@ -51,7 +51,6 @@ struct chat *build_chat(uint16_t u)
 	c->origin_user = u;
 	c->nbMessages = 0;
 	c->messages = make_array(sizeof(struct ticket));
-	c->followers = make_array(sizeof(uint16_t));
 	return c;
 }
 

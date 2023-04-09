@@ -57,6 +57,7 @@ static int test_add_ticket_to_chat()
 	ret &= ASSERT(c->nbMessages == 2);
 	ret &= ASSERT(cmptck((struct ticket *)back(c->messages),t1) == 0);
 	ret &= ASSERT(cmptck((struct ticket *)front(c->messages),t2) == 0);
+	free(c->messages);
 	free(c);
 	free(t1);
 	free(t2);

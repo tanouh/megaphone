@@ -10,7 +10,6 @@ struct chat{
 	uint16_t origin_user;
 	size_t nbMessages;
 	struct array *messages;
-	struct array *followers;
 };
 extern int chat_counter; 
 extern struct map *all_chats; /* A changer en hashmap */
