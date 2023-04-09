@@ -47,73 +47,39 @@ static int connect_to_server()
 
 	return 0;
 }
-
-static int registering(int socket)
-{
-	char *buff_send = ask_pseudo();
-	struct msghead h = fill_msghead(INSCRIPTION, 0, 0, 0, 0);
-	char buf[SIZE_MSG];
-	int size = fill_inscription(h, buf, SIZE_MSG, buff_send,
-				    strlen(buff_send));
-	int envoye = send(socket, buf, size, 0);
-	if (envoye < 0) {
-		perror("Erreur d'envoi");
-		return 1;
-	}
-
-	char buff_rcv[SIZE_MSG + 1];
-	memset(&buff_rcv, 0, SIZE_MSG + 1);
-
-	int recu = recv(socket, buff_rcv, SIZE_MSG, 0);
-	if (recu < 0) {
-		perror("Erreur de réception");
-		return 1;
-	}
-
-	memset(&h, 0, sizeof(h));
-	get_message(buff_rcv, &h);
-	id = h.id;
-	if (reqtoi(h.req) == ERROR) {
-		print_error("Erreur d'inscription");
-	}
-	if (id == 0) {
-		print_error("Pseudo trop court");
-	} else
-		show_id(id);
-	return 0;
-}
-
 void take_action()
 {
-	switch (reqtoi(choose_action())) {
-	case 0:
-		print_error("Réponse invalide.\n");
+	switch (choose_action()) {
+	case INSCRIPTION:
+		if(registering(&id, &sock) == -1){
+			print_error("L'inscription a échoué.\n");
+		}
 		break;
-	case 1:
+	case PUSH_MESS:
 		// Poster un billet
-		if (post(id, sock) == -1)
+		if (post(&id, &sock) == -1)
 			print_error("Le billet n'a pas pu être poster.\n");
 		break;
-	case 2:
+	case PUSH_FILE:
 		// Ajouter fichier
 		if (add_file() == -1)
 			print_error("Erreur lors de l'ajout du fichier.\n");
 		break;
-	case 3:
+	case ASK_MESS:
 		// Voir anciens billets
-		if (see_old_ticket() == -1)
+		if (see_old_ticket(&id, &sock) == -1)
 			print_error("Erreur lors de l'affichage des "
 				    "précédents "
 				    "fichiers.\n");
 
 		break;
-	case 4:
+	case PULL_FILE:
 		// Télécharger fichier
 		if (download() == -1)
 			print_error("Erreur lors du téléchargement du "
 				    "fichier.\n");
 		break;
-	case 5:
+	case SUBSCRIBE:
 		// S'abonner à un fil
 		if (subscribe() == -1)
 			print_error("Erreur lors de l'abonnement au "
@@ -128,13 +94,9 @@ static int client()
 {
 	if (connect_to_server() == 1)
 		return 1;
-	if (registering(sock))
-		return 1;
-	while (1) {
-		take_action();
-	}
+	take_action(); 
+	//todo : demander id dans les autres actions que inscription
 	close(sock);
-
 	return 0;
 }
 

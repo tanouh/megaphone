@@ -10,6 +10,17 @@
 #define C_GREEN "\x1B[32m"
 #define C_CLEAR "\x1B[0m"
 
+int read_int (const char *msg){
+	char *response = readline(msg);
+	int rep;
+	int ret = sscanf(response, "%d", &rep);
+
+	if(ret == 0){
+		print_error("Votre saisi est incorrect.");
+		return -1;
+	}
+	return rep;
+}
 char *ask_pseudo()
 {
 	print_c("Bienvenue sur le serveur *Nom Provisoire*\nVeuillez saisir un "
@@ -33,22 +44,23 @@ void show_id(uint16_t id)
 
 enum reqcode choose_action()
 {
-	print_c("Que souhaitez-vous faire ?\nPour :\n - poster un billet, "
-		"tapez "
-		"1\n - ajouter un fichier, taper 2\n - voir des billets "
-		"précedents, taper 3\n - télécharger un fichier, taper 4\n - "
-		"vous abonner à un fil, taper 5\n");
-	char *answer = readline("Action : ");
-	if (atoi(answer) == 0 && strcmp(answer, "0"))
-		return -1;
-	return itoreq(atoi(answer));
+	print_c("Que souhaitez-vous faire ?\n"
+		"Pour :\n -Vous inscrire, tapez 1\n"
+		" - Poster un billet, tapez 2\n"
+		" - Afficher des billets précedents, taper 3\n"
+		" - Vous abonner à un fil, taper 4\n"
+		" - Ajouter un fichier, taper 5\n"
+		" - Télécharger un fichier, taper 6\n"
+		);
+	return itoreq(read_int("Action : "));
 }
 
 int choose_thread_to_post_in()
 {
 	print_c("Vous avez choisi de poster un billet.\nDans quel fil "
 		"souhaitez-vous le poster ?\n");
-	return atoi(readline("Numéro du fil : "));
+
+	return read_int("Numéro du fil: ");
 }
 
 char *post_ticket(int num_thread)
@@ -66,25 +78,25 @@ char *add_file_to_thread()
 int select_thread_to_unfold()
 {
 	print_c("Vous avez choisi de voir des billets précédents.\n");
-	return atoi(readline("Numéro du fil à dérouler : "));
+	return read_int("Numéro du fil à dérouler : ");
 }
 
 int see_previous_tickets(int num_thread)
 {
 	printf("Combien de tickets de %d voulez-vous afficher ?\n", num_thread);
-	return atoi(readline("Nombre de tickets à afficher : "));
+	return read_int("Nombre de tickets à afficher : ");
 }
 
 int download_file()
 {
 	print_c("Vous avez choisi de télécharger un fichier.\n");
-	return atoi(readline("Numéro du fichier I guess :"));
+	return read_int("Numéro du fichier I guess :");
 }
 
 int subscribe_to_thread()
 {
 	print_c("Vous avez choisi de vous abonner à un fil.\n");
-	return atoi(readline("Numéro du fil I guess :"));
+	return read_int("Numéro du fil I guess :");
 }
 
 void print_error(char *error)
