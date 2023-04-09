@@ -3,6 +3,7 @@
 #include "../../src/server/chat.h"
 #include "../../src/lib.h"
 #include "../../src/ticket.h"
+#include "../../src/array.h"
 #include "../testlib.h"
 #include "../printlib.h"
 #include "../test_constants.h"
@@ -24,7 +25,7 @@ static int cmptck (struct ticket *t1, struct ticket *t2)
 	if(t1->feed == NULL || t2->feed == NULL) {
 		return 0;
 	}
-	if ((t1->owner != t2->owner) || (t1->feed->id != t2->feed->id) 
+	if ((t1->owner != t2->owner) || (t1->feed->id != t2->feed->id)
 	|| (t1->isFile != t2->isFile) || (t1->datalen != t2->datalen)){
 		return 0;
 	}
@@ -39,7 +40,7 @@ static int cmptck (struct ticket *t1, struct ticket *t2)
 void *test_chat()
 {
 	int ret = 1;
-	ret &= test_c(test_add_ticket_to_chat, "test_add_ticket_to_chat", 
+	ret &= test_c(test_add_ticket_to_chat, "test_add_ticket_to_chat",
 			print_meg);
 	// ret &= test_c(test_get_chat, "test_get_chat", print_meg);
 	return malloc_return(ret);
@@ -57,7 +58,7 @@ static int test_add_ticket_to_chat()
 	ret &= ASSERT(c->nbMessages == 2);
 	ret &= ASSERT(cmptck((struct ticket *)back(c->messages),t1) == 0);
 	ret &= ASSERT(cmptck((struct ticket *)front(c->messages),t2) == 0);
-	free(c);
+	free_chat(c);
 	free(t1);
 	free(t2);
 	return ret;

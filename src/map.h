@@ -1,7 +1,5 @@
 #ifndef MEGAPHONE_MAP_H
 #define MEGAPHONE_MAP_H
-#include "array.h"
-
 #include <stddef.h>
 
 /*
@@ -90,5 +88,8 @@ size_t int_hash(void *key, size_t ksize);
 
 void map_iter_start(struct map *m);
 int map_iter_next(struct map *m, void *key, void *data);
+
+struct map *copy_map(const struct map *map, void *(copy_key)(void *),
+		     void *(copy_data)(void *));
 
 #endif

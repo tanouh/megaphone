@@ -1,7 +1,6 @@
 #ifndef MEGAPHONE_CONSTANTS_H
 #define MEGAPHONE_CONSTANTS_H
 
-#define PORT 4243
 #define LOCALHOST4 "127.0.0.1"
 #define LOCALHOST6 "::1"
 
@@ -13,7 +12,7 @@
 
 #define SIZE_MSG 256
 #define SBUF 1024
-#define NBCLIENTSMAX 2048
+
 #define NAMELEN 10
 #define ID_MAX 2048
 #define REQ_MAX 31
@@ -26,8 +25,8 @@
 #define REQ_BITS 5
 
 
-#define SERVER_PORT 4242
-#define SERVER_ADDR "fdc7:9dd5:2c66:be86:4849:43ff:fe49:79be/64"
+#define DEFAULT_SERVER_ADDR "fdc7:9dd5:2c66:be86:4849:43ff:fe49:79be/64"
+#define DEFAULT_SERVER_PORT 4242
 
 
 #endif

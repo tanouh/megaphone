@@ -79,7 +79,7 @@ static int connect_to_server()
 	struct sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons(PORT);
+	addr.sin_port = htons(DEFAULT_SERVER_PORT);
 	if (inet_pton(AF_INET, LOCALHOST4, &addr.sin_addr) != 1)
 		return -1;
 	if (connect(sock, (struct sockaddr *)&addr, sizeof(addr)) != 0)

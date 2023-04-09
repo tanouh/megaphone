@@ -33,8 +33,8 @@ static int connect_to_server()
 	struct sockaddr_in address_sock;
 	memset(&address_sock, 0, sizeof(address_sock));
 	address_sock.sin_family = AF_INET;
-	address_sock.sin_port = htons(SERVER_PORT);
-	inet_pton(AF_INET, SERVER_ADDR, &address_sock.sin_addr);
+	address_sock.sin_port = htons(DEFAULT_SERVER_PORT);
+	inet_pton(AF_INET, DEFAULT_SERVER_ADDR, &address_sock.sin_addr);
 
 	/* ****demande de connexion au serveur **** */
 	int r = connect(sock, (struct sockaddr *)&address_sock,

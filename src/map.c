@@ -38,6 +38,8 @@ static int fill_data(struct map *m, struct map_data *md, void *key, void *data,
 		     size_t ksize, size_t dsize);
 static int resize(struct map *m, float factor);
 static struct map_data *malloc_data_buf(size_t capacity);
+static void cpy_void(void *cpy, void *key, void *(copy)(void *), int size);
+
 
 struct map *make_map(int (*cmp)(void *key1, void *key2),
 		     size_t (*hash)(void *, size_t))
@@ -149,7 +151,7 @@ int remove_map(struct map *m, void *key, void (*free_data)(void *data),
 	m->ndummy++;
 	m->nkey--;
 	if ((m->nkey < MIN_RATIO * m->capacity)) {
-		float ratio = (m->ndummy > m->nkey)? 1 : 0.5;
+		float ratio = (m->ndummy > m->nkey) ? 1 : 0.5;
 		resize(m, ratio);
 	}
 	return 0;
@@ -224,6 +226,50 @@ size_t int_hash(void *key, size_t ksize)
 	}
 	return h;
 }
+
+struct map *copy_map(const struct map *map, void *(copy_key)(void *),
+		     void *(copy_data)(void *))
+{
+	struct map *cpy = malloc(sizeof(struct map));
+	if(cpy == NULL) {
+		perror("cpoy_map");
+		return NULL;
+	}
+
+	memcpy(cpy, map, sizeof(struct map));
+	cpy->data = malloc(sizeof(struct map_data) * map->capacity);
+	for (size_t i = 0; i < map->capacity; i++) {
+		switch (map->data[i].status) {
+		case DUMMY:
+			memcpy(cpy->data + i, map->data + i, sizeof(struct map_data));
+			cpy_void(cpy->data[i].key, map->data[i].key, copy_key, map->data[i].ksize);
+			break;
+		case EMPTY:
+			memcpy(cpy->data + i, map->data + i, sizeof(struct map_data));
+			break;
+		case FILLED:
+			memcpy(cpy->data + i, map->data + i, sizeof(struct map_data));
+			cpy_void(cpy->data[i].key, map->data[i].key, copy_key, map->data[i].ksize);
+			cpy_void(cpy->data[i].data, map->data[i].data, copy_data, map->data[i].dsize);
+		default:
+			break;
+		}
+	}
+	return cpy;
+}
+
+static void cpy_void(void *cpy, void *key, void *(copy)(void *), int size)
+{
+	if (copy == NULL) {
+		memcpy(cpy, key, size);
+	} else {
+		void *tmp = copy(key);
+		memcpy(cpy, tmp, size);
+		free(tmp);
+	}
+}
+
+
 
 static size_t hash1(size_t h, size_t capacity)
 {

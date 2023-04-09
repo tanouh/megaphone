@@ -2,6 +2,7 @@
 #define MEGAPHONE_REGISTERING_H
 
 #include "../map.h"
+#include "../array.h"
 
 #include <arpa/inet.h>
 

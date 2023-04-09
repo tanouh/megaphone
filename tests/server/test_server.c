@@ -4,13 +4,13 @@ It will test server functions and the communication with the client.
 */
 
 #include "../../src/lib.h"
+#include "../../src/server/server_constants.h"
 #include "../../src/server/smesslib.h"
 #include "../printlib.h"
 #include "../test_constants.h"
 #include "../testlib.h"
 #include "test_chat.h"
 #include "test_smesslib.h"
-#include "test_chat.h"
 
 #include <arpa/inet.h>
 #include <pthread.h>
@@ -88,7 +88,7 @@ static int create_server()
 	struct sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
-	addr.sin_port = ntohs(PORT);
+	addr.sin_port = ntohs(DEFAULT_SERVER_PORT);
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	int yes = 1;
 	int r = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));

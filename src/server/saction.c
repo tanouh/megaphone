@@ -9,6 +9,7 @@
 #include "registering.h"
 #include "smesslib.h"
 #include "askmsg.h"
+#include "mutex.h"
 
 #include <arpa/inet.h>
 #include <pthread.h>
@@ -17,9 +18,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-// variable globale : liste des users
-pthread_mutex_t mpushmess = PTHREAD_MUTEX_INITIALIZER;
 
 void *execute_action(void *arg, int sockclient, struct map *identifiers,
 		     uint16_t *next_id, struct array *id_available)
@@ -47,10 +45,10 @@ void *execute_action(void *arg, int sockclient, struct map *identifiers,
 		memset(buf, 0, SBUF);
 		ret = get_message(arg, &h, data, SIZE_MSG);
 
-		pthread_mutex_lock(&mpushmess);
+		pthread_mutex_lock(&mutex[M_IDS]);
 		index = push_mess(identifiers, &(h.id), h.chat, h.datalen,
 				  data);
-		pthread_mutex_unlock(&mpushmess);
+		pthread_mutex_unlock(&mutex[M_IDS]);
 
 		if (index == -1) {
 			h = fill_errhead(0);
@@ -62,7 +60,7 @@ void *execute_action(void *arg, int sockclient, struct map *identifiers,
 	case ASK_MESS: // TODO
 		memset(buf, 0, SBUF);
 		ret = get_message(arg, &h, data, SIZE_MSG);
-		
+
 		index = ask_mess(identifiers, &h, buf, SBUF);
 		break;
 	case SUBSCRIBE: // TODO

@@ -1,17 +1,18 @@
 #include "chat.h"
 
 #include "../ticket.h"
+#include "mutex.h"
+#include "../array.h"
 
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <string.h>
 
 int chat_counter = 0;
 struct map *all_chats = NULL;
-pthread_mutex_t mchat = PTHREAD_MUTEX_INITIALIZER;
-
 int cmp_ckey(uint16_t *a, uint16_t *b)
 {
 	if (a == NULL)
@@ -32,9 +33,9 @@ int init_allchats()
 
 void increase_chat_counter()
 {
-	pthread_mutex_lock(&mchat);
+	pthread_mutex_lock(&mutex[M_CHAT_COUNTER]);
 	chat_counter++;
-	pthread_mutex_unlock(&mchat);
+	pthread_mutex_unlock(&mutex[M_CHAT_COUNTER]);
 }
 
 struct chat *build_chat(uint16_t u)
@@ -51,7 +52,9 @@ struct chat *build_chat(uint16_t u)
 	c->origin_user = u;
 	c->nbMessages = 0;
 	c->messages = make_array(sizeof(struct ticket));
-	c->followers = make_array(sizeof(uint16_t));
+	c->addrmult = 0;
+	c->last_message_notified = 0;
+	c->followers = 0;
 	return c;
 }
 
@@ -84,4 +87,14 @@ struct chat *get_chat(uint16_t u, uint16_t chat_id)
 		return NULL;
 	else
 		return c;
+}
+
+void destruct_chat(struct chat *c) {
+	free_array(c->messages, NULL);
+	memset(c, 0, sizeof(*c));
+}
+
+void free_chat(struct chat *c) {
+	free_array(c->messages, NULL);
+	free(c);
 }

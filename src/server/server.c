@@ -5,6 +5,8 @@
 #include "registering.h"
 #include "saction.h"
 #include "smesslib.h"
+#include "server_constants.h"
+#include "mutex.h"
 
 #include <arpa/inet.h>
 #include <pthread.h>
@@ -23,26 +25,40 @@ int c_connected;
 pthread_t threads[NBCLIENTSMAX];
 pthread_mutex_t mserv = PTHREAD_MUTEX_INITIALIZER;
 
-void decrease_c_connected()
+
+
+static int compute_args(int argc, char **argv);
+
+static void decrease_c_connected()
 {
 	/* A la fin de la connexion on décrémente le nombre de clients
 	 * connectés*/
-	pthread_mutex_lock(&mserv);
+	pthread_mutex_lock(&mutex[M_CLIENT_COUNTER]);
 	c_connected--;
-	pthread_mutex_unlock(&mserv);
+	pthread_mutex_unlock(&mutex[M_CLIENT_COUNTER]);
 }
 
-int get_server_port(int argc, char *argv[])
+static uint16_t get_server_port(char *port)
 {
-	int ret ;
-	if (argc != 2 || (sscanf(argv[0], "%d", &ret) == 0) || (ret < 1024 || ret > 49151) ){
-		return PORT;	
-	} else{
-		return ret;
+	int ret;
+	if ((sscanf(port, "%u", &ret) < 1) || (ret < 1024 || ret > 49151)) {
+		return DEFAULT_SERVER_PORT;
+	} else {
+		return (uint16_t)ret;
 	}
 }
 
-int initialise_data()
+static uint16_t get_mult_port(char *port)
+{
+	int ret;
+	if ((sscanf(port, "%u", &ret) < 1) || (ret < 1024 || ret > 49151)) {
+		return DEFAULT_MULT_PORT;
+	} else {
+		return (uint16_t)ret;
+	}
+}
+
+static int initialise_data()
 {
 	c_connected = 0;
 	next_id = 1;
@@ -50,10 +66,11 @@ int initialise_data()
 	id_available = make_array(sizeof(uint16_t));
 	if (identifiers == NULL || init_allchats() == -1)
 		return -1;
+	init_mutex();
 	return 0;
 }
 
-int create_server(int port)
+static int create_server(int port)
 {
 	struct sockaddr_in6 address_sock;
 	memset(&address_sock, 0, sizeof(address_sock));
@@ -87,7 +104,7 @@ int create_server(int port)
 	return 0;
 }
 
-void *init(void *sockclient)
+static void *init(void *sockclient)
 {
 	print_s("Connexion établie\n");
 
@@ -114,7 +131,7 @@ void *init(void *sockclient)
 	return NULL;
 }
 
-int connect_to_client()
+static int connect_to_client()
 {
 	int *sockclient = malloc(sizeof(int));
 	if (sockclient == NULL) {
@@ -138,7 +155,7 @@ int connect_to_client()
 	return 0;
 }
 
-int serve(int port)
+static int serve(int port)
 {
 	if (create_server(port) == -1)
 		return 1;
@@ -178,8 +195,37 @@ int serve(int port)
 	return !ret;
 }
 
+static int compute_args(int argc, char **argv)
+{
+	for (int i = 1; i < argc; i++) {
+		char *arg = strtok(argv[i], "=");
+		if (!strcmp(arg, "--p") || !strcmp(arg, "--port"))
+			server_port = get_server_port(arg);
+		else if (!strcmp(arg, "--pm") || !strcmp(arg, "--port-mult"))
+			mult_port = get_mult_port(arg);
+		else if (!strcmp(arg, "--i") || !strcmp(arg, "--index"))
+			mult_index_name = argv[i];
+		else
+			return -1;
+	}
+	return 0;
+}
+
+static void fix_collisions() {
+	if(server_port == DEFAULT_MULT_PORT)
+		server_port = DEFAULT_SERVER_PORT;
+	else
+		mult_port = DEFAULT_MULT_PORT;
+}
+
 int main(int argc, char *argv[])
 {
-	int port = get_server_port(argc, argv);
-	return serve(port);
+
+	if (compute_args(argc, argv) == -1) {
+		printf("Unknown argument\n");
+		return 1;
+	}
+	if(server_port == mult_port)
+		fix_collisions();
+	return serve(server_port);
 }

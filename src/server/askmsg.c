@@ -5,6 +5,7 @@
 #include "../constants.h"
 #include "../ticket.h"
 #include "../map.h"
+#include "../array.h"
 
 
 #include <arpa/inet.h>
@@ -20,7 +21,7 @@ pthread_mutex_t maskmsg = PTHREAD_MUTEX_INITIALIZER;
 int get_last_n_messages(struct map *identifiers, struct msghead *h, struct chat *c,
 	void *buf, int sizebuf);
 
-int ask_mess (struct map *identifiers, struct msghead *h, 
+int ask_mess (struct map *identifiers, struct msghead *h,
 	void *buf, int sizebuf)
 {
 	int res = 0;
@@ -32,7 +33,7 @@ int ask_mess (struct map *identifiers, struct msghead *h,
 			perror("Couldn't get the chat");
 			return -1;
 		}
-		pthread_mutex_unlock(&maskmsg); 
+		pthread_mutex_unlock(&maskmsg);
 		if (h->nb == 0){
 			h->nb = c->nbMessages;
 		}
@@ -40,21 +41,21 @@ int ask_mess (struct map *identifiers, struct msghead *h,
 	}else{
 		uint16_t id;
 		map_foreach(all_chats, &id, &c){
-			res = get_last_n_messages(identifiers, h, c, buf, 
+			res = get_last_n_messages(identifiers, h, c, buf,
 				sizebuf);
 		}
 	}
 	return res;
 }
-	
+
 int get_last_n_messages(struct map *identifiers, struct msghead *h, struct chat *c,
 	void *buf, int sizebuf)
-{	
+{
 	int res = 0 ;
 
 	int i = c->nbMessages - h->nb;
 	if (i < 0) i = 0;
-	int ret = 0 ; 
+	int ret = 0 ;
 
 	char origin[NAMELEN];
 	char owner[NAMELEN];
@@ -73,7 +74,7 @@ int get_last_n_messages(struct map *identifiers, struct msghead *h, struct chat 
 		t = at(c->messages, i);
 		h->datalen = t->datalen;
 		originid = c->origin_user;
-		
+
 		pthread_mutex_lock(&maskall);
 		if(get_map(identifiers, &originid, origin, sizeof(originid)) != 0){
 			perror("get nickname failed");
@@ -85,10 +86,10 @@ int get_last_n_messages(struct map *identifiers, struct msghead *h, struct chat 
 		}
 		pthread_mutex_unlock(&maskall);
 
-		ret = fill_asked_message(*h, buf + res, sizebuf - res, 
+		ret = fill_asked_message(*h, buf + res, sizebuf - res,
 			origin, owner, t->data);
 		if (ret == -1){
-			break; 
+			break;
 		}
 		res += ret;
 		i++;
