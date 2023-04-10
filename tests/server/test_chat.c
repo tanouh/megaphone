@@ -13,7 +13,7 @@ static int test_add_ticket_to_chat();
 //static int test_get_chat();
 
 static void print_chat(struct chat *c){
-	printf("Chat n. : %d\nInitUser : %d\nNbMsg: %ld\n", c->id, c->origin_user, c->nbMessages);
+	printf("Chat n. : %d\nInitUser : %d\nNbMsg: %ld\n", c->id, c->origin_user, get_ntickets(c));
 }
 static void print_ticket(struct ticket *t){
 	printf("Ticket n. : %d\nNchat: %d\n", t->owner, t->feed->id);
@@ -54,12 +54,12 @@ static int test_add_ticket_to_chat()
 	struct ticket *t2 = build_ticket(USER,NULL,TEXT_SIZE,TEXT,ISNOTFILE);
 	add_tickets_to_chat(c,t2);
 	int ret = 1;
-	ret &= ASSERT(c->nbMessages == 2);
-	ret &= ASSERT(cmptck((struct ticket *)back(c->messages),t1) == 0);
-	ret &= ASSERT(cmptck((struct ticket *)front(c->messages),t2) == 0);
-	free(c->messages);
-	free(c);
+	ret &= ASSERT(get_ntickets(c) == 2);
+	ret &= ASSERT(cmptck((struct ticket *)back(c->tickets),t1) == 0);
+	ret &= ASSERT(cmptck((struct ticket *)front(c->tickets),t2) == 0);
 	free(t1);
 	free(t2);
+	free_array(c->tickets, NULL);
+	free(c);
 	return ret;
 }

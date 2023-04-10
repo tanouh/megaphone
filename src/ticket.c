@@ -16,8 +16,9 @@ struct ticket *build_ticket(uint16_t owner, struct chat *chat, uint16_t datalen,
 	}
 	t->owner = owner;
 	t->feed = chat;
-	memset(t->data,0,SBUF);
+	memset(t->data,0,SBUF+1);
 	memcpy(t->data,data,datalen);
+	memcpy(t->data+datalen, "/0", 1);
 	t->datalen = datalen;
 	t->isFile = isFile;
 	return t;

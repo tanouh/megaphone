@@ -49,19 +49,18 @@ struct chat *build_chat(uint16_t u)
 
 	c->id = chat_counter;
 	c->origin_user = u;
-	c->nbMessages = 0;
-	c->messages = make_array(sizeof(struct ticket));
+	c->tickets = make_array(sizeof(struct ticket));
 	return c;
 }
 
 int add_tickets_to_chat(struct chat *c, void *t)
 {
-	if (push_back(c->messages, t) == -1 ||
+	
+	if (push_back(c->tickets, t) == -1 ||
 	    set_chat((struct ticket *)t, c) == -1) {
 		perror("Couldn't add the ticket in the chat.");
 		return -1;
 	}
-	c->nbMessages++;
 	return 0;
 }
 struct chat *get_chat(uint16_t u, uint16_t chat_id)
@@ -83,4 +82,9 @@ struct chat *get_chat(uint16_t u, uint16_t chat_id)
 		return NULL;
 	else
 		return c;
+}
+size_t get_ntickets(struct chat *c)
+{
+	if (c == NULL) return 0;
+	else return c->tickets->size;
 }

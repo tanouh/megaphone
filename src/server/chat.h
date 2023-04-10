@@ -8,8 +8,7 @@
 struct chat{
 	uint16_t id; 
 	uint16_t origin_user;
-	size_t nbMessages;
-	struct array *messages;
+	struct array *tickets;
 };
 extern int chat_counter; 
 extern struct map *all_chats; /* A changer en hashmap */
@@ -37,9 +36,11 @@ struct chat *get_chat(uint16_t user, uint16_t chat_id);
 * @returns 0 if identical -1 otherwise
 */
 int cmp_ckey(uint16_t *key1, uint16_t *key2);
-
-
-
-
-//fonction suppress_chat()
+/**
+ * @brief Get the current nb of tickets in a chat
+ * 
+ * @param c 
+ * @return size_t 
+ */
+size_t get_ntickets(struct chat *c);
 #endif

@@ -8,7 +8,7 @@
 struct ticket {
 	uint16_t owner;
 	struct chat *feed;
-	char data[SBUF];
+	char data[SBUF+1];
 	uint16_t datalen;
 	int isFile; /*0 false 1 true*/
 };

@@ -34,7 +34,7 @@ int ask_mess (struct map *identifiers, struct msghead *h,
 		}
 		pthread_mutex_unlock(&maskmsg); 
 		if (h->nb == 0){
-			h->nb = c->nbMessages;
+			h->nb = get_ntickets(c);
 		}
 		res = get_last_n_messages(identifiers, h, c, buf, sizebuf);
 	}else{
@@ -52,7 +52,8 @@ int get_last_n_messages(struct map *identifiers, struct msghead *h, struct chat 
 {	
 	int res = 0 ;
 
-	int i = c->nbMessages - h->nb;
+	int ntickets = get_ntickets(c);
+	int i = ntickets - h->nb;
 	if (i < 0) i = 0;
 	int ret = 0 ; 
 
@@ -70,7 +71,7 @@ int get_last_n_messages(struct map *identifiers, struct msghead *h, struct chat 
 		memset(owner,0,NAMELEN);
 
 		// récupérer les données du ticket
-		t = at(c->messages, i);
+		t = at(c->tickets, i);
 		h->datalen = t->datalen;
 		originid = c->origin_user;
 		
