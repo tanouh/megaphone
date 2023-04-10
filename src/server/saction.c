@@ -48,7 +48,7 @@ void *execute_action(void *arg, int sockclient, struct map *identifiers,
 		ret = get_message(arg, &h, data, SIZE_MSG);
 
 		pthread_mutex_lock(&mpushmess);
-		index = push_mess(identifiers, &(h.id), h.chat, h.datalen,
+		index = push_mess(all_chats, identifiers, &(h.id), h.chat, h.datalen,
 				  data);
 		pthread_mutex_unlock(&mpushmess);
 
@@ -79,23 +79,24 @@ void *execute_action(void *arg, int sockclient, struct map *identifiers,
 	return buf;
 }
 
-int push_mess(struct map *identifiers, uint16_t *id, uint16_t chat,
+int push_mess(struct map *chats, struct map *identifiers, uint16_t *id, uint16_t chat,
 	      uint16_t datalen, void *data)
 {
 	struct chat *c;
 	struct ticket *t;
-	uint16_t u;
-
-	if (get_map(identifiers, id, (void *)&u, sizeof(uint16_t)) == -1) {
+	char name[NAMELEN];
+	memset(name, 0, NAMELEN);
+	
+	memset(name, 0, NAMELEN);
+	if (get_map(identifiers, id, name, sizeof(uint16_t)) == -1) {
 		perror("User not found");
 		return -1;
 	}
-
-	if ((c = get_chat(*id, chat)) == NULL) {
+	if ((c = get_chat(chats, *id, chat)) == NULL) {
 		perror("chat not found/couldn't be created"); // GERER
 		return -1;
 	}
-	if ((t = build_ticket(*id, c, datalen, (char *)data, 0)) == NULL) {
+	if ((t = build_ticket(*id, datalen, (char *)data, 0)) == NULL) {
 		perror("ticket creation failer "); // GERER
 		return -1;
 	}

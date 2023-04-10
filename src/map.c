@@ -122,8 +122,11 @@ int map_iter_next(struct map *m, void *key, void *data)
 int get_map(struct map *m, void *key, void *data, size_t ksize)
 {
 	ssize_t ind = 0;
-	if ((ind = find(m, key, 0, ksize)) < 0)
+	if ((ind = find(m, key, 0, ksize)) < 0){
+		printf("indice : %d\n", ind);
 		return -1;
+	}
+		
 	struct map_data md = m->data[(size_t)ind];
 	if (data != NULL && m->data[(size_t)ind].data != NULL)
 		memcpy(data, m->data[(size_t)ind].data, md.dsize);

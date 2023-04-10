@@ -35,7 +35,7 @@ void decrease_c_connected()
 int get_server_port(int argc, char *argv[])
 {
 	int ret ;
-	if (argc != 2 || (sscanf(argv[0], "%d", &ret) == 0) || (ret < 1024 || ret > 49151) ){
+	if (argc < 2 || (sscanf(argv[1], "%d", &ret) == 0) || (ret < 1024 || ret > 49151) ){
 		return PORT;	
 	} else{
 		return ret;

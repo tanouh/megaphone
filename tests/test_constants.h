@@ -29,4 +29,5 @@
 
 #define USER 1
 #define NONET "-NONET"
+#define CHAT	1
 #endif

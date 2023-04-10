@@ -7,11 +7,11 @@
 
 struct ticket {
 	uint16_t owner;
-	struct chat *feed;
+	uint16_t chat;
 	char data[SBUF+1];
 	uint16_t datalen;
 	int isFile; /*0 false 1 true*/
 };
-struct ticket *build_ticket(uint16_t owner, struct chat *c, uint16_t datalen, char *data, int isFile);
+struct ticket *build_ticket(uint16_t owner, uint16_t datalen, char *data, int isFile);
 int set_chat(struct ticket *t, struct chat *c);
 #endif

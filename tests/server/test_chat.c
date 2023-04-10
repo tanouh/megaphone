@@ -1,6 +1,7 @@
 #include "test_chat.h"
 
 #include "../../src/server/chat.h"
+#include "../../src/server/registering.h"
 #include "../../src/lib.h"
 #include "../../src/ticket.h"
 #include "../testlib.h"
@@ -12,19 +13,10 @@
 static int test_add_ticket_to_chat();
 //static int test_get_chat();
 
-static void print_chat(struct chat *c){
-	printf("Chat n. : %d\nInitUser : %d\nNbMsg: %ld\n", c->id, c->origin_user, get_ntickets(c));
-}
-static void print_ticket(struct ticket *t){
-	printf("Ticket n. : %d\nNchat: %d\n", t->owner, t->feed->id);
-}
 
 static int cmptck (struct ticket *t1, struct ticket *t2)
 {
-	if(t1->feed == NULL || t2->feed == NULL) {
-		return 0;
-	}
-	if ((t1->owner != t2->owner) || (t1->feed->id != t2->feed->id) 
+	if ((t1->owner != t2->owner) || (t1->chat != t2->chat) 
 	|| (t1->isFile != t2->isFile) || (t1->datalen != t2->datalen)){
 		return 0;
 	}
@@ -47,11 +39,12 @@ void *test_chat()
 
 static int test_add_ticket_to_chat()
 {
-	struct chat *c = build_chat(USER);
-	struct ticket *t1 = build_ticket(USER,NULL,TEXT_SIZE,TEXT,ISNOTFILE);
+	struct map *chats = make_map(cmp_id, default_hash);
+	struct chat *c = build_chat(chats, USER);
+	struct ticket *t1 = build_ticket(USER,TEXT_SIZE,TEXT,ISNOTFILE);
 	add_tickets_to_chat(c,t1);
 
-	struct ticket *t2 = build_ticket(USER,NULL,TEXT_SIZE,TEXT,ISNOTFILE);
+	struct ticket *t2 = build_ticket(USER,TEXT_SIZE,TEXT,ISNOTFILE);
 	add_tickets_to_chat(c,t2);
 	int ret = 1;
 	ret &= ASSERT(get_ntickets(c) == 2);
@@ -59,7 +52,12 @@ static int test_add_ticket_to_chat()
 	ret &= ASSERT(cmptck((struct ticket *)front(c->tickets),t2) == 0);
 	free(t1);
 	free(t2);
-	free_array(c->tickets, NULL);
-	free(c);
+	free_chat(c);
 	return ret;
+}
+void print_chat(struct chat *c){
+	printf("Chat n. : %d\nInitUser : %d\nNbMsg: %ld\n", c->id, c->origin_user, get_ntickets(c));
+}
+void print_ticket(struct ticket *t){
+	printf("Ticket n. : %d\nNchat: %d\n", t->owner, t->chat);
 }

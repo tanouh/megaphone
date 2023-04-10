@@ -12,19 +12,19 @@ void show_id(uint16_t id);
 
 enum reqcode choose_action();
 
-int choose_thread_to_post_in();
+int choose_chat_to_post_in();
 
-char *post_ticket(int num_thread);
+char *post_ticket(int nchat);
 
-char *add_file_to_thread();
+char *add_file_to_chat();
 
-int select_thread_to_unfold();
+int select_chat_to_unfold();
 
-int see_previous_tickets(int num_thread);
+int see_previous_tickets(int nchat);
 
 int download_file();
 
-int subscribe_to_thread();
+int subscribe_to_chat();
 
 void print_error(char *error);
 

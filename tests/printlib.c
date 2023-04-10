@@ -1,5 +1,4 @@
 #include "printlib.h"
-
 #include "test_constants.h"
 
 #include <pthread.h>
@@ -28,3 +27,4 @@ void print_meg(char *msg)
 	printf("%s: %s\n", MEGAPHONE, msg);
 	pthread_mutex_unlock(&mp);
 }
+

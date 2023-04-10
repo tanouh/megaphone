@@ -55,7 +55,7 @@ enum reqcode choose_action()
 	return itoreq(read_int("Action : "));
 }
 
-int choose_thread_to_post_in()
+int choose_chat_to_post_in()
 {
 	print_c("Vous avez choisi de poster un billet.\nDans quel fil "
 		"souhaitez-vous le poster ?\n");
@@ -63,27 +63,27 @@ int choose_thread_to_post_in()
 	return read_int("Numéro du fil: ");
 }
 
-char *post_ticket(int num_thread)
+char *post_ticket(int nchat)
 {
-	printf("Vous avez choisi le fil %d.\n", num_thread);
+	printf("Vous avez choisi le fil %d.\n", nchat);
 	return readline("Contenu du billet à poster : ");
 }
 
-char *add_file_to_thread()
+char *add_file_to_chat()
 {
 	print_c("Vous avez choisi d'ajouter un fichier.\n");
 	return readline("Lien du fichier I guess : ");
 }
 
-int select_thread_to_unfold()
+int select_chat_to_unfold()
 {
 	print_c("Vous avez choisi de voir des billets précédents.\n");
 	return read_int("Numéro du fil à dérouler : ");
 }
 
-int see_previous_tickets(int num_thread)
+int see_previous_tickets(int nchat)
 {
-	printf("Combien de tickets de %d voulez-vous afficher ?\n", num_thread);
+	printf("Combien de tickets de %d voulez-vous afficher ?\n", nchat);
 	return read_int("Nombre de tickets à afficher : ");
 }
 
@@ -93,7 +93,7 @@ int download_file()
 	return read_int("Numéro du fichier I guess :");
 }
 
-int subscribe_to_thread()
+int subscribe_to_chat()
 {
 	print_c("Vous avez choisi de vous abonner à un fil.\n");
 	return read_int("Numéro du fil I guess :");
