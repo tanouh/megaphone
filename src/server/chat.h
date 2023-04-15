@@ -31,7 +31,7 @@ int add_tickets_to_chat(struct chat *c, void *t);
 * @param chat_id used as the key in the hashmap
 * @returns the adress of the chat if found and -1 otherwise
 */
-struct chat *get_chat(struct map *all_chats, uint16_t user, uint16_t chat_id);
+struct chat *get_chat(struct map *all_chats, uint16_t user, uint16_t *chat_id);
 /**
 * @brief Compares two chat id as key of map
 * @returns 0 if identical -1 otherwise

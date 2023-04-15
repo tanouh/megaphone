@@ -40,7 +40,7 @@ struct array *make_array(size_t elem_size)
 
 void *at(struct array *a, size_t i)
 {
-	if (i >= a->size)
+	if (a == NULL || i >= a->size)
 		return NULL;
 	return ((void *)(char *)a->buf + i * a->elem_s);
 }

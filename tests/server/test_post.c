@@ -24,23 +24,23 @@ void * test_post(){
 }
 static int test_push_mess(){
 	int ret =1;
-	struct map *ids = make_map(cmp_id, int_hash);
-	struct map *chats = make_map(cmp_id, int_hash);
+	struct map *ids = make_map((int (*)(void *, void *))cmp_ckey, int_hash);
+	struct map *chats = make_map((int (*)(void *, void *))cmp_ckey, int_hash);
 
 	uint16_t user = USER;
-	int r = put_map(ids, &user, NAME, NULL, sizeof(uint16_t), 
-						strlen(NAME));
+	
+
+	ret &= (put_map(ids, &user, NAME, NULL, sizeof(uint16_t), 
+						strlen(NAME)) != -1);
 	
 	struct chat *c = build_chat(chats, user);
-	ret &= (push_mess(chats, ids, &user, c->id, TEXT_SIZE, TEXT) != -1);
-
+	ret &= (push_mess(chats, ids, &user, &(c->id), TEXT_SIZE, TEXT) != -1);
 	struct ticket *tc = back(c->tickets);
-	struct chat *tmp = get_chat(chats, user, CHAT);
-
+	uint16_t tmpid = 1;
+	struct chat *tmp = get_chat(chats, user, &tmpid);
 	ret &= (tmp != NULL);
 	struct ticket *ttmp = back(tmp->tickets);
 	ret &= (ttmp != NULL);
-
 	ret &= (strcmp(tc->data, ttmp->data) != 0);
 	free_chat(tmp);
 	free_map(chats, NULL, free_chat);

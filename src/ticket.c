@@ -18,7 +18,6 @@ struct ticket *build_ticket(uint16_t owner, uint16_t datalen, char *data, int is
 	t->chat = -1;
 	memset(t->data,0,SBUF+1);
 	memcpy(t->data,data,datalen);
-	memcpy(t->data+datalen, "/0", 1);
 	t->datalen = datalen;
 	t->isFile = isFile;
 	return t;

@@ -60,7 +60,7 @@ int get_last_n_messages(struct map *identifiers, struct msghead *h, struct chat 
 	char origin[NAMELEN];
 	char owner[NAMELEN];
 	struct ticket *t = NULL;
-	uint16_t originid = 0;
+	uint16_t *originid = NULL;
 
 	while (i < h->nb){
 		if (sizebuf - res < 0){
@@ -73,10 +73,10 @@ int get_last_n_messages(struct map *identifiers, struct msghead *h, struct chat 
 		// récupérer les données du ticket
 		t = at(c->tickets, i);
 		h->datalen = t->datalen;
-		originid = c->origin_user;
+		originid = &(c->origin_user);
 		
 		pthread_mutex_lock(&maskall);
-		if(get_map(identifiers, &originid, origin, sizeof(originid)) != 0){
+		if(get_map(identifiers, originid, origin, sizeof(originid)) != 0){
 			perror("get nickname failed");
 			continue ; // ou break?
 		}
