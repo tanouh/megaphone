@@ -88,4 +88,7 @@ int map_iter_next(struct map *m, void *key, void *data);
 struct map *copy_map(const struct map *map, void *(copy_key)(void *),
 		     void *(copy_data)(void *));
 
+//TODO: struct map *map_remove_if(struct map *m, int (*predicate)(void *));
+
+
 #endif

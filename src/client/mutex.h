@@ -3,11 +3,9 @@
 
 #include <pthread.h>
 
-#define M_NB		 4
-#define M_ALL_CHATS	 0
-#define M_CHAT_COUNTER	 1
-#define M_IDS		 2
-#define M_CLIENT_COUNTER 3
+#define M_NB	  4
+#define M_NOTFDS  0
+#define M_NOTMESS 1
 extern pthread_mutex_t mutex[];
 
 void init_mutex();

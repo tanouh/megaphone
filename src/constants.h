@@ -21,6 +21,7 @@
 #define NOTIFICATION_CONTENT 20
 #define ID_BITS		     11
 #define REQ_BITS	     5
+#define NOTIFICATION_BUFSIZ  34
 
 #define DEFAULT_SERVER_ADDR "fdc7:9dd5:2c66:be86:4849:43ff:fe49:79be/64"
 #define DEFAULT_SERVER_PORT 4242

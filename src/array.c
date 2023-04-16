@@ -233,6 +233,10 @@ struct array *sub_array(struct array *a, size_t start, size_t end, void *(copy)(
 	return sub;
 }
 
+struct array *copy_array(struct array *a, void *(copy)(void *)) {
+	return sub_array(a, 0, a->size, copy);
+}
+
 
 void free_array(struct array *a, void (*free_elem)(void *))
 {

@@ -148,4 +148,8 @@ void free_array(struct array *a, void (*free_elem)(void *));
 
 struct array *sub_array(struct array *a, size_t start, size_t end, void *(copy)(void *));
 
+struct array *copy_array(struct array *a, void *(copy)(void *));
+
+//TODO: struct array *array_remove_if(struct array *a, int (*predicate)(void *));
+
 #endif
