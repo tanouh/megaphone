@@ -14,6 +14,7 @@ struct notification {
 };
 
 extern struct array *notfds;
+extern struct array *notmess;
 
 void init_notfds();
 

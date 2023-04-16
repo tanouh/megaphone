@@ -3,6 +3,8 @@
 int reqtoi(enum reqcode req)
 {
 	switch (req) {
+	case _NOTIFICATION:
+		return 0;
 	case INSCRIPTION:
 		return 1;
 	case PUSH_MESS:
@@ -25,6 +27,8 @@ int reqtoi(enum reqcode req)
 enum reqcode itoreq(int req)
 {
 	switch (req) {
+	case 0:
+		return _NOTIFICATION;
 	case 1:
 		return INSCRIPTION;
 	case 2:

@@ -4,10 +4,12 @@
 #include "action.h"
 #include "cmesslib.h"
 #include "view.h"
+#include "notifications.h"
+#include <pthread.h>
+#include "mutex.h"
+#include "../array.h"
 
 #include <arpa/inet.h>
-#include <readline/history.h>
-#include <readline/readline.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,7 +17,7 @@
 #include <sys/types.h>
 #include <sys/unistd.h>
 
-#define ERROR 31
+static void show_notifications();
 
 uint16_t id;
 int sock;
@@ -33,7 +35,7 @@ static int connect_to_server()
 	struct sockaddr_in address_sock;
 	memset(&address_sock, 0, sizeof(address_sock));
 	address_sock.sin_family = AF_INET;
-	address_sock.sin_port = htons(DEFAULT_SERVER_PORT);
+	address_sock.sin_port = htons(DEFAULT_SERVER_PORT+1);
 	inet_pton(AF_INET, DEFAULT_SERVER_ADDR, &address_sock.sin_addr);
 
 	/* ****demande de connexion au serveur **** */
@@ -87,7 +89,7 @@ void take_action()
 {
 	switch (reqtoi(choose_action())) {
 	case 0:
-		print_error("Réponse invalide.\n");
+		show_notifications();
 		break;
 	case 1:
 		// Poster un billet
@@ -122,6 +124,19 @@ void take_action()
 	default:
 		print_error("Option invalide.\n");
 	}
+}
+
+static void show_notifications() {
+	if (count_notifications() == 0) {
+		printf("Vous n'avez pas de nouvelles notifications");
+		return;
+	}
+	pthread_mutex_lock(&mutex[M_NOTMESS]);
+	struct array *q = copy_array(notmess, NULL);
+	clear(notmess, NULL);
+	pthread_mutex_unlock(&mutex[M_NOTMESS]);
+	print_notifications(q);
+	free_array(q, NULL);
 }
 
 static int client()

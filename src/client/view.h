@@ -3,6 +3,7 @@
 
 #include <arpa/inet.h>
 #include "../reqcode.h"
+#include "../array.h"
 
 char *ask_pseudo();
 
@@ -27,5 +28,7 @@ int download_file();
 int subscribe_to_thread();
 
 void print_error(char *error);
+
+void print_notifications(struct array *q);
 
 #endif

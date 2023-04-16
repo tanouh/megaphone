@@ -8,7 +8,8 @@ enum reqcode {
 	SUBSCRIBE,
 	PUSH_FILE,
 	PULL_FILE,
-	ERROR
+	ERROR,
+	_NOTIFICATION //Internal reqcode
 };
 
 int reqtoi(enum reqcode req);

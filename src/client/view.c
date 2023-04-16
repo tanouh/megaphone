@@ -1,18 +1,25 @@
 #include "view.h"
 
 #include "../lib.h"
+#include "notifications.h"
+#include "../array.h"
+
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#define C_RED "\x1B[31m"
+#define C_RED	"\x1B[31m"
 #define C_GREEN "\x1B[32m"
 #define C_CLEAR "\x1B[0m"
+#define C_YELLOW "\x1B[33m"
+
+static void print_req(char *m, enum reqcode r);
+static void print_notification_message(struct notification *n);
 
 char *ask_pseudo()
 {
-	print_c("Bienvenue sur le serveur *Nom Provisoire*\nVeuillez saisir un "
+	printf("Bienvenue sur le serveur *Nom Provisoire*\nVeuillez saisir un "
 		"pseudo de 10 caractères\n");
 
 	return readline("Pseudo : ");
@@ -33,21 +40,27 @@ void show_id(uint16_t id)
 
 enum reqcode choose_action()
 {
-	print_c("Que souhaitez-vous faire ?\nPour :\n - poster un billet, "
-		"tapez "
-		"1\n - ajouter un fichier, taper 2\n - voir des billets "
-		"précedents, taper 3\n - télécharger un fichier, taper 4\n - "
-		"vous abonner à un fil, taper 5\n");
+	printf("Que souhaitez-vous faire ?\nPour :\n");
+	print_req("\t- poster un billet, tapez %d\n", PUSH_MESS);
+	print_req("\t- ajouter un fichier, tapez %d\n", PUSH_FILE);
+	print_req("\t- voir des billets ""précedents, tapez %d\n", ASK_MESS);
+	print_req("\t- télécharger un fichier, tapez %d\n", PULL_FILE);
+	print_req("\t- vous abonner à un fil, tapez %d\n", SUBSCRIBE);
+	size_t cn = count_notifications();
+	if (cn > -1) {
+		printf("Lire les notifications [%lu nouvelles], tapez %d\n", cn, reqtoi(_NOTIFICATION));
+	}
 	char *answer = readline("Action : ");
-	if (atoi(answer) == 0 && strcmp(answer, "0"))
+	int ans = atoi(answer);
+	if (ans == 0 && strcmp(answer, "0"))
 		return -1;
-	return itoreq(atoi(answer));
+	return itoreq(ans);
 }
 
 int choose_thread_to_post_in()
 {
-	print_c("Vous avez choisi de poster un billet.\nDans quel fil "
-		"souhaitez-vous le poster ?\n");
+	printf("Vous avez choisi de poster un billet.\nDans quel fil "
+	       "souhaitez-vous le poster ?\n");
 	return atoi(readline("Numéro du fil : "));
 }
 
@@ -91,3 +104,21 @@ void print_error(char *error)
 {
 	printf("%s%s%s\n", C_RED, error, C_CLEAR);
 }
+
+void print_notification(struct array *q) {
+	for (int i = 0; i < q->size; i++) {
+		print_notification_message(at(q, i));
+	}
+}
+
+static void print_req(char *m, enum reqcode r)
+{
+	printf(m, reqtoi(r));
+}
+
+static void print_notification_message(struct notification *n) {
+	printf("%sFil %u\n%s", C_YELLOW, n->chat, C_CLEAR);
+	printf("Auteur : %s\n", n->author);
+	printf("\n%s\n\n", n->content);
+}
+
